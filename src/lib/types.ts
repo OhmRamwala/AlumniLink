@@ -6,16 +6,19 @@ export interface User {
   lastName: string;
   email: string;
   role: 'student' | 'alumni' | 'admin';
-  avatar: string;
+  avatar?: string;
   major?: string;
   graduationYear?: number;
   company?: string;
   jobTitle?: string;
-  country: string;
+  country?: string; // Kept from directory page, might be same as location
+  location?: string; // From profile page
   about?: string;
   linkedin?: string;
   github?: string;
   cvUrl?: string;
+  enrollmentNo?: string;
+  department?: string;
 }
 
 export interface Job {
@@ -56,18 +59,18 @@ export interface AppEvent {
 
 export interface ForumReply {
   id: string;
-  author: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
+  postedBy: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
   content: string;
-  timestamp: string;
+  postedAt: Timestamp;
 }
 
 export interface ForumThread {
   id: string;
   title: string;
-  author: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
-  timestamp: string;
+  postedBy: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
+  postedAt: Timestamp;
+  lastActivity: Timestamp;
   content: string;
-  replies: ForumReply[];
   replyCount: number;
   imageUrl?: string;
   videoUrl?: string;

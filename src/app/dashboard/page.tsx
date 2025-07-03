@@ -27,13 +27,15 @@ import {
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockJobs, mockThreads } from '@/lib/mock-data';
-import type { User as UserProfile, NewsArticle, AppEvent } from '@/lib/types';
+import { mockJobs } from '@/lib/mock-data';
+import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job } from '@/lib/types';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [events, setEvents] = useState<AppEvent[]>([]);
+  const [threads, setThreads] = useState<ForumThread[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -48,30 +50,36 @@ export default function DashboardPage() {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            setUserProfile(userDoc.data() as UserProfile);
+            setUserProfile({ id: currentUser.uid, ...userDoc.data() } as UserProfile);
           }
 
-          // Fetch latest news
           const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-          const newsSnapshot = await getDocs(newsQuery);
-          setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
-
-          // Fetch latest events
           const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
-          const eventsSnapshot = await getDocs(eventsQuery);
+          const threadsQuery = query(collection(db, 'threads'), orderBy('lastActivity', 'desc'), limit(2));
+          const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(2));
+          
+          const [newsSnapshot, eventsSnapshot, threadsSnapshot, jobsSnapshot] = await Promise.all([
+            getDocs(newsQuery),
+            getDocs(eventsQuery),
+            getDocs(threadsQuery),
+            getDocs(jobsQuery)
+          ]);
+
+          setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
           setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
+          setThreads(threadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ForumThread)));
+          setJobs(jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job)));
 
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
-            // In case of permission errors, we can land here.
-            // Set data to empty arrays to prevent crash.
             setNews([]);
             setEvents([]);
+            setThreads([]);
+            setJobs([]);
         } finally {
             setIsLoading(false);
         }
       } else {
-        // No user logged in
         setIsLoading(false);
       }
     });
@@ -79,9 +87,10 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  const formatDate = (date: Timestamp | Date | string) => {
-    if (date instanceof Timestamp) return format(date.toDate(), 'MMM d, yyyy');
-    if (date instanceof Date) return format(date, 'MMM d, yyyy');
+  const formatDate = (date: Timestamp | Date | string | undefined, fmt = 'MMM d, yyyy') => {
+    if (!date) return '';
+    if (date instanceof Timestamp) return format(date.toDate(), fmt);
+    if (date instanceof Date) return format(date, fmt);
     return date;
   };
 
@@ -164,7 +173,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Conditional Cards for Alumni vs. Student */}
         {userProfile.role === 'alumni' || userProfile.role === 'admin' ? (
           <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
@@ -211,7 +219,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
-              {mockJobs.slice(0, 2).map((job) => (
+              {jobs.map((job) => (
                 <div key={job.id}>
                   <p className="font-semibold text-sm leading-snug">
                     {job.title}
@@ -232,7 +240,6 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        {/* Latest News */}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -266,7 +273,6 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        {/* Upcoming Events */}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -297,7 +303,6 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        {/* Forum Activity */}
         <Card className="flex flex-col lg:col-span-3">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -309,7 +314,7 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {mockThreads.slice(0, 2).map((thread) => (
+            {threads.map((thread) => (
               <div
                 key={thread.id}
                 className="flex justify-between items-center"
@@ -322,13 +327,13 @@ export default function DashboardPage() {
                     {thread.title}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    Started by {thread.author.firstName}{' '}
-                    {thread.author.lastName}
+                    Started by {thread.postedBy.firstName}{' '}
+                    {thread.postedBy.lastName}
                   </p>
                 </div>
                 <div className="text-right text-sm">
                   <p>{thread.replyCount} replies</p>
-                  <p className="text-muted-foreground">{thread.timestamp}</p>
+                  <p className="text-muted-foreground">{formatDate(thread.lastActivity, 'MMM d')}</p>
                 </div>
               </div>
             ))}

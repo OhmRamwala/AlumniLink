@@ -1,78 +1,134 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { onAuthStateChanged, type User as AuthUser } from 'firebase/auth';
+import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Image as ImageIcon, Video, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import type { User as UserProfile } from '@/lib/types';
+
+const threadSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters long.'),
+  content: z.string().min(10, 'Content must be at least 10 characters long.'),
+});
+
+type ThreadFormValues = z.infer<typeof threadSchema>;
 
 export default function NewThreadPage() {
     const router = useRouter();
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // In a real app, you'd handle form submission to your backend here.
-        // For now, we'll just navigate back to the forum page.
-        router.push('/dashboard/forum');
+    const form = useForm<ThreadFormValues>({
+        resolver: zodResolver(threadSchema),
+        defaultValues: { title: '', content: '' },
+    });
+
+    useEffect(() => {
+        if (!auth || !db) return;
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+                } else {
+                    router.push('/login'); // Redirect if profile doesn't exist
+                }
+            } else {
+                router.push('/login');
+            }
+        });
+        return () => unsubscribe();
+    }, [router]);
+
+    async function onSubmit(values: ThreadFormValues) {
+        if (!userProfile || !db) {
+            toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to post.' });
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(db, 'threads'), {
+                title: values.title,
+                content: values.content,
+                postedBy: {
+                    id: userProfile.id,
+                    firstName: userProfile.firstName,
+                    lastName: userProfile.lastName,
+                    avatar: userProfile.avatar || '',
+                },
+                postedAt: serverTimestamp(),
+                lastActivity: serverTimestamp(),
+                replyCount: 0,
+            });
+            toast({ title: 'Success', description: 'Your thread has been posted.' });
+            router.push('/dashboard/forum');
+        } catch (error) {
+            console.error('Error posting thread:', error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to post thread.' });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
-  return (
-    <div className="space-y-6">
-       <div>
-        <Button variant="ghost" asChild>
-            <Link href="/dashboard/forum">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Forum
-            </Link>
-        </Button>
-      </div>
+    if (!userProfile) {
+        return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    }
 
-      <form onSubmit={handleSubmit}>
-        <Card>
-            <CardHeader>
-                <CardTitle>Start a New Discussion</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input id="title" placeholder="What's on your mind?" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="content">Content</Label>
-                    <Textarea id="content" placeholder="Share more details here..." rows={10} required />
-                </div>
-                 <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-lg font-medium">Attachments (Optional)</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="image-url">Image URL</Label>
-                     <div className="relative">
-                        <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input id="image-url" placeholder="https://example.com/image.png" className="pl-10" />
-                    </div>
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="video-url">Video URL (e.g., YouTube, Vimeo)</Label>
-                     <div className="relative">
-                        <Video className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input id="video-url" placeholder="https://youtube.com/watch?v=..." className="pl-10" />
-                    </div>
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="external-link">External Link</Label>
-                     <div className="relative">
-                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input id="external-link" placeholder="https://example.com/article" className="pl-10" />
-                    </div>
-                  </div>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button type="submit">Post Thread</Button>
-            </CardFooter>
-        </Card>
-      </form>
-    </div>
-  );
+    return (
+        <div className="space-y-6">
+            <div>
+                <Button variant="ghost" asChild>
+                    <Link href="/dashboard/forum">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Forum
+                    </Link>
+                </Button>
+            </div>
+
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Start a New Discussion</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <FormField control={form.control} name="title" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl><Input placeholder="What's on your mind?" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="content" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Content</FormLabel>
+                                    <FormControl><Textarea placeholder="Share more details here..." rows={10} {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Post Thread
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </form>
+            </Form>
+        </div>
+    );
 }
