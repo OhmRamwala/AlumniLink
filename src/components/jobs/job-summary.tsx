@@ -35,8 +35,14 @@ export function JobSummary({ job }: { job: Job }) {
         jobDescription: job.fullDescription,
       });
       setSummary(result);
-    } catch (e) {
-      setError('Failed to generate summary. Please try again.');
+    } catch (e: any) {
+      if (e.message?.includes('MISSING_API_KEY')) {
+        setError(
+          'The AI service is not configured. Please set the GOOGLE_API_KEY in your .env file.'
+        );
+      } else {
+        setError('Failed to generate summary. Please try again.');
+      }
       console.error(e);
     } finally {
       setIsLoading(false);
@@ -62,7 +68,11 @@ export function JobSummary({ job }: { job: Job }) {
             {error && (
               <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>
+                  {error.includes('AI service')
+                    ? 'Configuration Error'
+                    : 'Error'}
+                </AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}

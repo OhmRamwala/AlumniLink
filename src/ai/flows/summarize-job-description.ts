@@ -26,6 +26,9 @@ export type SummarizeJobDescriptionOutput = z.infer<
 export async function summarizeJobDescription(
   input: SummarizeJobDescriptionInput
 ): Promise<SummarizeJobDescriptionOutput> {
+  if (!process.env.GOOGLE_API_KEY) {
+    throw new Error('MISSING_API_KEY');
+  }
   return summarizeJobDescriptionFlow(input);
 }
 
