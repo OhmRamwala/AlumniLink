@@ -34,9 +34,15 @@ export default function SignupPage() {
           <div className="space-y-4">
             {/* Common Fields */}
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="full-name">Full Name</Label>
-                <Input id="full-name" placeholder="Max Robinson" required />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first-name">First Name</Label>
+                  <Input id="first-name" placeholder="Max" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last-name">Last Name</Label>
+                  <Input id="last-name" placeholder="Robinson" required />
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -89,74 +95,110 @@ export default function SignupPage() {
 
             {/* Student-specific fields */}
             {role === 'student' && (
-              <div className="space-y-4 pt-4 border-t">
-                <h3 className="text-lg font-medium">Student Profile</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="cv">Upload CV</Label>
-                  <Input id="cv" type="file" />
+              <>
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="text-lg font-medium">Student Profile</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="about-student">Tell us about yourself</Label>
+                    <Textarea
+                      id="about-student"
+                      placeholder="I'm a passionate developer interested in AI..."
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="about-student">Tell us about yourself</Label>
-                  <Textarea
-                    id="about-student"
-                    placeholder="I'm a passionate developer interested in AI..."
-                  />
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="text-lg font-medium">Social Profiles</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedin-student">LinkedIn Profile</Label>
+                      <div className="relative">
+                        <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                          id="linkedin-student"
+                          placeholder="https://linkedin.com/in/..."
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="github-student">GitHub Profile</Label>
+                      <div className="relative">
+                        <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                          id="github-student"
+                          placeholder="https://github.com/..."
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+                 <div className="space-y-4 pt-4 border-t">
+                    <div className="space-y-2">
+                        <Label htmlFor="cv">Upload CV</Label>
+                        <Input id="cv" type="file" required/>
+                    </div>
+                </div>
+              </>
             )}
 
             {/* Alumni-specific fields */}
             {role === 'alumni' && (
-              <div className="space-y-4 pt-4 border-t">
-                <h3 className="text-lg font-medium">Alumni Profile</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Company</Label>
-                    <Input id="company" placeholder="Acme Inc." />
+              <>
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="text-lg font-medium">Alumni Profile</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="position">Position</Label>
+                        <Input id="position" placeholder="Software Engineer" required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="company">Company</Label>
+                        <Input id="company" placeholder="Acme Inc." required />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
-                    <Input id="position" placeholder="Software Engineer" />
+                    <Label htmlFor="about-alumni">About</Label>
+                    <Textarea
+                      id="about-alumni"
+                      placeholder="Experienced professional with a demonstrated history of working in the computer software industry."
+                      required
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="about-alumni">About</Label>
-                  <Textarea
-                    id="about-alumni"
-                    placeholder="Experienced professional with a demonstrated history of working in the computer software industry."
-                  />
+                <div className="space-y-4 pt-4 border-t">
+                    <h3 className="text-lg font-medium">Social Profiles (Optional)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                        <Label htmlFor="linkedin-alumni">LinkedIn Profile</Label>
+                        <div className="relative">
+                            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                            id="linkedin-alumni"
+                            placeholder="https://linkedin.com/in/..."
+                            className="pl-10"
+                            />
+                        </div>
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="github-alumni">GitHub Profile</Label>
+                        <div className="relative">
+                            <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                            id="github-alumni"
+                            placeholder="https://github.com/..."
+                            className="pl-10"
+                            />
+                        </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+              </>
             )}
 
-            {/* Social Links for both */}
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-medium">Social Profiles</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="linkedin">LinkedIn Profile</Label>
-                  <div className="relative">
-                    <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="linkedin"
-                      placeholder="https://linkedin.com/in/..."
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="github">GitHub Profile</Label>
-                  <div className="relative">
-                    <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="github"
-                      placeholder="https://github.com/..."
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <Button type="submit" className="w-full">
               <Link href="/dashboard">Create an account</Link>
