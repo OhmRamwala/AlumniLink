@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -146,7 +147,7 @@ function CampaignFormDialog({ campaign, onSave }: { campaign?: DonationCampaign,
                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="goalAmount" render={({ field }) => (
-                <FormItem><FormLabel>Goal Amount ($)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Goal Amount (₹)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="imageUrl" render={({ field }) => (
                 <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://placehold.co/600x400.png" {...field} /></FormControl><FormMessage /></FormItem>
@@ -210,7 +211,7 @@ export default function DonationsPage() {
       }, []);
 
     const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
     }
   
   if (isLoading) {

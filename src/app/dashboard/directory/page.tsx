@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Briefcase, GraduationCap, Search, MapPin } from 'lucide-react';
+import { Briefcase, Search, MapPin } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
@@ -115,7 +115,7 @@ export default function DirectoryPage() {
           </SelectTrigger>
           <SelectContent>
             {countries.map((country, index) => (
-              <SelectItem key={`${country}-${index}`} value={country}>
+              <SelectItem key={`${country}-${index}`} value={country || 'unspecified'}>
                 {country === 'all'
                   ? 'All Countries'
                   : country || 'Unspecified'}
@@ -130,7 +130,7 @@ export default function DirectoryPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredAlumni.map((user) => (
             <Link href={`/dashboard/directory/${user.id}`} key={user.id}>
-              <Card className="h-full text-center transition-all hover:shadow-lg cursor-pointer">
+              <Card className="h-full text-center transition-all hover:shadow-lg">
                 <CardHeader className="items-center">
                   <Avatar className="h-24 w-24 mb-2">
                     <AvatarImage
@@ -153,10 +153,6 @@ export default function DirectoryPage() {
                     <span>
                       {user.jobTitle} at {user.company}
                     </span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <GraduationCap className="h-4 w-4" />
-                    <span>Class of {user.graduationYear}</span>
                   </div>
                   <div className="flex items-center justify-center gap-2">
                     <MapPin className="h-4 w-4" />

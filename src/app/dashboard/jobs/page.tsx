@@ -277,7 +277,7 @@ export default function JobsPage() {
             Find your next opportunity from companies in our network.
           </p>
         </div>
-        {userProfile?.role === 'admin' && <JobFormDialog userProfile={userProfile} onSave={fetchJobs} />}
+        {(userProfile?.role === 'admin' || userProfile?.role === 'alumni') && <JobFormDialog userProfile={userProfile} onSave={fetchJobs} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         {jobs.map((job) => (
@@ -321,7 +321,7 @@ export default function JobsPage() {
             </CardContent>
             <CardFooter className="flex justify-between items-center">
               <JobSummary job={job} />
-              {userProfile?.role === 'admin' && (
+              {userProfile && (userProfile.role === 'admin' || (job.postedBy && userProfile.id === job.postedBy.id)) && (
                 <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
               )}
             </CardFooter>
