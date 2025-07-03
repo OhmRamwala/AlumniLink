@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -74,6 +74,7 @@ const baseSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -213,7 +214,8 @@ export default function SignupPage() {
         description: 'You have been successfully signed up.',
       });
 
-      router.push('/dashboard');
+      const redirectUrl = searchParams.get('redirect');
+      router.push(redirectUrl || '/dashboard');
     } catch (error: any) {
       console.error('Signup error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
