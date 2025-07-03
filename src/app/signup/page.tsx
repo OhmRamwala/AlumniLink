@@ -223,8 +223,9 @@ function SignupForm() {
         await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
       }
 
-      console.error('Signup error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
+      
+      // Handle known errors without logging to console
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email address is already in use.';
       } else if (error.code === 'auth/weak-password') {
@@ -233,6 +234,9 @@ function SignupForm() {
         errorMessage = 'This enrollment number is already registered.';
       } else if (error.code === 'permission-denied') {
         errorMessage = "Signup failed due to a permissions issue. Please ensure your Firestore security rules are configured correctly as per the instructions.";
+      } else {
+        // Log only unexpected errors
+        console.error('Signup error:', error);
       }
 
       toast({
