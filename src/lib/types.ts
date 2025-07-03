@@ -13,6 +13,7 @@ export interface User {
   about?: string;
   linkedin?: string;
   github?: string;
+  cvUrl?: string;
 }
 
 export interface Job {

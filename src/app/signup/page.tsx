@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Link2, Linkedin, Github, Loader2, AlertTriangle } from 'lucide-react';
+import { Link2, Linkedin, Github, Loader2, AlertTriangle, UploadCloud } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -32,8 +32,12 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_FILE_TYPES = ['application/pdf'];
 
 // Base schema for common fields
 const baseSchema = z.object({
@@ -66,6 +70,14 @@ const baseSchema = z.object({
     .regex(/[^A-Za-z0-9]/, {
       message: 'Must contain at least one special character.',
     }),
+  cv: z
+    .instanceof(FileList)
+    .refine((files) => files?.length === 1, 'CV is required.')
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+      'Only .pdf files are accepted.'
+    ),
 });
 
 // Schema for student-specific fields
@@ -123,9 +135,10 @@ export default function SignupPage() {
   });
 
   const role = form.watch('role');
+  const cvFile = form.watch('cv');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!auth || !db) {
+    if (!auth || !db || !storage) {
       return;
     }
     setIsLoading(true);
@@ -137,11 +150,20 @@ export default function SignupPage() {
       );
       const user = userCredential.user;
 
-      // Don't save password in Firestore
-      const { password, ...userData } = values;
+      let cvUrl = '';
+      if (values.cv.length > 0) {
+        const cvFile = values.cv[0];
+        const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
+        await uploadBytes(storageRef, cvFile);
+        cvUrl = await getDownloadURL(storageRef);
+      }
+
+      // Don't save password or cv file object in Firestore
+      const { password, cv, ...userData } = values;
 
       await setDoc(doc(db, 'users', user.uid), {
         ...userData,
+        cvUrl,
         createdAt: new Date(),
       });
 
@@ -308,7 +330,7 @@ export default function SignupPage() {
                   )}
                 />
               </div>
-
+              
               <FormField
                 control={form.control}
                 name="password"
@@ -322,6 +344,31 @@ export default function SignupPage() {
                       Must be 8+ characters with uppercase, lowercase, number,
                       and special character.
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="cv"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Upload CV (PDF only)</FormLabel>
+                    <FormControl>
+                      <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${cvFile?.[0]?.name ? 'border-primary text-primary' : ''}`}>
+                         <UploadCloud className="h-6 w-6" />
+                         <span>{cvFile?.[0]?.name || 'Click to upload or drag and drop'}</span>
+                      </Label>
+                    </FormControl>
+                     <Input 
+                        id="cv-upload"
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf"
+                        {...form.register('cv')}
+                        disabled={isLoading}
+                      />
                     <FormMessage />
                   </FormItem>
                 )}

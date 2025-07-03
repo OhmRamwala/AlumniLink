@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -17,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Camera } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -39,6 +38,7 @@ interface UserProfileData extends ProfileFormValues {
     email: string;
     role: 'student' | 'alumni';
     avatar?: string;
+    cvUrl?: string;
     enrollmentNo: string;
     department: string;
 }
@@ -50,7 +50,6 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -91,39 +90,6 @@ export default function ProfilePage() {
 
         return () => unsubscribe();
     }, [form, router]);
-
-    const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || !user || !storage) return;
-
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setIsUploading(true);
-        try {
-            const storageRef = ref(storage, `avatars/${user.uid}`);
-            await uploadBytes(storageRef, file);
-            const photoURL = await getDownloadURL(storageRef);
-
-            const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, { avatar: photoURL });
-
-            setProfile((prev) => prev ? { ...prev, avatar: photoURL } : null);
-
-            toast({
-                title: 'Success!',
-                description: 'Profile picture updated.',
-            });
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            toast({
-                variant: 'destructive',
-                title: 'Upload Failed',
-                description: 'There was an error uploading your picture.',
-            });
-        } finally {
-            setIsUploading(false);
-        }
-    };
     
     async function onSubmit(values: ProfileFormValues) {
         if (!user || !db) return;
@@ -179,31 +145,11 @@ export default function ProfilePage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <Card>
                     <CardHeader className="items-center text-center">
-                        <div className="relative group">
-                            <Avatar className="h-32 w-32">
-                                <AvatarImage src={profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
-                                <AvatarFallback className="text-4xl">{fallback.toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <Label 
-                                htmlFor="avatar-upload"
-                                className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                {isUploading ? (
-                                    <Loader2 className="h-8 w-8 text-white animate-spin" />
-                                ) : (
-                                    <Camera className="h-8 w-8 text-white" />
-                                )}
-                            </Label>
-                            <Input 
-                                id="avatar-upload" 
-                                type="file" 
-                                className="hidden" 
-                                accept="image/png, image/jpeg, image/jpg"
-                                onChange={handleImageUpload}
-                                disabled={isUploading}
-                            />
-                        </div>
-
+                        <Avatar className="h-32 w-32">
+                            <AvatarImage src={profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
+                            <AvatarFallback className="text-4xl">{fallback.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        
                         <CardTitle className="text-3xl mt-4">
                             {profile.firstName} {profile.lastName}
                         </CardTitle>
@@ -252,6 +198,17 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
+                         {profile.cvUrl && (
+                            <div className="space-y-4 pt-4 border-t">
+                                <h3 className="text-lg font-medium">Curriculum Vitae (CV)</h3>
+                                <Button asChild variant="outline">
+                                    <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer">
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        View CV
+                                    </a>
+                                </Button>
+                            </div>
+                        )}
                     </CardContent>
                     <CardFooter>
                         <Button type="submit" disabled={isSaving}>
