@@ -1,3 +1,4 @@
+
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
@@ -21,7 +22,10 @@ let storage: FirebaseStorage | null = null;
 const isFirebaseConfigured =
   !!firebaseConfig.apiKey &&
   !!firebaseConfig.authDomain &&
-  !!firebaseConfig.projectId;
+  !!firebaseConfig.projectId &&
+  !!firebaseConfig.storageBucket &&
+  !!firebaseConfig.messagingSenderId &&
+  !!firebaseConfig.appId;
 
 if (isFirebaseConfigured) {
   try {
