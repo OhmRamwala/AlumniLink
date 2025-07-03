@@ -86,39 +86,12 @@ function SignupForm() {
   const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
 
   const formSchema = useMemo(() => {
-    const cvSchema = z.any().superRefine((val, ctx) => {
-      if (typeof window === 'undefined') {
-        // Allow any value on the server, validation is client-side only.
-        return;
-      }
-      if (!(val instanceof FileList) || val.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "CV is required.",
-        });
-        return;
-      }
-      if (val.length > 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Only one file is allowed.",
-        });
-        return;
-      }
-      const file = val[0];
-      if (file.size > MAX_FILE_SIZE) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Max file size is 5MB.`,
-        });
-      }
-      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Only .pdf files are accepted.',
-        });
-      }
-    });
+    // This refined schema provides more specific error messages for file uploads.
+    const cvSchema = z
+      .instanceof(typeof window === 'undefined' ? z.any().constructor : FileList, { message: 'A CV file is required.'})
+      .refine(files => files?.length > 0, 'A CV file is required.')
+      .refine(files => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+      .refine(files => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type), 'Only .pdf files are accepted.');
 
     return z.discriminatedUnion('role', [
       baseSchema.extend({
@@ -178,60 +151,60 @@ function SignupForm() {
 
     try {
         // Step 1: Create user in Auth.
-        const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            values.email,
-            values.password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         user = userCredential.user;
 
-        // Step 2: Prepare and save the user document to Firestore.
-        const { password, ...userData } = values;
-        const dataToSave: { [key: string]: any } = {
-            ...userData,
-            createdAt: new Date(),
-        };
-
+        // Step 2: Upload CV if the user is a student.
+        let cvUrl = '';
         if (values.role === 'student' && 'cv' in values && values.cv?.length > 0) {
             const cvFile = values.cv[0];
             const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
-            await uploadBytes(storageRef, cvFile);
-            dataToSave.cvUrl = await getDownloadURL(storageRef);
+            
+            // Race the upload against a 20-second timeout to prevent infinite loading.
+            const uploadTask = uploadBytes(storageRef, cvFile);
+            const timeout = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('CV upload timed out. This often indicates a network or permissions issue with Firebase Storage.')), 20000)
+            );
+            
+            await Promise.race([uploadTask, timeout]);
+
+            cvUrl = await getDownloadURL(storageRef);
         }
 
-        // Remove the FileList from the object to be saved
+        // Step 3: Prepare and save the user document to Firestore.
+        const { password, ...userData } = values;
+        const dataToSave: { [key: string]: any } = { ...userData, createdAt: new Date() };
+
+        if (dataToSave.role === 'student') {
+          dataToSave.cvUrl = cvUrl;
+        }
+        // The `cv` field from the form is a FileList and cannot be saved to Firestore.
         if ('cv' in dataToSave) {
             delete dataToSave.cv;
         }
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
 
-        toast({
-            title: 'Account Created!',
-            description: 'You have been successfully signed up.',
-        });
-
-        const redirectUrl = searchParams.get('redirect');
-        router.push(redirectUrl || '/dashboard');
+        toast({ title: 'Account Created!', description: 'You have been successfully signed up.' });
+        router.push('/dashboard');
 
     } catch (error: any) {
-        // If any part of the process fails after user creation,
-        // we must delete the user from Auth to prevent orphaned accounts.
+        // If any step fails after user creation in Auth, delete the user to allow them to try again.
         if (user) {
-            await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
+            await user.delete().catch(e => console.error("Failed to clean up orphaned user from Auth:", e));
         }
 
         let errorMessage = 'An unexpected error occurred. Please try again.';
         const errorCode = error.code;
-
+        
         if (errorCode === 'auth/email-already-in-use') {
             errorMessage = 'This email address is already in use by another account.';
-        } else if (errorCode === 'auth/weak-password') {
-            errorMessage = 'The password is too weak. Please choose a stronger password.';
+        } else if (error.message.includes('CV upload timed out')) {
+            errorMessage = error.message + " Please check your Storage security rules in the Firebase console.";
         } else if (errorCode?.includes('storage')) {
-             errorMessage = "Could not upload CV. This is likely a permissions issue. Please ensure Firebase Storage rules are configured correctly.";
+            errorMessage = "CV upload failed. This is likely a permissions issue. Please ensure your Firebase Storage rules are configured correctly to allow writes.";
         } else if (errorCode?.includes('permission-denied')) {
-            errorMessage = "Could not save your profile. This is likely a database permissions issue. Please ensure Firestore security rules are configured correctly.";
+            errorMessage = "Could not save your profile. This is a database permissions issue. Please ensure your Firestore security rules are configured correctly to allow writes.";
         }
         
         toast({
@@ -242,7 +215,7 @@ function SignupForm() {
     } finally {
         setIsLoading(false);
     }
-}
+  }
 
 
   if (!isFirebaseConfigured) {
