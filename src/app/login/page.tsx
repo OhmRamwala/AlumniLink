@@ -44,16 +44,22 @@ function LoginForm() {
       });
       const redirectUrl = searchParams.get('redirect');
       router.push(redirectUrl || '/dashboard');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        errorMessage = 'Invalid email or password. Please try again.';
+      
+      // Check if it's a Firebase error with a code property
+      if (typeof error === 'object' && error !== null && 'code' in error) {
+        const firebaseError = error as { code: string };
+        if (
+          firebaseError.code === 'auth/user-not-found' ||
+          firebaseError.code === 'auth/wrong-password' ||
+          firebaseError.code === 'auth/invalid-credential'
+        ) {
+          errorMessage = 'Invalid email or password. Please check your Firebase project to ensure this user exists and that Email/Password authentication is enabled.';
+        }
       }
+
       toast({
         variant: 'destructive',
         title: 'Login Failed',
