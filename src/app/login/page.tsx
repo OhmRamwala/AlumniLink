@@ -3,13 +3,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
-} from 'firebase/auth';
+import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,61 +20,12 @@ import { auth, isFirebaseConfigured } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg role="img" viewBox="0 0 24 24" {...props}>
-    <path
-      fill="currentColor"
-      d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.3 1.62-3.92 1.62-3.27 0-5.93-2.66-5.93-5.93s2.66-5.93 5.93-5.93c1.7 0 2.94.62 3.84 1.48l2.84-2.78C18.43 2.37 15.82 1 12.48 1 7.1 1 3.08 5.08 3.08 10.42s4.02 9.42 9.4 9.42c2.7 0 4.9-1.08 6.53-2.62 1.7-1.6 2.54-4.08 2.54-6.32 0-.6-.05-1.13-.14-1.62z"
-    ></path>
-  </svg>
-);
-
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isCheckingRedirect, setIsCheckingRedirect] = useState(true);
-
-  useEffect(() => {
-    if (!auth) {
-      setIsCheckingRedirect(false);
-      return;
-    }
-    // Set a timeout to stop loading if redirect takes too long
-    const timer = setTimeout(() => {
-       setIsCheckingRedirect(false);
-    }, 5000);
-
-    getRedirectResult(auth)
-      .then((result) => {
-        clearTimeout(timer);
-        if (result) {
-          setIsGoogleLoading(true);
-          toast({
-            title: 'Login Successful',
-            description: 'Welcome!',
-          });
-          router.push('/dashboard');
-        } else {
-          setIsCheckingRedirect(false);
-        }
-      })
-      .catch((error) => {
-        clearTimeout(timer);
-        console.error('Google login error:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: 'Could not log in with Google. Please try again.',
-        });
-        setIsCheckingRedirect(false);
-        setIsGoogleLoading(false);
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,34 +61,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    if (!auth) {
-      return;
-    }
-    setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-        await signInWithRedirect(auth, provider);
-    } catch (error: any) {
-        console.error('Google login redirect initiation failed:', error);
-        if (error.code === 'auth/unauthorized-domain') {
-            toast({
-                variant: 'destructive',
-                title: 'Login Failed: Unauthorized Domain',
-                description: "This domain isn't authorized for sign-in. Please add the current URL to the Authorized Domains list in your Firebase Authentication settings.",
-                duration: 10000 
-            });
-        } else {
-             toast({
-                variant: 'destructive',
-                title: 'Login Failed',
-                description: 'Could not start the Google login process. Please try again.',
-            });
-        }
-        setIsGoogleLoading(false);
-    }
-  };
-
   if (!isFirebaseConfigured) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -174,14 +92,6 @@ export default function LoginPage() {
       </div>
     );
   }
-  
-  if (isCheckingRedirect) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Loader2 className="h-12 w-12 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -206,7 +116,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading || isGoogleLoading}
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -225,43 +135,18 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading || isGoogleLoading}
+                disabled={isLoading}
               />
             </div>
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || isGoogleLoading}
+              disabled={isLoading}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
             </Button>
           </form>
-
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-            disabled={isLoading || isGoogleLoading}
-          >
-            {isGoogleLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <GoogleIcon className="mr-2 h-4 w-4" />
-            )}
-            Google
-          </Button>
 
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{' '}
