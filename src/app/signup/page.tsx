@@ -395,30 +395,6 @@ export default function SignupPage() {
               {/* Student-specific fields */}
               {role === 'student' && (
                 <>
-                  <FormField
-                    control={form.control}
-                    name="cv"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Upload CV (PDF only, required)</FormLabel>
-                        <FormControl>
-                          <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${form.watch('cv')?.[0]?.name ? 'border-primary text-primary' : ''}`}>
-                             <UploadCloud className="h-6 w-6" />
-                             <span>{(form.watch('cv') as any)?.[0]?.name || 'Click to upload or drag and drop'}</span>
-                          </Label>
-                        </FormControl>
-                         <Input 
-                            id="cv-upload"
-                            type="file" 
-                            className="hidden" 
-                            accept=".pdf"
-                            {...form.register('cv')}
-                            disabled={isLoading}
-                          />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <div className="space-y-4 pt-4 border-t">
                     <h3 className="text-lg font-medium">Student Profile</h3>
                     <FormField
@@ -434,6 +410,30 @@ export default function SignupPage() {
                               disabled={isLoading}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="cv"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Upload CV (PDF only, required)</FormLabel>
+                          <FormControl>
+                            <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${form.watch('cv')?.[0]?.name ? 'border-primary text-primary' : ''}`}>
+                              <UploadCloud className="h-6 w-6" />
+                              <span>{(form.watch('cv') as any)?.[0]?.name || 'Click to upload or drag and drop'}</span>
+                            </Label>
+                          </FormControl>
+                          <Input 
+                              id="cv-upload"
+                              type="file" 
+                              className="hidden" 
+                              accept=".pdf"
+                              {...form.register('cv')}
+                              disabled={isLoading}
+                            />
                           <FormMessage />
                         </FormItem>
                       )}
