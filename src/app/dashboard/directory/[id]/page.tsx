@@ -60,8 +60,7 @@ function UserProfileSkeleton() {
   );
 }
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function UserProfilePage({ params: { id } }: { params: { id: string } }) {
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
