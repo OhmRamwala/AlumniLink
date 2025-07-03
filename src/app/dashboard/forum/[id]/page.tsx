@@ -16,6 +16,7 @@ import {
   serverTimestamp,
   increment,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { onAuthStateChanged, type User as AuthUser } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -141,24 +142,26 @@ export default function ForumThreadPage() {
     if (!newReplyContent.trim() || !currentUser || !db || !threadId) return;
     setIsSubmittingReply(true);
     try {
+      const batch = writeBatch(db);
       const threadRef = doc(db, 'threads', threadId);
-      const repliesRef = collection(threadRef, 'replies');
+      const newReplyRef = doc(collection(db, 'threads', threadId, 'replies'));
 
-      await addDoc(repliesRef, {
+      batch.set(newReplyRef, {
         content: newReplyContent,
         postedAt: serverTimestamp(),
         postedBy: {
           id: currentUser.id,
           firstName: currentUser.firstName,
           lastName: currentUser.lastName,
-          avatar: currentUser.avatar || '',
         },
       });
-
-      await updateDoc(threadRef, {
+      
+      batch.update(threadRef, {
         replyCount: increment(1),
         lastActivity: serverTimestamp(),
       });
+
+      await batch.commit();
 
       setNewReplyContent('');
       toast({ title: 'Success', description: 'Your reply has been posted.' });
@@ -166,7 +169,7 @@ export default function ForumThreadPage() {
       console.error('Error posting reply:', error);
       let description = 'Failed to post reply.';
       if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
-        description = 'Permission denied. Your role may not have permission to post replies.';
+        description = 'Permission denied. Please check your Firestore security rules.';
       }
       toast({ variant: 'destructive', title: 'Error', description });
     } finally {
@@ -232,8 +235,17 @@ export default function ForumThreadPage() {
             toast({ title: 'Success', description: 'Thread deleted.' });
             router.push('/dashboard/forum');
         } else {
-            await deleteDoc(doc(db, 'threads', threadId, 'replies', id));
-            await updateDoc(doc(db, 'threads', threadId), { replyCount: increment(-1) });
+            const batch = writeBatch(db);
+            const threadRef = doc(db, 'threads', threadId);
+            const replyRef = doc(db, 'threads', threadId, 'replies', id);
+
+            batch.delete(replyRef);
+            batch.update(threadRef, { 
+                replyCount: increment(-1),
+                lastActivity: serverTimestamp(),
+            });
+
+            await batch.commit();
             toast({ title: 'Success', description: 'Reply deleted.' });
         }
       } catch (error) {
