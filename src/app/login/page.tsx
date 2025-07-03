@@ -48,9 +48,16 @@ export default function LoginPage() {
       setIsCheckingRedirect(false);
       return;
     }
+    // Set a timeout to stop loading if redirect takes too long
+    const timer = setTimeout(() => {
+       setIsCheckingRedirect(false);
+    }, 5000);
+
     getRedirectResult(auth)
       .then((result) => {
+        clearTimeout(timer);
         if (result) {
+          setIsGoogleLoading(true);
           toast({
             title: 'Login Successful',
             description: 'Welcome!',
@@ -61,6 +68,7 @@ export default function LoginPage() {
         }
       })
       .catch((error) => {
+        clearTimeout(timer);
         console.error('Google login error:', error);
         toast({
           variant: 'destructive',
@@ -68,8 +76,10 @@ export default function LoginPage() {
           description: 'Could not log in with Google. Please try again.',
         });
         setIsCheckingRedirect(false);
+        setIsGoogleLoading(false);
       });
-  }, [router, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +121,26 @@ export default function LoginPage() {
     }
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+    try {
+        await signInWithRedirect(auth, provider);
+    } catch (error: any) {
+        console.error('Google login redirect initiation failed:', error);
+        if (error.code === 'auth/unauthorized-domain') {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed: Unauthorized Domain',
+                description: "This domain isn't authorized for sign-in. Please add the current URL to the Authorized Domains list in your Firebase Authentication settings.",
+                duration: 10000 
+            });
+        } else {
+             toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: 'Could not start the Google login process. Please try again.',
+            });
+        }
+        setIsGoogleLoading(false);
+    }
   };
 
   if (!isFirebaseConfigured) {
