@@ -370,7 +370,7 @@ function SignupForm() {
                   control={form.control}
                   name="country"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                       <FormLabel>Country</FormLabel>
                       <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}>
                         <PopoverTrigger asChild>
