@@ -14,18 +14,26 @@ import {
   CalendarDays,
   HeartHandshake,
   MessagesSquare,
+  Briefcase,
+  MapPin,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockNews, mockEvents, mockThreads } from '@/lib/mock-data';
+import { mockNews, mockEvents, mockThreads, mockJobs } from '@/lib/mock-data';
 
-// This is the Alumni Dashboard.
-// A full implementation would have logic to show a different dashboard for students.
+// MOCK: Simulate logged-in user role. Change to 'alumni' to see the alumni view.
+const currentUserRole = 'student';
+const currentUser = {
+  // A full implementation would get this from an auth context.
+  firstName: currentUserRole === 'alumni' ? 'Jane' : 'Emily',
+};
+
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, Jane!
+          Welcome back, {currentUser.firstName}!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s a quick look at what&apos;s happening in your network.
@@ -33,40 +41,73 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Donations */}
-        <Card className="flex flex-col lg:col-span-1">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <HeartHandshake className="h-6 w-6" />
-              <CardTitle>Support the University</CardTitle>
-            </div>
-            <CardDescription>
-              Help fund the next generation of innovators.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between items-baseline">
-                <h3 className="text-sm font-semibold">
-                  New Science Lab Initiative
-                </h3>
-                <span className="text-sm font-medium text-muted-foreground">
-                  $7,500 / $10,000
-                </span>
+        {/* Conditional Cards for Alumni vs. Student */}
+        {currentUserRole === 'alumni' ? (
+          <Card className="flex flex-col lg:col-span-1">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <HeartHandshake className="h-6 w-6" />
+                <CardTitle>Support the University</CardTitle>
               </div>
-              <Progress value={75} />
-              <p className="text-xs text-muted-foreground">
-                Your contributions help us build state-of-the-art facilities for
-                our students.
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full bg-accent hover:bg-accent/90">
-              Donate Now
-            </Button>
-          </CardFooter>
-        </Card>
+              <CardDescription>
+                Help fund the next generation of innovators.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-sm font-semibold">
+                    New Science Lab Initiative
+                  </h3>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    $7,500 / $10,000
+                  </span>
+                </div>
+                <Progress value={75} />
+                <p className="text-xs text-muted-foreground">
+                  Your contributions help us build state-of-the-art facilities
+                  for our students.
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full bg-accent hover:bg-accent/90">
+                Donate Now
+              </Button>
+            </CardFooter>
+          </Card>
+        ) : (
+          <Card className="flex flex-col lg:col-span-1">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-6 w-6" />
+                <CardTitle>Recent Job Postings</CardTitle>
+              </div>
+              <CardDescription>
+                Find your next career move from opportunities in the network.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-4">
+              {mockJobs.slice(0, 2).map((job) => (
+                <div key={job.id}>
+                  <p className="font-semibold text-sm leading-snug">
+                    {job.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {job.company}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/dashboard/jobs">
+                  View All Jobs <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
 
         {/* Latest News */}
         <Card className="flex flex-col">
@@ -80,8 +121,11 @@ export default function DashboardPage() {
             {mockNews.slice(0, 3).map((article) => (
               <div key={article.id} className="flex items-start gap-4">
                 <div className="space-y-1">
-                  <Link href={article.url} className="font-semibold text-sm leading-snug hover:underline">
-                      {article.title}
+                  <Link
+                    href={article.url}
+                    className="font-semibold text-sm leading-snug hover:underline"
+                  >
+                    {article.title}
                   </Link>
                   <p className="text-xs text-muted-foreground">
                     {article.date}
@@ -129,45 +173,51 @@ export default function DashboardPage() {
             </Button>
           </CardFooter>
         </Card>
-        
+
         {/* Forum Activity */}
         <Card className="flex flex-col lg:col-span-3">
-            <CardHeader>
-                <div className="flex items-center gap-2">
-                    <MessagesSquare className="h-6 w-6" />
-                    <CardTitle>Recent Forum Discussions</CardTitle>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <MessagesSquare className="h-6 w-6" />
+              <CardTitle>Recent Forum Discussions</CardTitle>
+            </div>
+            <CardDescription>
+              Join the conversation and share your insights.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-4">
+            {mockThreads.slice(0, 2).map((thread) => (
+              <div
+                key={thread.id}
+                className="flex justify-between items-center"
+              >
+                <div>
+                  <Link
+                    href={`/dashboard/forum/${thread.id}`}
+                    className="font-semibold text-sm hover:underline"
+                  >
+                    {thread.title}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    Started by {thread.author.firstName}{' '}
+                    {thread.author.lastName}
+                  </p>
                 </div>
-                 <CardDescription>
-                    Join the conversation and share your insights.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-4">
-                 {mockThreads.slice(0, 2).map((thread) => (
-                    <div key={thread.id} className="flex justify-between items-center">
-                        <div>
-                            <Link href={`/dashboard/forum/${thread.id}`} className="font-semibold text-sm hover:underline">
-                                {thread.title}
-                            </Link>
-                            <p className="text-xs text-muted-foreground">
-                                Started by {thread.author.firstName} {thread.author.lastName}
-                            </p>
-                        </div>
-                        <div className="text-right text-sm">
-                            <p>{thread.replyCount} replies</p>
-                            <p className="text-muted-foreground">{thread.timestamp}</p>
-                        </div>
-                    </div>
-                ))}
-            </CardContent>
-            <CardFooter>
-                <Button variant="outline" className="w-full" asChild>
-                    <Link href="/dashboard/forum">
-                        Go to Forum <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-            </CardFooter>
+                <div className="text-right text-sm">
+                  <p>{thread.replyCount} replies</p>
+                  <p className="text-muted-foreground">{thread.timestamp}</p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/forum">
+                Go to Forum <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
         </Card>
-
       </div>
     </div>
   );

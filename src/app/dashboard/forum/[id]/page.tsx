@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -28,8 +29,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export default function ForumThreadPage({ params }: { params: { id: string } }) {
-  const thread = mockThreads.find((t) => t.id === params.id);
+export default function ForumThreadPage() {
+  const params = useParams();
+  const threadId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const thread = mockThreads.find((t) => t.id === threadId);
   const currentUser = mockUsers[2]; // Mock current user (Emily Jones)
 
   const [editingPost, setEditingPost] = useState<string | null>(null);
