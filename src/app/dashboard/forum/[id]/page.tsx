@@ -59,7 +59,6 @@ function ThreadSkeleton() {
         <CardHeader>
           <Skeleton className="h-8 w-3/4 mb-2" />
           <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-4 w-48" />
           </div>
         </CardHeader>
@@ -70,9 +69,8 @@ function ThreadSkeleton() {
       </Card>
       <Skeleton className="h-6 w-32 mt-4" />
       <Card>
-        <CardHeader className="flex-row items-start gap-3 space-y-0">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <div className="flex-1 space-y-2">
+        <CardHeader>
+          <div className="space-y-2">
             <Skeleton className="h-4 w-1/4" />
             <Skeleton className="h-4 w-full" />
           </div>
@@ -286,17 +284,6 @@ export default function ForumThreadPage() {
             <div className="flex-1">
               <CardTitle>{thread.title}</CardTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={thread.postedBy.avatar || `https://placehold.co/100x100.png`}
-                    alt={thread.postedBy.firstName}
-                    data-ai-hint="person face"
-                  />
-                  <AvatarFallback>
-                    {thread.postedBy.firstName[0]}
-                    {thread.postedBy.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
                 <span>
                   {thread.postedBy.firstName} {thread.postedBy.lastName}
                 </span>
@@ -371,39 +358,35 @@ export default function ForumThreadPage() {
         <h2 className="text-xl font-semibold">Replies ({thread.replyCount})</h2>
         {replies.map((reply) => (
           <Card key={reply.id}>
-            <CardHeader className="flex-row items-start gap-3 space-y-0">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={reply.postedBy.avatar || `https://placehold.co/100x100.png`} alt={reply.postedBy.firstName} data-ai-hint="professional headshot" />
-                <AvatarFallback>{reply.postedBy.firstName[0]}{reply.postedBy.lastName[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-semibold">{reply.postedBy.firstName} {reply.postedBy.lastName}</span>
-                    <span className="text-muted-foreground">• {formatTimestamp(reply.postedAt)}</span>
-                  </div>
-                  {canEditOrDelete(reply.postedBy.id) && !editingPost && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-6 w-6"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleEditClick('reply', reply)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete('reply', reply.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-                {editingPost === `reply-${reply.id}` ? (
-                  <div className="space-y-2 mt-2">
-                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} rows={3} />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveEdit} disabled={isSavingEdit}>{isSavingEdit && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save</Button>
-                      <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            <CardHeader>
+                <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-sm">
+                            <span className="font-semibold">{reply.postedBy.firstName} {reply.postedBy.lastName}</span>
+                            <span className="text-muted-foreground">• {formatTimestamp(reply.postedAt)}</span>
+                        </div>
+                        {canEditOrDelete(reply.postedBy.id) && !editingPost && (
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-6 w-6"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => handleEditClick('reply', reply)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => handleDelete('reply', reply.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
-                  </div>
-                ) : (
-                  <p className="text-base mt-1 whitespace-pre-wrap">{reply.content}</p>
-                )}
-              </div>
+                    {editingPost === `reply-${reply.id}` ? (
+                    <div className="space-y-2 mt-2">
+                        <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} rows={3} />
+                        <div className="flex gap-2">
+                        <Button size="sm" onClick={handleSaveEdit} disabled={isSavingEdit}>{isSavingEdit && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save</Button>
+                        <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+                        </div>
+                    </div>
+                    ) : (
+                    <p className="text-base mt-2 whitespace-pre-wrap">{reply.content}</p>
+                    )}
+                </div>
             </CardHeader>
           </Card>
         ))}
@@ -412,12 +395,7 @@ export default function ForumThreadPage() {
       <Separator />
 
       {currentUser && (
-        <div className="flex items-start gap-4">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={currentUser.avatar || `https://placehold.co/100x100.png`} alt={currentUser.firstName} data-ai-hint="person face" />
-            <AvatarFallback>{currentUser.firstName[0]}{currentUser.lastName[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 space-y-2">
+        <div className="space-y-2">
             <Textarea
               placeholder="Write a reply..."
               rows={4}
@@ -429,7 +407,6 @@ export default function ForumThreadPage() {
               {isSubmittingReply ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CornerUpLeft className="mr-2 h-4 w-4" />}
               Post Reply
             </Button>
-          </div>
         </div>
       )}
     </div>
