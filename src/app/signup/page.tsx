@@ -31,8 +31,18 @@ import {
 
 // Base schema for common fields
 const baseSchema = z.object({
-  firstName: z.string().min(1, { message: 'First name is required.' }),
-  lastName: z.string().min(1, { message: 'Last name is required.' }),
+  firstName: z
+    .string()
+    .min(1, { message: 'First name is required.' })
+    .regex(/^[a-zA-Z ]*$/, {
+      message: 'First name can only contain letters and spaces.',
+    }),
+  lastName: z
+    .string()
+    .min(1, { message: 'Last name is required.' })
+    .regex(/^[a-zA-Z ]*$/, {
+      message: 'Last name can only contain letters and spaces.',
+    }),
   enrollmentNo: z.string().regex(/^[0-9]+$/, {
     message: 'Enrollment number must contain only digits.',
   }),
