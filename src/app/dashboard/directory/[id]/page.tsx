@@ -1,6 +1,9 @@
 
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -10,8 +13,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Briefcase,
   GraduationCap,
   MapPin,
   Mail,
@@ -19,33 +22,85 @@ import {
   Github,
   ArrowLeft,
 } from 'lucide-react';
-import { doc, getDoc, type DocumentSnapshot } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
 
-export default async function UserProfilePage({ params }: { params: { id: string } }) {
-  const id = params.id;
-  if (!db) {
+function UserProfileSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-10 w-48" />
+      </div>
+      <Card>
+        <CardHeader className="items-center text-center">
+          <Skeleton className="h-32 w-32 rounded-full mb-4" />
+          <Skeleton className="h-8 w-1/2" />
+          <Skeleton className="h-5 w-3/4 mt-2" />
+        </CardHeader>
+        <CardContent className="max-w-2xl mx-auto">
+          <div className="space-y-6 text-center md:text-left">
+            <div className="prose prose-sm mx-auto text-center space-y-2">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-11/12" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-6 w-3/4" />
+            </div>
+            <div className="flex justify-center gap-4 pt-4 border-t">
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-10" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function UserProfilePage() {
+  const params = useParams();
+  const id = params.id as string;
+
+  const [user, setUser] = useState<UserProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!db || !id) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchUser = async () => {
+      setIsLoading(true);
+      try {
+        const userDocRef = doc(db, 'users', id);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = { id, ...userDoc.data() } as UserProfileData;
+          setUser(userData);
+        } else {
+          notFound();
+        }
+      } catch (error) {
+        console.error('Firestore error fetching user profile:', error);
+        notFound();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, [id]);
+
+  if (isLoading) {
+    return <UserProfileSkeleton />;
+  }
+
+  if (!user) {
     notFound();
   }
-
-  let userDoc: DocumentSnapshot;
-  try {
-    const userDocRef = doc(db, 'users', id);
-    userDoc = await getDoc(userDocRef);
-  } catch (error) {
-    console.error('Firestore error fetching user profile:', error);
-    // This can happen due to permission errors or other issues.
-    // We'll treat it as "not found" to prevent crashing.
-    return notFound();
-  }
-
-  if (!userDoc.exists()) {
-    notFound();
-  }
-
-  const user = userDoc.data() as UserProfileData;
-  user.id = id; // Add the doc id to the user object
 
   return (
     <div className="space-y-6">
@@ -104,7 +159,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
                 </a>
               </div>
             </div>
-            
+
             <div className="flex justify-center gap-4 pt-4 border-t">
               {user.linkedin && (
                 <Button variant="outline" size="icon" asChild>
