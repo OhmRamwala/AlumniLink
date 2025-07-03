@@ -17,7 +17,7 @@ export interface User {
   // Alumni specific
   graduationYear?: number;
   company?: string;
-  jobTitle?: string;
+  position?: string;
   // Socials
   linkedin?: string;
   github?: string;

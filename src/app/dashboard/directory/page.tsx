@@ -151,7 +151,7 @@ export default function DirectoryPage() {
                   <div className="flex items-center justify-center gap-2">
                     <Briefcase className="h-4 w-4" />
                     <span>
-                      {user.jobTitle} at {user.company}
+                      {user.position} at {user.company}
                     </span>
                   </div>
                   <div className="flex items-center justify-center gap-2">

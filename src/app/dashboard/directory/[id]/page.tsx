@@ -23,8 +23,9 @@ import {
 import { doc, getDoc, type DocumentSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
+import { use } from 'react';
 
-export default async function UserProfilePage({ params }: { params: { id: string } }) {
+export default function UserProfilePage({ params }: { params: { id: string } }) {
   const id = params.id;
   if (!db) {
     notFound();
@@ -33,7 +34,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
   let userDoc: DocumentSnapshot;
   try {
     const userDocRef = doc(db, 'users', id);
-    userDoc = await getDoc(userDocRef);
+    userDoc = use(getDoc(userDocRef));
   } catch (error) {
     console.error('Firestore error fetching user profile:', error);
     // This can happen due to permission errors or other issues.
@@ -76,7 +77,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
           </CardTitle>
           <CardDescription className="text-base">
             {user.role === 'alumni'
-              ? `${user.jobTitle} at ${user.company}`
+              ? `${user.position} at ${user.company}`
               : `Student, ${user.major}`}
           </CardDescription>
         </CardHeader>
