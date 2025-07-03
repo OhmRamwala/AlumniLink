@@ -59,7 +59,7 @@ export interface AppEvent {
 
 export interface ForumReply {
   id: string;
-  postedBy: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
+  postedBy: Pick<User, 'id' | 'firstName' | 'lastName'>;
   content: string;
   postedAt: Timestamp;
 }
@@ -67,12 +67,21 @@ export interface ForumReply {
 export interface ForumThread {
   id: string;
   title: string;
-  postedBy: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>;
+  postedBy: Pick<User, 'id' | 'firstName' | 'lastName'>;
   postedAt: Timestamp;
   lastActivity: Timestamp;
   content: string;
   replyCount: number;
   imageUrl?: string;
   videoUrl?: string;
-  externalUrl?: string;
+}
+
+export interface DonationCampaign {
+    id: string;
+    title: string;
+    description: string;
+    goalAmount: number;
+    currentAmount: number;
+    imageUrl: string;
+    createdAt: Timestamp;
 }

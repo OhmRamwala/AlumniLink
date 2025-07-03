@@ -1,7 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
+import type { User as UserProfile } from '@/lib/types';
 import {
   Sidebar,
   SidebarHeader,
@@ -19,6 +24,7 @@ import {
   MessagesSquare,
   LogOut,
   Link2,
+  HeartHandshake,
 } from 'lucide-react';
 
 const menuItems = [
@@ -26,36 +32,68 @@ const menuItems = [
     href: '/dashboard',
     icon: LayoutDashboard,
     label: 'Dashboard',
+    roles: ['student', 'alumni', 'admin'],
   },
   {
     href: '/dashboard/news',
     icon: Newspaper,
     label: 'News',
+    roles: ['student', 'alumni', 'admin'],
   },
   {
     href: '/dashboard/events',
     icon: CalendarDays,
     label: 'Events',
+    roles: ['student', 'alumni', 'admin'],
   },
   {
     href: '/dashboard/jobs',
     icon: Briefcase,
     label: 'Jobs',
+    roles: ['student', 'alumni', 'admin'],
   },
   {
     href: '/dashboard/directory',
     icon: Users,
     label: 'Directory',
+    roles: ['student', 'alumni', 'admin'],
   },
   {
     href: '/dashboard/forum',
     icon: MessagesSquare,
     label: 'Forum',
+    roles: ['student', 'alumni', 'admin'],
+  },
+  {
+    href: '/dashboard/donations',
+    icon: HeartHandshake,
+    label: 'Donations',
+    roles: ['alumni', 'admin'],
   },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (!auth || !db) return;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          setUserProfile(userDoc.data() as UserProfile);
+        }
+      } else {
+        setUserProfile(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const visibleMenuItems = menuItems.filter(item => 
+    !item.roles || (userProfile && item.roles.includes(userProfile.role))
+  );
 
   return (
     <Sidebar>
@@ -69,7 +107,7 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
       <SidebarMenu className="flex-1">
-        {menuItems.map((item) => (
+        {visibleMenuItems.map((item) => (
           <SidebarMenuItem key={item.href}>
             <Link href={item.href}>
               <SidebarMenuButton

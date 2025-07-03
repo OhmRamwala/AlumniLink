@@ -27,8 +27,7 @@ import {
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockJobs } from '@/lib/mock-data';
-import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job } from '@/lib/types';
+import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -36,6 +35,7 @@ export default function DashboardPage() {
   const [events, setEvents] = useState<AppEvent[]>([]);
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [latestCampaign, setLatestCampaign] = useState<DonationCampaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -50,32 +50,40 @@ export default function DashboardPage() {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            setUserProfile({ id: currentUser.uid, ...userDoc.data() } as UserProfile);
+            const profile = { id: currentUser.uid, ...userDoc.data() } as UserProfile;
+            setUserProfile(profile);
+
+            // Fetch data only after we have the user profile
+            const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+            const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+            const threadsQuery = query(collection(db, 'threads'), orderBy('lastActivity', 'desc'), limit(2));
+            const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(2));
+            const donationsQuery = query(collection(db, 'donations'), orderBy('createdAt', 'desc'), limit(1));
+            
+            const [newsSnapshot, eventsSnapshot, threadsSnapshot, jobsSnapshot, donationsSnapshot] = await Promise.all([
+              getDocs(newsQuery),
+              getDocs(eventsQuery),
+              getDocs(threadsQuery),
+              getDocs(jobsQuery),
+              getDocs(donationsQuery)
+            ]);
+
+            setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
+            setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
+            setThreads(threadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ForumThread)));
+            setJobs(jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job)));
+            
+            const campaigns = donationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as DonationCampaign);
+            setLatestCampaign(campaigns.length > 0 ? campaigns[0] : null);
           }
-
-          const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-          const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
-          const threadsQuery = query(collection(db, 'threads'), orderBy('lastActivity', 'desc'), limit(2));
-          const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(2));
-          
-          const [newsSnapshot, eventsSnapshot, threadsSnapshot, jobsSnapshot] = await Promise.all([
-            getDocs(newsQuery),
-            getDocs(eventsQuery),
-            getDocs(threadsQuery),
-            getDocs(jobsQuery)
-          ]);
-
-          setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
-          setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
-          setThreads(threadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ForumThread)));
-          setJobs(jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job)));
-
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
+            // Gracefully handle permission errors by setting data to empty arrays
             setNews([]);
             setEvents([]);
             setThreads([]);
             setJobs([]);
+            setLatestCampaign(null);
         } finally {
             setIsLoading(false);
         }
@@ -93,6 +101,10 @@ export default function DashboardPage() {
     if (date instanceof Date) return format(date, fmt);
     return date;
   };
+  
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+  }
 
   if (isLoading) {
     return (
@@ -185,26 +197,33 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <h3 className="text-sm font-semibold">
-                    New Science Lab Initiative
-                  </h3>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    $7,500 / $10,000
-                  </span>
+              {latestCampaign ? (
+                <div className="space-y-2">
+                    <div className="flex justify-between items-baseline">
+                    <h3 className="text-sm font-semibold">
+                        {latestCampaign.title}
+                    </h3>
+                    <span className="text-sm font-medium text-muted-foreground">
+                        {formatCurrency(latestCampaign.currentAmount)} / {formatCurrency(latestCampaign.goalAmount)}
+                    </span>
+                    </div>
+                    <Progress value={(latestCampaign.currentAmount / latestCampaign.goalAmount) * 100} />
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                        {latestCampaign.description}
+                    </p>
                 </div>
-                <Progress value={75} />
-                <p className="text-xs text-muted-foreground">
-                  Your contributions help us build state-of-the-art facilities
-                  for our students.
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                    There are no active campaigns at the moment. Check back soon!
                 </p>
-              </div>
+              )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-accent hover:bg-accent/90">
-                Donate Now
-              </Button>
+                <Button asChild className="w-full bg-accent hover:bg-accent/90">
+                    <Link href="/dashboard/donations">
+                      View Campaigns
+                    </Link>
+                </Button>
             </CardFooter>
           </Card>
         ) : (
