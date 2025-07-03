@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -33,7 +34,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -168,7 +168,7 @@ export default function ForumThreadPage() {
     } catch (error) {
       console.error('Error posting reply:', error);
       let description = 'Failed to post reply.';
-      if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+      if (error instanceof Error && 'code' in error && (error as any).code.includes('permission-denied')) {
         description = 'Permission denied. Please check your Firestore security rules.';
       }
       toast({ variant: 'destructive', title: 'Error', description });
@@ -250,7 +250,11 @@ export default function ForumThreadPage() {
         }
       } catch (error) {
          console.error(`Error deleting ${type}:`, error);
-         toast({ variant: 'destructive', title: 'Error', description: `Failed to delete ${type}.` });
+         let description = `Failed to delete ${type}.`;
+         if (error instanceof Error && 'code' in error && (error as any).code.includes('permission-denied')) {
+            description = `Permission denied. Please ensure your Firestore security rules are correctly configured.`;
+         }
+         toast({ variant: 'destructive', title: 'Error', description });
       }
   };
   
