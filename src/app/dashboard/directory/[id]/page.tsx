@@ -18,7 +18,6 @@ import {
   Linkedin,
   Github,
   ArrowLeft,
-  FileText,
 } from 'lucide-react';
 import { doc, getDoc, type DocumentSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -107,18 +106,6 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
               </div>
             </div>
             
-            {user.role === 'student' && user.cvUrl && (
-              <div className="pt-4 border-t flex flex-col items-center sm:items-start">
-                <h3 className="font-semibold mb-2 text-lg w-full text-center md:text-left">Curriculum Vitae (CV)</h3>
-                <Button asChild variant="outline">
-                    <a href={user.cvUrl} target="_blank" rel="noopener noreferrer">
-                        <FileText className="mr-2 h-4 w-4" />
-                        View CV
-                    </a>
-                </Button>
-              </div>
-            )}
-
             <div className="flex justify-center gap-4 pt-4 border-t">
               {user.linkedin && (
                 <Button variant="outline" size="icon" asChild>

@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, FileText, ChevronsUpDown, Check } from 'lucide-react';
+import { Loader2, ChevronsUpDown, Check } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -43,7 +43,6 @@ interface UserProfileData extends ProfileFormValues {
     email: string;
     role: 'student' | 'alumni' | 'admin';
     avatar?: string;
-    cvUrl?: string;
     enrollmentNo: string;
     department: string;
 }
@@ -264,17 +263,6 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                         {profile.cvUrl && (
-                            <div className="space-y-4 pt-4 border-t">
-                                <h3 className="text-lg font-medium">Curriculum Vitae (CV)</h3>
-                                <Button asChild variant="outline">
-                                    <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer">
-                                        <FileText className="mr-2 h-4 w-4" />
-                                        View CV
-                                    </a>
-                                </Button>
-                            </div>
-                        )}
                     </CardContent>
                     <CardFooter>
                         <Button type="submit" disabled={isSaving}>

@@ -13,7 +13,6 @@ export interface User {
   avatar?: string;
   // Student specific
   major?: string;
-  cvUrl?: string;
   // Alumni specific
   graduationYear?: number;
   company?: string;

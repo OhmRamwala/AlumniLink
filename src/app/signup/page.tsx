@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Link2, Linkedin, Github, Loader2, AlertTriangle, UploadCloud, ChevronsUpDown, Check } from 'lucide-react';
+import { Link2, Linkedin, Github, Loader2, AlertTriangle, ChevronsUpDown, Check } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -32,7 +32,6 @@ import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword, type User } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
@@ -41,9 +40,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { countries } from '@/lib/countries';
 import { cn } from '@/lib/utils';
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_FILE_TYPES = ['application/pdf'];
 
 // Base schema for common fields
 const baseSchema = z.object({
@@ -86,18 +82,10 @@ function SignupForm() {
   const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
 
   const formSchema = useMemo(() => {
-    // This refined schema provides more specific error messages for file uploads.
-    const cvSchema = z
-      .instanceof(typeof window === 'undefined' ? z.any().constructor : FileList, { message: 'A CV file is required.'})
-      .refine(files => files?.length > 0, 'A CV file is required.')
-      .refine(files => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
-      .refine(files => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type), 'Only .pdf files are accepted.');
-
     return z.discriminatedUnion('role', [
       baseSchema.extend({
         role: z.literal('student'),
         about: z.string().min(1, { message: 'This field is required.' }),
-        cv: cvSchema,
         linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
         github: z.string().url({ message: 'Please enter a valid URL.' }),
       }),
@@ -142,7 +130,7 @@ function SignupForm() {
   const role = form.watch('role');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!auth || !db || !storage) {
+    if (!auth || !db) {
         toast({ variant: 'destructive', title: 'Configuration Error', description: 'Firebase is not configured.' });
         return;
     }
@@ -154,34 +142,9 @@ function SignupForm() {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         user = userCredential.user;
 
-        // Step 2: Upload CV if the user is a student.
-        let cvUrl = '';
-        if (values.role === 'student' && 'cv' in values && values.cv?.length > 0) {
-            const cvFile = values.cv[0];
-            const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
-            
-            // Race the upload against a 20-second timeout to prevent infinite loading.
-            const uploadTask = uploadBytes(storageRef, cvFile);
-            const timeout = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('CV upload timed out. This often indicates a network or permissions issue with Firebase Storage.')), 20000)
-            );
-            
-            await Promise.race([uploadTask, timeout]);
-
-            cvUrl = await getDownloadURL(storageRef);
-        }
-
-        // Step 3: Prepare and save the user document to Firestore.
+        // Step 2: Prepare and save the user document to Firestore.
         const { password, ...userData } = values;
         const dataToSave: { [key: string]: any } = { ...userData, createdAt: new Date() };
-
-        if (dataToSave.role === 'student') {
-          dataToSave.cvUrl = cvUrl;
-        }
-        // The `cv` field from the form is a FileList and cannot be saved to Firestore.
-        if ('cv' in dataToSave) {
-            delete dataToSave.cv;
-        }
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
 
@@ -199,10 +162,6 @@ function SignupForm() {
         
         if (errorCode === 'auth/email-already-in-use') {
             errorMessage = 'This email address is already in use by another account.';
-        } else if (error.message.includes('CV upload timed out')) {
-            errorMessage = error.message + " Please check your Storage security rules in the Firebase console.";
-        } else if (errorCode?.includes('storage')) {
-            errorMessage = "CV upload failed. This is likely a permissions issue. Please ensure your Firebase Storage rules are configured correctly to allow writes.";
         } else if (errorCode?.includes('permission-denied')) {
             errorMessage = "Could not save your profile. This is a database permissions issue. Please ensure your Firestore security rules are configured correctly to allow writes.";
         }
@@ -497,30 +456,6 @@ function SignupForm() {
                               disabled={isLoading}
                             />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="cv"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Upload CV (PDF only, required)</FormLabel>
-                          <FormControl>
-                            <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${form.watch('cv')?.[0]?.name ? 'border-primary text-primary' : ''}`}>
-                              <UploadCloud className="h-6 w-6" />
-                              <span>{(form.watch('cv') as any)?.[0]?.name || 'Click to upload or drag and drop'}</span>
-                            </Label>
-                          </FormControl>
-                          <Input 
-                              id="cv-upload"
-                              type="file" 
-                              className="hidden" 
-                              accept=".pdf"
-                              {...form.register('cv')}
-                              disabled={isLoading}
-                            />
                           <FormMessage />
                         </FormItem>
                       )}
