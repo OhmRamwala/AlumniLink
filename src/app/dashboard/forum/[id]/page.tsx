@@ -166,7 +166,7 @@ export default function ForumThreadPage() {
       console.error('Error posting reply:', error);
       let description = 'Failed to post reply.';
       if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
-        description = 'Permission denied. Only alumni and admins can post replies.';
+        description = 'Permission denied. Your role may not have permission to post replies.';
       }
       toast({ variant: 'destructive', title: 'Error', description });
     } finally {
