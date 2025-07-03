@@ -1,9 +1,11 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface User {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: 'student' | 'alumni';
+  role: 'student' | 'alumni' | 'admin';
   avatar: string;
   major?: string;
   graduationYear?: number;
@@ -32,9 +34,9 @@ export interface NewsArticle {
   id: string;
   title: string;
   source: string;
-  date: string;
+  date: Timestamp | Date | string;
   summary: string;
-  url: string;
+  url?: string;
   imageUrl: string;
   content: string;
 }
@@ -42,7 +44,7 @@ export interface NewsArticle {
 export interface AppEvent {
   id: string;
   title: string;
-  date: string;
+  date: Timestamp | Date | string;
   time: string;
   location: string;
   description: string;

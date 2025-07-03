@@ -9,14 +9,34 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockNews } from '@/lib/mock-data';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { NewsArticle } from '@/lib/types';
+import { format } from 'date-fns';
 
-export default function NewsArticlePage({ params }: { params: { id: string } }) {
-  const article = mockNews.find((a) => a.id === params.id);
-
-  if (!article) {
+export default async function NewsArticlePage({ params }: { params: { id: string } }) {
+  if (!db) {
     notFound();
+  }
+
+  const articleDocRef = doc(db, 'news', params.id);
+  const articleDoc = await getDoc(articleDocRef);
+  
+  if (!articleDoc.exists()) {
+    notFound();
+  }
+
+  const article = articleDoc.data() as NewsArticle;
+
+  const formatDate = (date: Timestamp | Date | string) => {
+    if (date instanceof Timestamp) {
+      return format(date.toDate(), 'MMMM d, yyyy');
+    }
+    if (date instanceof Date) {
+        return format(date, 'MMMM d, yyyy')
+    }
+    return date;
   }
 
   return (
@@ -33,7 +53,7 @@ export default function NewsArticlePage({ params }: { params: { id: string } }) 
       <article>
         <div className="relative h-64 md:h-96 w-full mb-6 rounded-lg overflow-hidden">
            <Image
-            src={article.imageUrl}
+            src={article.imageUrl || 'https://placehold.co/600x400.png'}
             alt={article.title}
             fill
             className="object-cover"
@@ -50,12 +70,12 @@ export default function NewsArticlePage({ params }: { params: { id: string } }) 
             </div>
             <div className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
-              <span>{article.date}</span>
+              <span>{formatDate(article.date)}</span>
             </div>
           </div>
         </header>
 
-        <div className="prose max-w-none dark:prose-invert">
+        <div className="prose max-w-none dark:prose-invert whitespace-pre-wrap">
           <p>{article.content}</p>
         </div>
       </article>

@@ -1,6 +1,26 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  Timestamp,
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+
+import type { AppEvent, User as UserProfile } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -17,11 +37,129 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { mockEvents } from '@/lib/mock-data';
-import { Calendar, Clock, MapPin } from 'lucide-react';
-import type { AppEvent } from '@/lib/types';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar, Clock, MapPin, PlusCircle, Loader2 } from 'lucide-react';
+
+const eventSchema = z.object({
+  title: z.string().min(1, 'Title is required.'),
+  time: z.string().min(1, 'Time is required.'),
+  location: z.string().min(1, 'Location is required.'),
+  summary: z.string().min(1, 'Summary is required.'),
+  description: z.string().min(1, 'Description is required.'),
+  url: z.string().url('Must be a valid URL.'),
+  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+});
+type EventFormValues = z.infer<typeof eventSchema>;
+
+function CreateEventDialog({ onPost }: { onPost: () => void }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eventDate, setEventDate] = useState<Date | undefined>();
+
+  const form = useForm<EventFormValues>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: { title: '', time: '', location: '', summary: '', description: '', url: '', imageUrl: '' },
+  });
+
+  async function onSubmit(values: EventFormValues) {
+    if (!db || !eventDate) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please select a date.' });
+        return;
+    }
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'events'), {
+        ...values,
+        date: Timestamp.fromDate(eventDate),
+      });
+      toast({ title: 'Success', description: 'Event created.' });
+      setOpen(false);
+      form.reset();
+      onPost();
+    } catch (error) {
+      console.error('Error creating event:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to create event.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create Event
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Create a New Event</DialogTitle>
+          <DialogDescription>
+            Share a new event with the community.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2"
+          >
+            <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            {/* Simple text inputs for date and time for now */}
+            <FormField control={form.control} name="time" render={({ field }) => (
+                <FormItem><FormLabel>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM - 8:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="location" render={({ field }) => (
+                <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g. Grand Ballroom or Online" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="summary" render={({ field }) => (
+                <FormItem><FormLabel>Summary</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="description" render={({ field }) => (
+                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="url" render={({ field }) => (
+                <FormItem><FormLabel>RSVP/Event URL</FormLabel><FormControl><Input type="url" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://placehold.co/600x400.png" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <DialogFooter>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Event
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function EventDetailsDialog({ event }: { event: AppEvent }) {
+  const formatDate = (date: Timestamp | Date | string) => {
+    if (date instanceof Timestamp) return format(date.toDate(), 'MMMM d, yyyy');
+    if (date instanceof Date) return format(date, 'MMMM d, yyyy');
+    return date;
+  };
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -37,7 +175,7 @@ function EventDetailsDialog({ event }: { event: AppEvent }) {
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span>{event.date}</span>
+            <span>{formatDate(event.date)}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="h-4 w-4" />
@@ -47,7 +185,7 @@ function EventDetailsDialog({ event }: { event: AppEvent }) {
             <MapPin className="h-4 w-4" />
             <span>{event.location}</span>
           </div>
-          <p className="text-sm">{event.description}</p>
+          <p className="text-sm whitespace-pre-wrap">{event.description}</p>
         </div>
         <DialogFooter>
           <Button asChild className="w-full">
@@ -62,20 +200,94 @@ function EventDetailsDialog({ event }: { event: AppEvent }) {
 }
 
 export default function EventsPage() {
+    const [events, setEvents] = useState<AppEvent[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+    const fetchEvents = () => {
+        if (!db) return;
+        const q = query(collection(db, 'events'), orderBy('date', 'desc'));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const eventsData: AppEvent[] = [];
+            querySnapshot.forEach((doc) => {
+              eventsData.push({ id: doc.id, ...doc.data() } as AppEvent);
+            });
+            setEvents(eventsData);
+            setIsLoading(false);
+          },
+          (error) => {
+            console.error('Error fetching events:', error);
+            setIsLoading(false);
+          }
+        );
+        return unsubscribe;
+    };
+
+    useEffect(() => {
+        if (!auth || !db) {
+            setIsLoading(false);
+            return;
+        }
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    setUserProfile(userDoc.data() as UserProfile);
+                }
+            }
+            const unsubscribeFirestore = fetchEvents();
+            return () => {
+              if (unsubscribeFirestore) unsubscribeFirestore();
+            };
+        });
+    
+        return () => unsubscribeAuth();
+      }, []);
+
+  const formatDate = (date: Timestamp | Date | string) => {
+    if (date instanceof Timestamp) return format(date.toDate(), 'MMMM d, yyyy');
+    if (date instanceof Date) return format(date, 'MMMM d, yyyy');
+    return date;
+  };
+  
+  if (isLoading) {
+    return (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+              <Skeleton className="h-10 w-1/3" />
+              <Skeleton className="h-10 w-32" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i}>
+                <Skeleton className="h-48 w-full" />
+                <CardHeader><Skeleton className="h-6 w-full" /><Skeleton className="h-4 w-1/2" /></CardHeader>
+                <CardContent><Skeleton className="h-12 w-full" /></CardContent>
+                <CardFooter><Skeleton className="h-10 w-full" /></CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Upcoming Events</h1>
-        <p className="text-muted-foreground">
-          Join us for our upcoming events and connect with the community.
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Upcoming Events</h1>
+            <p className="text-muted-foreground">
+            Join us for our upcoming events and connect with the community.
+            </p>
+        </div>
+        {userProfile?.role === 'admin' && <CreateEventDialog onPost={fetchEvents} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockEvents.map((event) => (
+        {events.map((event) => (
           <Card key={event.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full">
               <Image
-                src={event.imageUrl}
+                src={event.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={event.title}
                 fill
                 className="object-cover"
@@ -87,7 +299,7 @@ export default function EventsPage() {
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground pt-2">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
-                  <span>{event.date}</span>
+                  <span>{formatDate(event.date)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" />

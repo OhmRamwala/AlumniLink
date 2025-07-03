@@ -36,7 +36,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface UserProfileData extends ProfileFormValues {
     email: string;
-    role: 'student' | 'alumni';
+    role: 'student' | 'alumni' | 'admin';
     avatar?: string;
     cvUrl?: string;
     enrollmentNo: string;
@@ -156,6 +156,8 @@ export default function ProfilePage() {
                         <CardDescription>
                             {profile.role === 'alumni'
                                 ? `${profile.company ? `${profile.position} at ${profile.company}` : 'Alumni'}`
+                                : profile.role === 'admin' 
+                                ? 'Administrator'
                                 : `Student, ${profile.department}`}
                         </CardDescription>
                          <CardDescription>{profile.email}</CardDescription>

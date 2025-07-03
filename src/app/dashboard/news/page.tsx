@@ -1,5 +1,27 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  Timestamp,
+} from 'firebase/firestore';
+import { onAuthStateChanged, type User as AuthUser } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+
+import type { NewsArticle, User as UserProfile } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -9,24 +31,214 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockNews } from '@/lib/mock-data';
-import { ArrowRight } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowRight, PlusCircle, Loader2 } from 'lucide-react';
+
+const newsSchema = z.object({
+  title: z.string().min(1, 'Title is required.'),
+  source: z.string().min(1, 'Source is required.'),
+  summary: z.string().min(1, 'Summary is required.'),
+  content: z.string().min(1, 'Content is required.'),
+  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+});
+type NewsFormValues = z.infer<typeof newsSchema>;
+
+function PostNewsDialog({ onPost }: { onPost: () => void }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<NewsFormValues>({
+    resolver: zodResolver(newsSchema),
+    defaultValues: { title: '', source: '', summary: '', content: '', imageUrl: '' },
+  });
+
+  async function onSubmit(values: NewsFormValues) {
+    if (!db) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'news'), {
+        ...values,
+        date: serverTimestamp(),
+      });
+      toast({ title: 'Success', description: 'News article posted.' });
+      setOpen(false);
+      form.reset();
+      onPost();
+    } catch (error) {
+      console.error('Error posting news:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to post news article.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Post News
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Post a New News Article</DialogTitle>
+          <DialogDescription>
+            Share an update with the community.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2"
+          >
+            <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="source" render={({ field }) => (
+                <FormItem><FormLabel>Source</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="summary" render={({ field }) => (
+                <FormItem><FormLabel>Summary</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem><FormLabel>Full Content</FormLabel><FormControl><Textarea rows={8} {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://placehold.co/600x400.png" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <DialogFooter>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Post Article
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 export default function NewsPage() {
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const fetchNews = () => {
+    if (!db) return;
+    const q = query(collection(db, 'news'), orderBy('date', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const newsData: NewsArticle[] = [];
+        querySnapshot.forEach((doc) => {
+          newsData.push({ id: doc.id, ...doc.data() } as NewsArticle);
+        });
+        setArticles(newsData);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error('Error fetching news:', error);
+        setIsLoading(false);
+      }
+    );
+    return unsubscribe;
+  };
+  
+  useEffect(() => {
+    if (!auth || !db) {
+        setIsLoading(false);
+        return;
+    }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                setUserProfile(userDoc.data() as UserProfile);
+            }
+        }
+        const unsubscribeFirestore = fetchNews();
+        return () => {
+          if (unsubscribeFirestore) unsubscribeFirestore();
+        };
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  const formatDate = (date: Timestamp | Date | string) => {
+    if (date instanceof Timestamp) {
+      return format(date.toDate(), 'yyyy-MM-dd');
+    }
+    if (date instanceof Date) {
+        return format(date, 'yyyy-MM-dd')
+    }
+    return date;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+            <Skeleton className="h-10 w-1/3" />
+            <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <Skeleton className="h-48 w-full" />
+              <CardHeader><Skeleton className="h-6 w-full" /><Skeleton className="h-4 w-1/2" /></CardHeader>
+              <CardContent><Skeleton className="h-12 w-full" /></CardContent>
+              <CardFooter><Skeleton className="h-10 w-full" /></CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">News Feed</h1>
-        <p className="text-muted-foreground">
-          The latest news and stories from the alumni community.
-        </p>
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">News Feed</h1>
+          <p className="text-muted-foreground">
+            The latest news and stories from the alumni community.
+          </p>
+        </div>
+        {userProfile?.role === 'admin' && <PostNewsDialog onPost={fetchNews} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockNews.map((article) => (
+        {articles.map((article) => (
           <Card key={article.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full">
               <Image
-                src={article.imageUrl}
+                src={article.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={article.title}
                 fill
                 className="object-cover"
@@ -36,7 +248,7 @@ export default function NewsPage() {
             <CardHeader>
               <CardTitle>{article.title}</CardTitle>
               <CardDescription>
-                {article.source} - {article.date}
+                {article.source} - {formatDate(article.date)}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
@@ -44,7 +256,7 @@ export default function NewsPage() {
             </CardContent>
             <CardFooter>
               <Button asChild variant="secondary" className="w-full">
-                <Link href={article.url}>
+                <Link href={`/dashboard/news/${article.id}`}>
                   Read More <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

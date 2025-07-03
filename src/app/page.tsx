@@ -11,10 +11,45 @@ import {
 import { Button } from '@/components/ui/button';
 import { PublicHeader } from '@/components/layout/public-header';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
-import { mockJobs, mockEvents, mockNews } from '@/lib/mock-data';
+import { mockJobs } from '@/lib/mock-data';
 import { ArrowRight } from 'lucide-react';
+import { collection, getDocs, limit, orderBy, query, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { AppEvent, NewsArticle } from '@/lib/types';
+import { format } from 'date-fns';
 
-export default function HomePage() {
+async function getHomePageData() {
+  if (!db) {
+    return { events: [], news: [] };
+  }
+  try {
+    const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+    const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+
+    const [eventsSnapshot, newsSnapshot] = await Promise.all([
+      getDocs(eventsQuery),
+      getDocs(newsQuery),
+    ]);
+
+    const events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as AppEvent[];
+    const news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsArticle[];
+
+    return { events, news };
+  } catch (error) {
+    console.error("Error fetching homepage data:", error);
+    return { events: [], news: [] };
+  }
+}
+
+export default async function HomePage() {
+  const { events, news } = await getHomePageData();
+
+  const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
+    if (date instanceof Timestamp) return format(date.toDate(), f);
+    if (date instanceof Date) return format(date, f);
+    return date;
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <PublicHeader />
@@ -66,11 +101,11 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {mockEvents.slice(0, 3).map((event) => (
+              {events.map((event) => (
                  <Card key={event.id}>
                   <CardHeader>
                     <CardTitle>{event.title}</CardTitle>
-                    <CardDescription>{event.date} - {event.location}</CardDescription>
+                    <CardDescription>{formatDate(event.date)} - {event.location}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">{event.summary}</p>
@@ -104,11 +139,11 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {mockNews.slice(0, 3).map((article) => (
+              {news.map((article) => (
                 <Card key={article.id}>
                   <CardHeader>
                     <CardTitle>{article.title}</CardTitle>
-                    <CardDescription>{article.source} - {article.date}</CardDescription>
+                    <CardDescription>{article.source} - {formatDate(article.date)}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">{article.summary}</p>

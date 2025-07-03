@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
+import { format } from 'date-fns';
 
 import {
   Card,
@@ -25,11 +26,13 @@ import {
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockNews, mockEvents, mockThreads, mockJobs } from '@/lib/mock-data';
-import type { User as UserProfile } from '@/lib/types';
+import { mockJobs, mockThreads } from '@/lib/mock-data';
+import type { User as UserProfile, NewsArticle, AppEvent } from '@/lib/types';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [events, setEvents] = useState<AppEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -45,12 +48,29 @@ export default function DashboardPage() {
         if (userDoc.exists()) {
           setUserProfile(userDoc.data() as UserProfile);
         }
+
+        // Fetch latest news
+        const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+        const newsSnapshot = await getDocs(newsQuery);
+        setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
+
+        // Fetch latest events
+        const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+        const eventsSnapshot = await getDocs(eventsQuery);
+        setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
+
       }
       setIsLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const formatDate = (date: Timestamp | Date | string) => {
+    if (date instanceof Timestamp) return format(date.toDate(), 'MMM d, yyyy');
+    if (date instanceof Date) return format(date, 'MMM d, yyyy');
+    return date;
+  };
 
   if (isLoading) {
     return (
@@ -132,7 +152,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Conditional Cards for Alumni vs. Student */}
-        {userProfile.role === 'alumni' ? (
+        {userProfile.role === 'alumni' || userProfile.role === 'admin' ? (
           <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -208,17 +228,17 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {mockNews.slice(0, 3).map((article) => (
+            {news.map((article) => (
               <div key={article.id} className="flex items-start gap-4">
                 <div className="space-y-1">
                   <Link
-                    href={article.url}
+                    href={`/dashboard/news/${article.id}`}
                     className="font-semibold text-sm leading-snug hover:underline"
                   >
                     {article.title}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    {article.date}
+                    {formatDate(article.date)}
                   </p>
                 </div>
               </div>
@@ -242,14 +262,14 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {mockEvents.slice(0, 3).map((event) => (
+            {events.map((event) => (
               <div key={event.id} className="flex items-start gap-4">
                 <div className="space-y-1">
                   <p className="font-semibold text-sm leading-snug">
                     {event.title}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {event.date} at {event.time}
+                    {formatDate(event.date)} at {event.time}
                   </p>
                 </div>
               </div>
