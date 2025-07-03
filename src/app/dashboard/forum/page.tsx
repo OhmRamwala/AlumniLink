@@ -9,14 +9,10 @@ import {
 } from '@/components/ui/table';
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { mockThreads } from '@/lib/mock-data';
 import { MessageSquare, PlusCircle } from 'lucide-react';
 
@@ -30,9 +26,11 @@ export default function ForumPage() {
             Ask questions, share advice, and connect with the community.
           </p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Start a Thread
+        <Button asChild>
+          <Link href="/dashboard/forum/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Start a Thread
+          </Link>
         </Button>
       </div>
 

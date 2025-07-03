@@ -9,6 +9,10 @@ export interface User {
   graduationYear?: number;
   company?: string;
   jobTitle?: string;
+  country: string;
+  about?: string;
+  linkedin?: string;
+  github?: string;
 }
 
 export interface Job {
@@ -20,6 +24,7 @@ export interface Job {
   shortDescription: string;
   fullDescription: string;
   url: string;
+  postedBy: Pick<User, 'id' | 'firstName' | 'lastName'>;
 }
 
 export interface NewsArticle {
@@ -30,6 +35,7 @@ export interface NewsArticle {
   summary: string;
   url: string;
   imageUrl: string;
+  content: string;
 }
 
 export interface AppEvent {
@@ -40,6 +46,8 @@ export interface AppEvent {
   location: string;
   description: string;
   imageUrl: string;
+  summary: string;
+  url: string;
 }
 
 export interface ForumReply {
@@ -57,4 +65,7 @@ export interface ForumThread {
   content: string;
   replies: ForumReply[];
   replyCount: number;
+  imageUrl?: string;
+  videoUrl?: string;
+  externalUrl?: string;
 }

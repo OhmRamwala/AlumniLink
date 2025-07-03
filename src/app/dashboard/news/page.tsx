@@ -28,8 +28,8 @@ export default function NewsPage() {
               <Image
                 src={article.imageUrl}
                 alt={article.title}
-                layout="fill"
-                objectFit="cover"
+                fill
+                className="object-cover"
                 data-ai-hint="community event"
               />
             </div>

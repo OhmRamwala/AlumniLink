@@ -1,0 +1,108 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { mockUsers } from '@/lib/mock-data';
+import {
+  Briefcase,
+  GraduationCap,
+  MapPin,
+  Mail,
+  Linkedin,
+  Github,
+  ArrowLeft,
+} from 'lucide-react';
+
+export default function UserProfilePage({ params }: { params: { id: string } }) {
+  const user = mockUsers.find((u) => u.id === params.id);
+
+  if (!user) {
+    notFound();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <Button variant="ghost" asChild>
+          <Link href="/dashboard/directory">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Directory
+          </Link>
+        </Button>
+      </div>
+      <Card>
+        <CardHeader className="items-center text-center">
+          <Avatar className="h-32 w-32 mb-4">
+            <AvatarImage
+              src={`https://placehold.co/128x128.png`}
+              alt={`${user.firstName} ${user.lastName}`}
+              data-ai-hint="professional headshot"
+            />
+            <AvatarFallback className="text-4xl">
+              {user.firstName[0]}
+              {user.lastName[0]}
+            </AvatarFallback>
+          </Avatar>
+          <CardTitle className="text-3xl">
+            {user.firstName} {user.lastName}
+          </CardTitle>
+          <CardDescription className="text-base">
+            {user.role === 'alumni'
+              ? `${user.jobTitle} at ${user.company}`
+              : `Student, ${user.major}`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-w-2xl mx-auto">
+          <div className="space-y-4 text-center md:text-left">
+            <div className="prose prose-sm text-muted-foreground mx-auto">
+              <p>{user.about}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                <span>
+                  {user.role === 'alumni'
+                    ? `Graduated ${user.graduationYear}`
+                    : `Expected Graduation ${user.graduationYear}`}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <span>{user.country}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                <a href={`mailto:${user.email}`} className="hover:underline">
+                  {user.email}
+                </a>
+              </div>
+            </div>
+            <div className="flex justify-center gap-4 pt-4 border-t">
+              {user.linkedin && (
+                <Button variant="outline" size="icon" asChild>
+                  <a href={user.linkedin} target="_blank" rel="noreferrer">
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                </Button>
+              )}
+              {user.github && (
+                <Button variant="outline" size="icon" asChild>
+                  <a href={user.github} target="_blank" rel="noreferrer">
+                    <Github className="h-5 w-5" />
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

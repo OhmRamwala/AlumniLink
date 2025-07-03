@@ -5,17 +5,27 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Newspaper, CalendarDays } from 'lucide-react';
-import { mockNews, mockEvents } from '@/lib/mock-data';
+import {
+  ArrowRight,
+  Newspaper,
+  CalendarDays,
+  HeartHandshake,
+  MessagesSquare,
+} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { mockNews, mockEvents, mockThreads } from '@/lib/mock-data';
 
+// This is the Alumni Dashboard.
+// A full implementation would have logic to show a different dashboard for students.
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, Emily!
+          Welcome back, Jane!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s a quick look at what&apos;s happening in your network.
@@ -23,6 +33,41 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Donations */}
+        <Card className="flex flex-col lg:col-span-1">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <HeartHandshake className="h-6 w-6" />
+              <CardTitle>Support the University</CardTitle>
+            </div>
+            <CardDescription>
+              Help fund the next generation of innovators.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-baseline">
+                <h3 className="text-sm font-semibold">
+                  New Science Lab Initiative
+                </h3>
+                <span className="text-sm font-medium text-muted-foreground">
+                  $7,500 / $10,000
+                </span>
+              </div>
+              <Progress value={75} />
+              <p className="text-xs text-muted-foreground">
+                Your contributions help us build state-of-the-art facilities for
+                our students.
+              </p>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full bg-accent hover:bg-accent/90">
+              Donate Now
+            </Button>
+          </CardFooter>
+        </Card>
+
         {/* Latest News */}
         <Card className="flex flex-col">
           <CardHeader>
@@ -30,17 +75,14 @@ export default function DashboardPage() {
               <Newspaper className="h-6 w-6" />
               <CardTitle>Latest News</CardTitle>
             </div>
-            <CardDescription>
-              Stay updated with the latest from the community.
-            </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {mockNews.slice(0, 2).map((article) => (
+            {mockNews.slice(0, 3).map((article) => (
               <div key={article.id} className="flex items-start gap-4">
                 <div className="space-y-1">
-                  <p className="font-semibold text-sm leading-snug">
-                    {article.title}
-                  </p>
+                  <Link href={article.url} className="font-semibold text-sm leading-snug hover:underline">
+                      {article.title}
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {article.date}
                   </p>
@@ -48,13 +90,13 @@ export default function DashboardPage() {
               </div>
             ))}
           </CardContent>
-          <div className="p-6 pt-0">
+          <CardFooter>
             <Button variant="outline" className="w-full" asChild>
               <Link href="/dashboard/news">
                 View All News <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </div>
+          </CardFooter>
         </Card>
 
         {/* Upcoming Events */}
@@ -64,12 +106,9 @@ export default function DashboardPage() {
               <CalendarDays className="h-6 w-6" />
               <CardTitle>Upcoming Events</CardTitle>
             </div>
-            <CardDescription>
-              Don&apos;t miss out on these upcoming events.
-            </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {mockEvents.slice(0, 2).map((event) => (
+            {mockEvents.slice(0, 3).map((event) => (
               <div key={event.id} className="flex items-start gap-4">
                 <div className="space-y-1">
                   <p className="font-semibold text-sm leading-snug">
@@ -82,14 +121,53 @@ export default function DashboardPage() {
               </div>
             ))}
           </CardContent>
-          <div className="p-6 pt-0">
+          <CardFooter>
             <Button variant="outline" className="w-full" asChild>
               <Link href="/dashboard/events">
                 View All Events <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </div>
+          </CardFooter>
         </Card>
+        
+        {/* Forum Activity */}
+        <Card className="flex flex-col lg:col-span-3">
+            <CardHeader>
+                <div className="flex items-center gap-2">
+                    <MessagesSquare className="h-6 w-6" />
+                    <CardTitle>Recent Forum Discussions</CardTitle>
+                </div>
+                 <CardDescription>
+                    Join the conversation and share your insights.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-4">
+                 {mockThreads.slice(0, 2).map((thread) => (
+                    <div key={thread.id} className="flex justify-between items-center">
+                        <div>
+                            <Link href={`/dashboard/forum/${thread.id}`} className="font-semibold text-sm hover:underline">
+                                {thread.title}
+                            </Link>
+                            <p className="text-xs text-muted-foreground">
+                                Started by {thread.author.firstName} {thread.author.lastName}
+                            </p>
+                        </div>
+                        <div className="text-right text-sm">
+                            <p>{thread.replyCount} replies</p>
+                            <p className="text-muted-foreground">{thread.timestamp}</p>
+                        </div>
+                    </div>
+                ))}
+            </CardContent>
+            <CardFooter>
+                <Button variant="outline" className="w-full" asChild>
+                    <Link href="/dashboard/forum">
+                        Go to Forum <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </CardFooter>
+        </Card>
+
       </div>
     </div>
   );
