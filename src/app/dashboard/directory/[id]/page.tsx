@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -60,10 +60,8 @@ function UserProfileSkeleton() {
   );
 }
 
-export default function UserProfilePage() {
-  const params = useParams();
-  const id = params.id as string;
-
+export default function UserProfilePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
