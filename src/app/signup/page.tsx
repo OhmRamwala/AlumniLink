@@ -60,7 +60,7 @@ const baseSchema = z.object({
   department: z.string().min(1, { message: 'Department is required.' }).regex(/^[a-zA-Z ]*$/, {
       message: 'Department can only contain letters and spaces.',
     }),
-  location: z.string().min(1, { message: 'Location is required.' }),
+  country: z.string().min(1, { message: 'Country is required.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z
     .string()
@@ -149,7 +149,7 @@ function SignupForm() {
       lastName: '',
       enrollmentNo: '',
       department: '',
-      location: '',
+      country: '',
       email: '',
       password: '',
       about: '',
@@ -171,22 +171,22 @@ function SignupForm() {
     let user: User | null = null;
 
     try {
-      // Step 1: Create user in Auth first. They are now authenticated for subsequent requests.
+      // Step 1: Check for enrollment number uniqueness first, before creating auth user.
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        throw { code: 'auth/enrollment-number-already-in-use' };
+      }
+
+      // Step 2: Create user in Auth.
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
         values.password
       );
       user = userCredential.user;
-
-      // Step 2: Now that user is authenticated, check for enrollment number uniqueness.
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        throw { code: 'auth/enrollment-number-already-in-use' };
-      }
 
       // Step 3: Prepare and save the user document to Firestore.
       const { password, ...userData } = values;
@@ -225,15 +225,28 @@ function SignupForm() {
 
       let errorMessage = 'An unexpected error occurred. Please try again.';
       
-      // Handle known errors without logging to console
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email address is already in use.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'The password is too weak.';
-      } else if (error.code === 'auth/enrollment-number-already-in-use') {
-        errorMessage = 'This enrollment number is already registered.';
-      } else if (error.code === 'permission-denied') {
-        errorMessage = "Signup failed due to a permissions issue. Please ensure your Firestore security rules are configured correctly as per the instructions.";
+      const knownErrorCodes = [
+        'auth/email-already-in-use',
+        'auth/weak-password',
+        'auth/enrollment-number-already-in-use',
+        'permission-denied',
+      ];
+      
+      if (knownErrorCodes.includes(error.code)) {
+         switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'This email address is already in use.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'The password is too weak.';
+            break;
+          case 'auth/enrollment-number-already-in-use':
+            errorMessage = 'This enrollment number is already registered.';
+            break;
+          case 'permission-denied':
+            errorMessage = "Signup failed due to a permissions issue. Please ensure your Firestore security rules are configured correctly.";
+            break;
+        }
       } else {
         // Log only unexpected errors
         console.error('Signup error:', error);
@@ -372,12 +385,12 @@ function SignupForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="location"
+                  name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder="New York, NY" {...field} disabled={isLoading} />
+                        <Input placeholder="United States" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

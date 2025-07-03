@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
   lastName: z.string().min(1, 'Last name is required.'),
-  location: z.string().min(1, 'Location is required.'),
+  country: z.string().min(1, 'Country is required.'),
   about: z.string().min(1, 'About section cannot be empty.'),
   linkedin: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
   github: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         defaultValues: {
             firstName: '',
             lastName: '',
-            location: '',
+            country: '',
             about: '',
             linkedin: '',
             github: '',
@@ -181,8 +181,8 @@ export default function ProfilePage() {
                                 )} />
                             </div>
                         )}
-                        <FormField control={form.control} name="location" render={({ field }) => (
-                            <FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField control={form.control} name="country" render={({ field }) => (
+                            <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={form.control} name="about" render={({ field }) => (
                            <FormItem><FormLabel>About</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>

@@ -6,19 +6,21 @@ export interface User {
   lastName: string;
   email: string;
   role: 'student' | 'alumni' | 'admin';
+  country: string;
+  about: string;
+  enrollmentNo: string;
+  department: string;
   avatar?: string;
+  // Student specific
   major?: string;
+  cvUrl?: string;
+  // Alumni specific
   graduationYear?: number;
   company?: string;
   jobTitle?: string;
-  country?: string; // Kept from directory page, might be same as location
-  location?: string; // From profile page
-  about?: string;
+  // Socials
   linkedin?: string;
   github?: string;
-  cvUrl?: string;
-  enrollmentNo?: string;
-  department?: string;
 }
 
 export interface Job {

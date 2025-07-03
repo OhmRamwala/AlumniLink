@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Card,
@@ -16,19 +16,69 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { mockUsers } from '@/lib/mock-data';
 import { Briefcase, GraduationCap, Search, MapPin } from 'lucide-react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { User } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function DirectorySkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {[...Array(8)].map((_, i) => (
+        <Card key={i} className="h-full text-center">
+          <CardHeader className="items-center">
+            <Skeleton className="h-24 w-24 rounded-full mb-2" />
+            <Skeleton className="h-6 w-3/4" />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Skeleton className="h-4 w-5/6 mx-auto" />
+            <Skeleton className="h-4 w-1/2 mx-auto" />
+            <Skeleton className="h-4 w-1/3 mx-auto" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 export default function DirectoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('all');
+  const [alumni, setAlumni] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const alumni = mockUsers.filter((user) => user.role === 'alumni');
+  useEffect(() => {
+    const fetchAlumni = async () => {
+      if (!db) {
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('role', '==', 'alumni'));
+        const querySnapshot = await getDocs(q);
+        const alumniData = querySnapshot.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() }) as User
+        );
+        setAlumni(alumniData);
+      } catch (error) {
+        console.error('Error fetching alumni:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAlumni();
+  }, []);
+
   const countries = ['all', ...new Set(alumni.map((user) => user.country))];
 
   const filteredAlumni = alumni.filter((user) => {
     const matchesSearch =
-      `${user.firstName} ${user.lastName} ${user.company} ${user.graduationYear}`
+      `${user.firstName} ${user.lastName} ${user.company || ''} ${
+        user.graduationYear || ''
+      }`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesCountry =
@@ -54,7 +104,11 @@ export default function DirectoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+        <Select
+          value={selectedCountry}
+          onValueChange={setSelectedCountry}
+          disabled={isLoading}
+        >
           <SelectTrigger className="w-full md:w-[200px]">
             <SelectValue placeholder="Filter by country" />
           </SelectTrigger>
@@ -67,46 +121,50 @@ export default function DirectoryPage() {
           </SelectContent>
         </Select>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredAlumni.map((user) => (
-          <Link href={`/dashboard/directory/${user.id}`} key={user.id}>
-            <Card className="h-full text-center transition-all hover:shadow-lg cursor-pointer">
-              <CardHeader className="items-center">
-                <Avatar className="h-24 w-24 mb-2">
-                  <AvatarImage
-                    src={`https://placehold.co/100x100.png`}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    data-ai-hint="professional headshot"
-                  />
-                  <AvatarFallback>
-                    {user.firstName[0]}
-                    {user.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <CardTitle>
-                  {user.firstName} {user.lastName}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center justify-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-                  <span>
-                    {user.jobTitle} at {user.company}
-                  </span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <GraduationCap className="h-4 w-4" />
-                  <span>Class of {user.graduationYear}</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{user.country}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {isLoading ? (
+        <DirectorySkeleton />
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredAlumni.map((user) => (
+            <Link href={`/dashboard/directory/${user.id}`} key={user.id}>
+              <Card className="h-full text-center transition-all hover:shadow-lg cursor-pointer">
+                <CardHeader className="items-center">
+                  <Avatar className="h-24 w-24 mb-2">
+                    <AvatarImage
+                      src={user.avatar || `https://placehold.co/100x100.png`}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      data-ai-hint="professional headshot"
+                    />
+                    <AvatarFallback>
+                      {user.firstName[0]}
+                      {user.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <CardTitle>
+                    {user.firstName} {user.lastName}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    <span>
+                      {user.jobTitle} at {user.company}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <GraduationCap className="h-4 w-4" />
+                    <span>Class of {user.graduationYear}</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>{user.country}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
