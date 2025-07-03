@@ -35,6 +35,7 @@ import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firesto
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Image from 'next/image';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf'];
@@ -236,7 +237,14 @@ export default function SignupPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Image
+          src="https://placehold.co/1920x1080.png"
+          alt="University campus background"
+          fill
+          className="object-cover -z-10 brightness-50"
+          data-ai-hint="university campus"
+        />
         <Card className="w-full max-w-lg mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">Configuration Needed</CardTitle>
@@ -267,8 +275,15 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-2xl mx-auto">
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      <Image
+        src="https://placehold.co/1920x1080.png"
+        alt="University campus background"
+        fill
+        className="object-cover -z-10 brightness-50"
+        data-ai-hint="university campus"
+      />
+      <Card className="w-full max-w-2xl mx-auto my-8">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-2">
             <Link2 className="h-8 w-8 text-primary" />

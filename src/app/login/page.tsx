@@ -19,6 +19,7 @@ import { Link2, Loader2, AlertTriangle } from 'lucide-react';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,7 +66,14 @@ export default function LoginPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Image
+          src="https://placehold.co/1920x1080.png"
+          alt="University campus background"
+          fill
+          className="object-cover -z-10 brightness-50"
+          data-ai-hint="university campus"
+        />
         <Card className="w-full max-w-lg mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl">Configuration Needed</CardTitle>
@@ -96,7 +104,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+       <Image
+          src="https://placehold.co/1920x1080.png"
+          alt="University campus background"
+          fill
+          className="object-cover -z-10 brightness-50"
+          data-ai-hint="university campus"
+        />
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-2">
