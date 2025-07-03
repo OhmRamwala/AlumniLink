@@ -70,44 +70,45 @@ const baseSchema = z.object({
     .regex(/[^A-Za-z0-9]/, {
       message: 'Must contain at least one special character.',
     }),
-  cv: z
-    .instanceof(FileList)
-    .refine((files) => files?.length === 1, 'CV is required.')
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
-    .refine(
-      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-      'Only .pdf files are accepted.'
-    ),
 });
 
-// Schema for student-specific fields
-const studentFields = {
-  about: z.string().min(1, { message: 'This field is required.' }),
-  linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
-  github: z.string().url({ message: 'Please enter a valid URL.' }),
-};
-
-// Schema for alumni-specific fields
-const alumniFields = {
-  position: z.string().min(1, { message: 'Position is required.' }),
-  company: z.string().min(1, { message: 'Company is required.' }),
-  about: z.string().min(1, { message: 'This field is required.' }),
-  linkedin: z
-    .string()
-    .url({ message: 'Please enter a valid URL.' })
-    .optional()
-    .or(z.literal('')),
-  github: z
-    .string()
-    .url({ message: 'Please enter a valid URL.' })
-    .optional()
-    .or(z.literal('')),
-};
+const cvSchema = z
+  .instanceof(FileList)
+  .refine((files) => files?.length === 1, 'CV is required.')
+  .refine(
+    (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+    `Max file size is 5MB.`
+  )
+  .refine(
+    (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+    'Only .pdf files are accepted.'
+  );
 
 // Discriminated union to handle role-specific validation
 const formSchema = z.discriminatedUnion('role', [
-  baseSchema.extend({ role: z.literal('student'), ...studentFields }),
-  baseSchema.extend({ role: z.literal('alumni'), ...alumniFields }),
+  baseSchema.extend({
+    role: z.literal('student'),
+    about: z.string().min(1, { message: 'This field is required.' }),
+    linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
+    github: z.string().url({ message: 'Please enter a valid URL.' }),
+    cv: cvSchema,
+  }),
+  baseSchema.extend({
+    role: z.literal('alumni'),
+    position: z.string().min(1, { message: 'Position is required.' }),
+    company: z.string().min(1, { message: 'Company is required.' }),
+    about: z.string().min(1, { message: 'This field is required.' }),
+    linkedin: z
+      .string()
+      .url({ message: 'Please enter a valid URL.' })
+      .optional()
+      .or(z.literal('')),
+    github: z
+      .string()
+      .url({ message: 'Please enter a valid URL.' })
+      .optional()
+      .or(z.literal('')),
+  }),
 ]);
 
 export default function SignupPage() {
@@ -135,7 +136,6 @@ export default function SignupPage() {
   });
 
   const role = form.watch('role');
-  const cvFile = form.watch('cv');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!auth || !db || !storage) {
@@ -150,22 +150,25 @@ export default function SignupPage() {
       );
       const user = userCredential.user;
 
-      let cvUrl = '';
-      if (values.cv.length > 0) {
+      const { password, ...userData } = values;
+      const dataToSave: { [key: string]: any } = {
+        ...userData,
+        cvUrl: '',
+        createdAt: new Date(),
+      };
+
+      if (values.role === 'student' && values.cv && values.cv.length > 0) {
         const cvFile = values.cv[0];
         const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
         await uploadBytes(storageRef, cvFile);
-        cvUrl = await getDownloadURL(storageRef);
+        dataToSave.cvUrl = await getDownloadURL(storageRef);
+      }
+      
+      if (dataToSave.cv) {
+        delete dataToSave.cv;
       }
 
-      // Don't save password or cv file object in Firestore
-      const { password, cv, ...userData } = values;
-
-      await setDoc(doc(db, 'users', user.uid), {
-        ...userData,
-        cvUrl,
-        createdAt: new Date(),
-      });
+      await setDoc(doc(db, 'users', user.uid), dataToSave);
 
       toast({
         title: 'Account Created!',
@@ -351,31 +354,6 @@ export default function SignupPage() {
 
               <FormField
                 control={form.control}
-                name="cv"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload CV (PDF only)</FormLabel>
-                    <FormControl>
-                      <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${cvFile?.[0]?.name ? 'border-primary text-primary' : ''}`}>
-                         <UploadCloud className="h-6 w-6" />
-                         <span>{cvFile?.[0]?.name || 'Click to upload or drag and drop'}</span>
-                      </Label>
-                    </FormControl>
-                     <Input 
-                        id="cv-upload"
-                        type="file" 
-                        className="hidden" 
-                        accept=".pdf"
-                        {...form.register('cv')}
-                        disabled={isLoading}
-                      />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="role"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
@@ -417,6 +395,30 @@ export default function SignupPage() {
               {/* Student-specific fields */}
               {role === 'student' && (
                 <>
+                  <FormField
+                    control={form.control}
+                    name="cv"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload CV (PDF only, required)</FormLabel>
+                        <FormControl>
+                          <Label htmlFor="cv-upload" className={`flex w-full cursor-pointer items-center gap-2 rounded-md border-2 border-dashed p-4 text-center text-muted-foreground hover:border-primary hover:text-primary ${form.watch('cv')?.[0]?.name ? 'border-primary text-primary' : ''}`}>
+                             <UploadCloud className="h-6 w-6" />
+                             <span>{(form.watch('cv') as any)?.[0]?.name || 'Click to upload or drag and drop'}</span>
+                          </Label>
+                        </FormControl>
+                         <Input 
+                            id="cv-upload"
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf"
+                            {...form.register('cv')}
+                            disabled={isLoading}
+                          />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <div className="space-y-4 pt-4 border-t">
                     <h3 className="text-lg font-medium">Student Profile</h3>
                     <FormField

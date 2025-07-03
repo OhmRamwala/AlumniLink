@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
@@ -9,7 +10,6 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { mockUsers } from '@/lib/mock-data';
 import {
   Briefcase,
   GraduationCap,
@@ -18,14 +18,26 @@ import {
   Linkedin,
   Github,
   ArrowLeft,
+  FileText,
 } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { User as UserProfileData } from '@/lib/types';
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
-  const user = mockUsers.find((u) => u.id === params.id);
-
-  if (!user) {
+export default async function UserProfilePage({ params }: { params: { id: string } }) {
+  if (!db) {
     notFound();
   }
+
+  const userDocRef = doc(db, 'users', params.id);
+  const userDoc = await getDoc(userDocRef);
+
+  if (!userDoc.exists()) {
+    notFound();
+  }
+
+  const user = userDoc.data() as UserProfileData;
+  user.id = params.id; // Add the doc id to the user object
 
   return (
     <div className="space-y-6">
@@ -41,7 +53,7 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
         <CardHeader className="items-center text-center">
           <Avatar className="h-32 w-32 mb-4">
             <AvatarImage
-              src={`https://placehold.co/128x128.png`}
+              src={user.avatar || `https://placehold.co/128x128.png`}
               alt={`${user.firstName} ${user.lastName}`}
               data-ai-hint="professional headshot"
             />
@@ -60,8 +72,8 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
           </CardDescription>
         </CardHeader>
         <CardContent className="max-w-2xl mx-auto">
-          <div className="space-y-4 text-center md:text-left">
-            <div className="prose prose-sm text-muted-foreground mx-auto">
+          <div className="space-y-6 text-center md:text-left">
+            <div className="prose prose-sm text-muted-foreground mx-auto text-center">
               <p>{user.about}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
@@ -84,6 +96,19 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                 </a>
               </div>
             </div>
+            
+            {user.role === 'student' && user.cvUrl && (
+              <div className="pt-4 border-t flex flex-col items-center sm:items-start">
+                <h3 className="font-semibold mb-2 text-lg w-full text-center md:text-left">Curriculum Vitae (CV)</h3>
+                <Button asChild variant="outline">
+                    <a href={user.cvUrl} target="_blank" rel="noopener noreferrer">
+                        <FileText className="mr-2 h-4 w-4" />
+                        View CV
+                    </a>
+                </Button>
+              </div>
+            )}
+
             <div className="flex justify-center gap-4 pt-4 border-t">
               {user.linkedin && (
                 <Button variant="outline" size="icon" asChild>
@@ -106,3 +131,4 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
     </div>
   );
 }
+
