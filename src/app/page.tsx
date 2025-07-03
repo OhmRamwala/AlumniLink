@@ -60,7 +60,7 @@ export default function HomePage() {
                 </div>
               </div>
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://i.ibb.co/d6r7z0J/diverse-professionals-networking.png"
                 width="600"
                 height="400"
                 alt="Hero"
