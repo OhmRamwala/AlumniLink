@@ -139,14 +139,16 @@ export default function UserProfilePage() {
               <p>{user.about}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-muted-foreground" />
-                <span>
-                  {user.role === 'alumni'
-                    ? `Graduated ${user.graduationYear}`
-                    : `Expected Graduation ${user.graduationYear}`}
-                </span>
-              </div>
+              {user.graduationYear && (
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                  <span>
+                    {user.role === 'alumni'
+                      ? `Graduated ${user.graduationYear}`
+                      : `Expected Graduation ${user.graduationYear}`}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <span>{user.country}</span>
