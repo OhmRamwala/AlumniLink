@@ -186,7 +186,6 @@ function SignupForm() {
         user = userCredential.user;
 
         // Step 2: Prepare and save the user document to Firestore.
-        // Uniqueness of enrollmentNo should be enforced via Firestore security rules if it's a critical requirement.
         const { password, ...userData } = values;
         const dataToSave: { [key: string]: any } = {
             ...userData,
@@ -225,24 +224,16 @@ function SignupForm() {
         let errorMessage = 'An unexpected error occurred. Please try again.';
         const errorCode = error.code;
 
-        switch (errorCode) {
-            case 'auth/email-already-in-use':
-                errorMessage = 'This email address is already in use.';
-                break;
-            case 'auth/weak-password':
-                errorMessage = 'The password is too weak.';
-                break;
-            case 'storage/unauthorized':
-                errorMessage = "CV upload failed due to a permissions issue. Please check your Firebase Storage rules.";
-                break;
-            case 'permission-denied':
-                errorMessage = "Saving your profile failed due to a database permissions issue. Please ensure your Firestore security rules are configured correctly.";
-                break;
-            default:
-                console.error('Signup error:', error);
-                break;
+        if (errorCode === 'auth/email-already-in-use') {
+            errorMessage = 'This email address is already in use by another account.';
+        } else if (errorCode === 'auth/weak-password') {
+            errorMessage = 'The password is too weak. Please choose a stronger password.';
+        } else if (errorCode?.includes('storage')) {
+             errorMessage = "Could not upload CV. This is likely a permissions issue. Please ensure Firebase Storage rules are configured correctly.";
+        } else if (errorCode?.includes('permission-denied')) {
+            errorMessage = "Could not save your profile. This is likely a database permissions issue. Please ensure Firestore security rules are configured correctly.";
         }
-
+        
         toast({
             variant: 'destructive',
             title: 'Signup Failed',
@@ -748,3 +739,5 @@ export default function SignupPage() {
     </Suspense>
   )
 }
+
+    
