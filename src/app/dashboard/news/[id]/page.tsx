@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
-import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, Timestamp, type DocumentSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { NewsArticle } from '@/lib/types';
 import { format } from 'date-fns';
@@ -20,8 +20,16 @@ export default async function NewsArticlePage({ params }: { params: { id: string
     notFound();
   }
 
-  const articleDocRef = doc(db, 'news', params.id);
-  const articleDoc = await getDoc(articleDocRef);
+  let articleDoc: DocumentSnapshot;
+  try {
+    const articleDocRef = doc(db, 'news', params.id);
+    articleDoc = await getDoc(articleDocRef);
+  } catch (error) {
+    console.error('Firestore error fetching news article:', error);
+    // This can happen due to permission errors or other issues.
+    // We'll treat it as "not found" to prevent crashing.
+    return notFound();
+  }
   
   if (!articleDoc.exists()) {
     notFound();

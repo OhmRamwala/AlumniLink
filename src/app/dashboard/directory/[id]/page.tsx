@@ -20,7 +20,7 @@ import {
   ArrowLeft,
   FileText,
 } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, type DocumentSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
 
@@ -29,8 +29,16 @@ export default async function UserProfilePage({ params }: { params: { id: string
     notFound();
   }
 
-  const userDocRef = doc(db, 'users', params.id);
-  const userDoc = await getDoc(userDocRef);
+  let userDoc: DocumentSnapshot;
+  try {
+    const userDocRef = doc(db, 'users', params.id);
+    userDoc = await getDoc(userDocRef);
+  } catch (error) {
+    console.error('Firestore error fetching user profile:', error);
+    // This can happen due to permission errors or other issues.
+    // We'll treat it as "not found" to prevent crashing.
+    return notFound();
+  }
 
   if (!userDoc.exists()) {
     notFound();
@@ -131,4 +139,3 @@ export default async function UserProfilePage({ params }: { params: { id: string
     </div>
   );
 }
-
