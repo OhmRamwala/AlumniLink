@@ -25,13 +25,14 @@ import { db } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
 
 export default async function UserProfilePage({ params }: { params: { id: string } }) {
+  const id = params.id;
   if (!db) {
     notFound();
   }
 
   let userDoc: DocumentSnapshot;
   try {
-    const userDocRef = doc(db, 'users', params.id);
+    const userDocRef = doc(db, 'users', id);
     userDoc = await getDoc(userDocRef);
   } catch (error) {
     console.error('Firestore error fetching user profile:', error);
@@ -45,7 +46,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
   }
 
   const user = userDoc.data() as UserProfileData;
-  user.id = params.id; // Add the doc id to the user object
+  user.id = id; // Add the doc id to the user object
 
   return (
     <div className="space-y-6">

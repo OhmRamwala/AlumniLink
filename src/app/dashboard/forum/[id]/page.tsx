@@ -84,7 +84,7 @@ function ThreadSkeleton() {
 export default function ForumThreadPage() {
   const params = useParams();
   const router = useRouter();
-  const threadId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const threadId = params.id as string;
 
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [replies, setReplies] = useState<ForumReply[]>([]);

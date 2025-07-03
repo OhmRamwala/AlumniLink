@@ -42,7 +42,7 @@ function NewsArticlePageSkeleton() {
 
 export default function NewsArticlePage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = params.id as string;
   
   const [article, setArticle] = useState<NewsArticle | null>(null);
   const [isLoading, setIsLoading] = useState(true);
