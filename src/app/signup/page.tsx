@@ -31,7 +31,7 @@ import {
 import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword, type User } from 'firebase/auth';
-import { doc, setDoc, query, collection, where, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -179,17 +179,7 @@ function SignupForm() {
       );
       user = userCredential.user;
 
-      // Step 2: Check for unique enrollment number. This query is now made by an authenticated user.
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        // If the enrollment number is taken, we must delete the newly created user from Auth.
-        throw new Error('enrollment-in-use');
-      }
-
-      // Step 3: If unique, prepare and save the user document to Firestore.
+      // Step 2: Prepare and save the user document to Firestore.
       const { password, ...userData } = values;
       const dataToSave: { [key: string]: any } = {
         ...userData,
@@ -225,9 +215,7 @@ function SignupForm() {
 
       console.error('Signup error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (error.message === 'enrollment-in-use') {
-        errorMessage = 'This enrollment number is already in use.';
-      } else if (error.code === 'auth/email-already-in-use') {
+      if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email address is already in use.';
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'The password is too weak.';
@@ -459,7 +447,7 @@ function SignupForm() {
                 <>
                   <div className="space-y-4 pt-4 border-t">
                     <h3 className="text-lg font-medium">Student Profile</h3>
-                    <FormField
+                     <FormField
                       control={form.control}
                       name="about"
                       render={({ field }) => (
