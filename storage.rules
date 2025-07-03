@@ -1,11 +1,10 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // WARNING: This is a temporary, insecure rule for debugging purposes.
-    // It allows any authenticated user to write any file.
-    // This will be replaced with a secure rule once the connection is confirmed.
-    match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+    // Allow authenticated users to read and write a file in the 'cvs' folder
+    // ONLY if the filename exactly matches their own user ID followed by '.pdf'.
+    match /cvs/{userId}.pdf {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
