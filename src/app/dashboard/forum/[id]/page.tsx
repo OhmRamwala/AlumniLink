@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams, notFound } from 'next/navigation';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import {
   doc,
   getDoc,
@@ -82,6 +82,7 @@ function ThreadSkeleton() {
 
 export default function ForumThreadPage() {
   const params = useParams();
+  const router = useRouter();
   const threadId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [thread, setThread] = useState<ForumThread | null>(null);
@@ -163,7 +164,11 @@ export default function ForumThreadPage() {
       toast({ title: 'Success', description: 'Your reply has been posted.' });
     } catch (error) {
       console.error('Error posting reply:', error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to post reply.' });
+      let description = 'Failed to post reply.';
+      if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+        description = 'Permission denied. Ensure you have the rights to post a reply.';
+      }
+      toast({ variant: 'destructive', title: 'Error', description });
     } finally {
       setIsSubmittingReply(false);
     }
@@ -394,7 +399,7 @@ export default function ForumThreadPage() {
 
       <Separator />
 
-      {currentUser && (
+      {currentUser && (currentUser.role === 'alumni' || currentUser.role === 'admin') && (
         <div className="space-y-2">
             <Textarea
               placeholder="Write a reply..."
