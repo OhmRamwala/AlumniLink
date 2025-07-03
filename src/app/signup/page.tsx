@@ -28,7 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -72,49 +72,50 @@ const baseSchema = z.object({
     }),
 });
 
-const cvSchema = z
-  .instanceof(FileList)
-  .refine((files) => files?.length === 1, 'CV is required.')
-  .refine(
-    (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-    `Max file size is 5MB.`
-  )
-  .refine(
-    (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-    'Only .pdf files are accepted.'
-  );
-
-// Discriminated union to handle role-specific validation
-const formSchema = z.discriminatedUnion('role', [
-  baseSchema.extend({
-    role: z.literal('student'),
-    about: z.string().min(1, { message: 'This field is required.' }),
-    linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
-    github: z.string().url({ message: 'Please enter a valid URL.' }),
-    cv: cvSchema,
-  }),
-  baseSchema.extend({
-    role: z.literal('alumni'),
-    position: z.string().min(1, { message: 'Position is required.' }),
-    company: z.string().min(1, { message: 'Company is required.' }),
-    about: z.string().min(1, { message: 'This field is required.' }),
-    linkedin: z
-      .string()
-      .url({ message: 'Please enter a valid URL.' })
-      .optional()
-      .or(z.literal('')),
-    github: z
-      .string()
-      .url({ message: 'Please enter a valid URL.' })
-      .optional()
-      .or(z.literal('')),
-  }),
-]);
-
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  const formSchema = useMemo(() => {
+    const cvSchema = z
+      .instanceof(FileList)
+      .refine((files) => files?.length === 1, 'CV is required.')
+      .refine(
+        (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+        `Max file size is 5MB.`
+      )
+      .refine(
+        (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+        'Only .pdf files are accepted.'
+      );
+
+    return z.discriminatedUnion('role', [
+      baseSchema.extend({
+        role: z.literal('student'),
+        about: z.string().min(1, { message: 'This field is required.' }),
+        linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
+        github: z.string().url({ message: 'Please enter a valid URL.' }),
+        cv: cvSchema,
+      }),
+      baseSchema.extend({
+        role: z.literal('alumni'),
+        position: z.string().min(1, { message: 'Position is required.' }),
+        company: z.string().min(1, { message: 'Company is required.' }),
+        about: z.string().min(1, { message: 'This field is required.' }),
+        linkedin: z
+          .string()
+          .url({ message: 'Please enter a valid URL.' })
+          .optional()
+          .or(z.literal('')),
+        github: z
+          .string()
+          .url({ message: 'Please enter a valid URL.' })
+          .optional()
+          .or(z.literal('')),
+      }),
+    ]);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
