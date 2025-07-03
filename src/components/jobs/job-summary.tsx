@@ -19,42 +19,6 @@ import { Loader2, Sparkles, Terminal } from 'lucide-react';
 import type { Job } from '@/lib/types';
 import { ScrollArea } from '../ui/scroll-area';
 
-function StructuredSummary({ summary }: { summary: SummarizeJobDescriptionOutput }) {
-  const formatList = (text: string) => (
-    <ul className="list-disc list-inside space-y-1">
-      {text.split('\n').map((item, index) => {
-        const cleanedItem = item.replace(/^- /, '').trim();
-        if (cleanedItem) {
-          return <li key={index}>{cleanedItem}</li>;
-        }
-        return null;
-      })}
-    </ul>
-  );
-
-  return (
-    <div className="space-y-4 text-sm">
-      <div>
-        <h3 className="font-semibold mb-2">About the Role</h3>
-        <p className="text-muted-foreground">{summary.aboutTheRole}</p>
-      </div>
-      <div>
-        <h3 className="font-semibold mb-2">Responsibilities</h3>
-        <div className="text-muted-foreground">{formatList(summary.responsibilities)}</div>
-      </div>
-      <div>
-        <h3 className="font-semibold mb-2">Preferred Requirements</h3>
-        <div className="text-muted-foreground">{formatList(summary.preferredRequirements)}</div>
-      </div>
-      <div>
-        <h3 className="font-semibold mb-2">Other Information</h3>
-         <div className="text-muted-foreground">{formatList(summary.otherInfo)}</div>
-      </div>
-    </div>
-  );
-}
-
-
 export function JobSummary({ job }: { job: Job }) {
   const [summary, setSummary] = useState<SummarizeJobDescriptionOutput | null>(
     null
@@ -95,12 +59,6 @@ export function JobSummary({ job }: { job: Job }) {
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-4">
           <div className="space-y-4">
-             {!summary && (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {job.fullDescription}
-              </p>
-            )}
-
             {error && (
               <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
@@ -110,13 +68,29 @@ export function JobSummary({ job }: { job: Job }) {
             )}
 
             {isLoading && (
-               <div className="flex items-center justify-center p-8 space-x-2">
-                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                 <p className="text-muted-foreground">Generating summary...</p>
-               </div>
+              <div className="flex items-center justify-center p-8 space-x-2">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <p className="text-muted-foreground">Generating summary...</p>
+              </div>
             )}
-            
-            {summary && <StructuredSummary summary={summary} />}
+
+            {summary && !isLoading && (
+              <div className="space-y-4 text-sm">
+                <h3 className="font-semibold">AI Summary</h3>
+                <p className="text-muted-foreground whitespace-pre-wrap">
+                  {summary.summary}
+                </p>
+              </div>
+            )}
+
+            {!summary && !isLoading && (
+              <div className="space-y-4">
+                 <h3 className="font-semibold">Full Job Description</h3>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {job.fullDescription}
+                </p>
+              </div>
+            )}
           </div>
         </ScrollArea>
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between sm:space-x-2 w-full pt-4">

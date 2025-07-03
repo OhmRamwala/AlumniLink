@@ -34,6 +34,9 @@ import { mockJobs } from '@/lib/mock-data';
 import { MapPin, PlusCircle } from 'lucide-react';
 import { JobSummary } from '@/components/jobs/job-summary';
 
+// MOCK: Simulate logged-in user role. Change to 'alumni' to see the post job button.
+const currentUserRole = 'student';
+
 function PostJobDialog() {
   const [open, setOpen] = useState(false);
 
@@ -113,8 +116,7 @@ export default function JobsPage() {
             Find your next opportunity from companies in our network.
           </p>
         </div>
-        {/* This button would be conditionally rendered for alumni */}
-        <PostJobDialog />
+        {currentUserRole === 'alumni' && <PostJobDialog />}
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         {mockJobs.map((job) => (

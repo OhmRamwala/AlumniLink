@@ -13,23 +13,10 @@ export type SummarizeJobDescriptionInput = z.infer<
 >;
 
 const SummarizeJobDescriptionOutputSchema = z.object({
-  aboutTheRole: z
-    .string()
-    .describe('A summary of what the job is about and the company.'),
-  responsibilities: z
+  summary: z
     .string()
     .describe(
-      'A bulleted list of the key responsibilities for this position.'
-    ),
-  preferredRequirements: z
-    .string()
-    .describe(
-      'A bulleted list of the preferred qualifications, skills, and experience for the role.'
-    ),
-  otherInfo: z
-    .string()
-    .describe(
-      'Any other relevant information, such as salary, benefits, or company culture, formatted as a bulleted list.'
+      'A short and simple paragraph summarizing the job, including key responsibilities and qualifications.'
     ),
 });
 export type SummarizeJobDescriptionOutput = z.infer<
@@ -46,7 +33,7 @@ const summarizeJobDescriptionPrompt = ai.definePrompt({
   name: 'summarizeJobDescriptionPrompt',
   input: {schema: SummarizeJobDescriptionInputSchema},
   output: {schema: SummarizeJobDescriptionOutputSchema},
-  prompt: `You are an expert at parsing job descriptions. Analyze the following job description and extract the key information into the specified categories. Format lists with bullet points.
+  prompt: `You are an expert at parsing job descriptions. Analyze the following job description and write a short, simple summary paragraph. Focus on the key aspects of the role, including the most important responsibilities and qualifications.
 
 Job Description:
 """
