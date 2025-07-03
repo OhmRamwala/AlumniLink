@@ -21,6 +21,8 @@ import type { User as UserProfile } from '@/lib/types';
 const threadSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters long.'),
   content: z.string().min(10, 'Content must be at least 10 characters long.'),
+  imageUrl: z.string().url().optional().or(z.literal('')),
+  videoUrl: z.string().url().optional().or(z.literal('')),
 });
 
 type ThreadFormValues = z.infer<typeof threadSchema>;
@@ -33,7 +35,7 @@ export default function NewThreadPage() {
 
     const form = useForm<ThreadFormValues>({
         resolver: zodResolver(threadSchema),
-        defaultValues: { title: '', content: '' },
+        defaultValues: { title: '', content: '', imageUrl: '', videoUrl: '' },
     });
 
     useEffect(() => {
@@ -60,7 +62,7 @@ export default function NewThreadPage() {
         }
         setIsSubmitting(true);
         try {
-            await addDoc(collection(db, 'threads'), {
+            const dataToSave: any = {
                 title: values.title,
                 content: values.content,
                 postedBy: {
@@ -72,7 +74,17 @@ export default function NewThreadPage() {
                 postedAt: serverTimestamp(),
                 lastActivity: serverTimestamp(),
                 replyCount: 0,
-            });
+            };
+
+            if (values.imageUrl) {
+                dataToSave.imageUrl = values.imageUrl;
+            }
+            if (values.videoUrl) {
+                dataToSave.videoUrl = values.videoUrl;
+            }
+
+            await addDoc(collection(db, 'threads'), dataToSave);
+            
             toast({ title: 'Success', description: 'Your thread has been posted.' });
             router.push('/dashboard/forum');
         } catch (error) {
@@ -116,6 +128,20 @@ export default function NewThreadPage() {
                                 <FormItem>
                                     <FormLabel>Content</FormLabel>
                                     <FormControl><Textarea placeholder="Share more details here..." rows={10} {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Image URL (Optional)</FormLabel>
+                                    <FormControl><Input placeholder="https://example.com/image.png" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                             <FormField control={form.control} name="videoUrl" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Video URL (Optional)</FormLabel>
+                                    <FormControl><Input placeholder="https://youtube.com/watch?v=..." {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />

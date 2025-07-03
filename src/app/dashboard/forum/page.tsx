@@ -18,8 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare, PlusCircle } from 'lucide-react';
 import type { ForumThread } from '@/lib/types';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-
 
 function ForumSkeleton() {
     return (
@@ -37,12 +35,9 @@ function ForumSkeleton() {
                         {[...Array(5)].map((_, i) => (
                             <TableRow key={i}>
                                 <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Skeleton className="h-10 w-10 rounded-full" />
-                                        <div className="space-y-1">
-                                            <Skeleton className="h-4 w-64" />
-                                            <Skeleton className="h-3 w-32" />
-                                        </div>
+                                    <div className="space-y-1">
+                                        <Skeleton className="h-4 w-64" />
+                                        <Skeleton className="h-3 w-32" />
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-center">
@@ -122,18 +117,12 @@ export default function ForumPage() {
                 {threads.map((thread) => (
                     <TableRow key={thread.id}>
                     <TableCell>
-                        <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={thread.postedBy.avatar || 'https://placehold.co/40x40.png'} alt={`${thread.postedBy.firstName}'s avatar`} />
-                                <AvatarFallback>{thread.postedBy.firstName[0]}{thread.postedBy.lastName[0]}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <Link href={`/dashboard/forum/${thread.id}`} className="font-medium hover:underline">
-                                    {thread.title}
-                                </Link>
-                                <div className="text-sm text-muted-foreground">
-                                    by {thread.postedBy.firstName} {thread.postedBy.lastName}
-                                </div>
+                        <div>
+                            <Link href={`/dashboard/forum/${thread.id}`} className="font-medium hover:underline">
+                                {thread.title}
+                            </Link>
+                            <div className="text-sm text-muted-foreground">
+                                by {thread.postedBy.firstName} {thread.postedBy.lastName}
                             </div>
                         </div>
                     </TableCell>

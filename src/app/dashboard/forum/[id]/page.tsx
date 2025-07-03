@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, notFound } from 'next/navigation';
 import {
   doc,
@@ -29,6 +30,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -91,8 +94,10 @@ export default function ForumThreadPage() {
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const { toast } = useToast();
 
-  const [editingPost, setEditingPost] = useState<string | null>(null); // e.g., "thread" or "reply-id"
+  const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState('');
+  const [editedImageUrl, setEditedImageUrl] = useState('');
+  const [editedVideoUrl, setEditedVideoUrl] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   useEffect(() => {
@@ -166,14 +171,23 @@ export default function ForumThreadPage() {
     }
   };
   
-  const handleEditClick = (type: 'thread' | 'reply', id: string, currentContent: string) => {
-    setEditingPost(type === 'thread' ? 'thread' : `reply-${id}`);
-    setEditedContent(currentContent);
+  const handleEditClick = (type: 'thread' | 'reply', post: ForumThread | ForumReply) => {
+    if (type === 'thread' && 'title' in post) {
+        setEditingPost('thread');
+        setEditedContent(post.content);
+        setEditedImageUrl(post.imageUrl || '');
+        setEditedVideoUrl(post.videoUrl || '');
+    } else {
+        setEditingPost(`reply-${post.id}`);
+        setEditedContent(post.content);
+    }
   };
   
   const handleCancelEdit = () => {
     setEditingPost(null);
     setEditedContent('');
+    setEditedImageUrl('');
+    setEditedVideoUrl('');
   };
 
   const handleSaveEdit = async () => {
@@ -182,13 +196,17 @@ export default function ForumThreadPage() {
     
     try {
       let docRef;
+      let dataToUpdate: any = { content: editedContent };
+
       if (editingPost === 'thread') {
         docRef = doc(db, 'threads', threadId);
+        dataToUpdate.imageUrl = editedImageUrl || '';
+        dataToUpdate.videoUrl = editedVideoUrl || '';
       } else {
         const replyId = editingPost.replace('reply-', '');
         docRef = doc(db, 'threads', threadId, 'replies', replyId);
       }
-      await updateDoc(docRef, { content: editedContent });
+      await updateDoc(docRef, dataToUpdate);
       toast({ title: 'Success', description: 'Your changes have been saved.' });
       handleCancelEdit();
     } catch (error) {
@@ -207,10 +225,9 @@ export default function ForumThreadPage() {
 
       try {
         if (type === 'thread') {
-            // In a real app, you might want to delete all replies first
             await deleteDoc(doc(db, 'threads', threadId));
             toast({ title: 'Success', description: 'Thread deleted.' });
-            // Redirect or handle UI change
+            router.push('/dashboard/forum');
         } else {
             await deleteDoc(doc(db, 'threads', threadId, 'replies', id));
             await updateDoc(doc(db, 'threads', threadId), { replyCount: increment(-1) });
@@ -230,6 +247,23 @@ export default function ForumThreadPage() {
   const canEditOrDelete = (authorId: string) => {
       return currentUser && (currentUser.id === authorId || currentUser.role === 'admin');
   }
+
+  const getEmbedUrl = (url: string) => {
+    try {
+        const videoUrl = new URL(url);
+        if (videoUrl.hostname.includes('youtube.com')) {
+            const videoId = videoUrl.searchParams.get('v');
+            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        }
+        if (videoUrl.hostname === 'youtu.be') {
+            return `https://www.youtube.com/embed/${videoUrl.pathname.slice(1)}`;
+        }
+    } catch (error) {
+        console.error("Invalid video URL", error);
+        return url;
+    }
+    return url;
+  };
 
   if (isLoading || !thread) {
     return <ThreadSkeleton />;
@@ -278,7 +312,7 @@ export default function ForumThreadPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => handleEditClick('thread', thread.id, thread.content)}>
+                  <DropdownMenuItem onClick={() => handleEditClick('thread', thread)}>
                     <Pencil className="mr-2 h-4 w-4" /> Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive" onClick={() => handleDelete('thread', thread.id)}>
@@ -291,8 +325,16 @@ export default function ForumThreadPage() {
         </CardHeader>
         <CardContent>
           {editingPost === `thread` ? (
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} rows={5} />
+              <div className="space-y-2">
+                <Label>Image URL (Optional)</Label>
+                <Input value={editedImageUrl} onChange={(e) => setEditedImageUrl(e.target.value)} placeholder="https://example.com/image.png" />
+              </div>
+              <div className="space-y-2">
+                <Label>Video URL (Optional)</Label>
+                <Input value={editedVideoUrl} onChange={(e) => setEditedVideoUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
+              </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleSaveEdit} disabled={isSavingEdit}>
                   {isSavingEdit && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save
@@ -301,7 +343,26 @@ export default function ForumThreadPage() {
               </div>
             </div>
           ) : (
-            <p className="text-base leading-relaxed whitespace-pre-wrap">{thread.content}</p>
+             <>
+                {thread.imageUrl && (
+                    <div className="my-4 relative aspect-video">
+                        <Image src={thread.imageUrl} alt={thread.title} fill className="rounded-lg object-contain" data-ai-hint="forum post image" />
+                    </div>
+                )}
+                {thread.videoUrl && (
+                    <div className="my-4 aspect-video">
+                        <iframe
+                            className="w-full h-full rounded-lg"
+                            src={getEmbedUrl(thread.videoUrl)}
+                            title="Embedded Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                )}
+                <p className="text-base leading-relaxed whitespace-pre-wrap">{thread.content}</p>
+            </>
           )}
         </CardContent>
       </Card>
@@ -325,7 +386,7 @@ export default function ForumThreadPage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-6 w-6"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleEditClick('reply', reply.id, reply.content)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditClick('reply', reply)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => handleDelete('reply', reply.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
