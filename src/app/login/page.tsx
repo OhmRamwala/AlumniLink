@@ -56,7 +56,7 @@ function LoginForm() {
           firebaseError.code === 'auth/wrong-password' ||
           firebaseError.code === 'auth/invalid-credential'
         ) {
-          errorMessage = 'Invalid email or password. Please check your Firebase project to ensure this user exists and that Email/Password authentication is enabled.';
+          errorMessage = 'Invalid email or password. Please try again.';
         }
       }
 
