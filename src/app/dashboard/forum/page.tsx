@@ -12,7 +12,6 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { mockThreads } from '@/lib/mock-data';
 import { MessageSquare, PlusCircle } from 'lucide-react';
 
@@ -48,24 +47,15 @@ export default function ForumPage() {
               {mockThreads.map((thread) => (
                 <TableRow key={thread.id}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src={`https://placehold.co/100x100.png`} alt={thread.author.firstName} data-ai-hint="person face" />
-                        <AvatarFallback>
-                          {thread.author.firstName[0]}
-                          {thread.author.lastName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Link
-                          href={`/dashboard/forum/${thread.id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {thread.title}
-                        </Link>
-                        <div className="text-sm text-muted-foreground">
-                          by {thread.author.firstName} {thread.author.lastName}
-                        </div>
+                    <div>
+                      <Link
+                        href={`/dashboard/forum/${thread.id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {thread.title}
+                      </Link>
+                      <div className="text-sm text-muted-foreground">
+                        by {thread.author.firstName} {thread.author.lastName}
                       </div>
                     </div>
                   </TableCell>
