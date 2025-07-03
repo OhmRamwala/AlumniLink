@@ -30,8 +30,8 @@ import {
 } from '@/components/ui/form';
 import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, type User } from 'firebase/auth';
+import { doc, setDoc, query, collection, where, getDocs, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -167,30 +167,29 @@ function SignupForm() {
       return;
     }
     setIsLoading(true);
+    
+    let user: User | null = null;
+
     try {
-      // Check for unique enrollment number first
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        toast({
-          variant: 'destructive',
-          title: 'Signup Failed',
-          description: 'This enrollment number is already in use.',
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // If enrollment number is unique, proceed with creating the user
+      // Step 1: Create user in Auth first. They are now authenticated for subsequent requests.
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
         values.password
       );
-      const user = userCredential.user;
+      user = userCredential.user;
 
+      // Step 2: Check for unique enrollment number. This query is now made by an authenticated user.
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // If the enrollment number is taken, we must delete the newly created user from Auth.
+        throw new Error('enrollment-in-use');
+      }
+
+      // Step 3: If unique, prepare and save the user document to Firestore.
       const { password, ...userData } = values;
       const dataToSave: { [key: string]: any } = {
         ...userData,
@@ -218,9 +217,17 @@ function SignupForm() {
       const redirectUrl = searchParams.get('redirect');
       router.push(redirectUrl || '/dashboard');
     } catch (error: any) {
+      // If any part of the process fails, especially after user creation,
+      // we attempt to delete the user from Auth to prevent orphaned accounts.
+      if (user) {
+        await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
+      }
+
       console.error('Signup error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.message === 'enrollment-in-use') {
+        errorMessage = 'This enrollment number is already in use.';
+      } else if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email address is already in use.';
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'The password is too weak.';
