@@ -1,12 +1,14 @@
+
 'use client';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,6 +41,35 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isCheckingRedirect, setIsCheckingRedirect] = useState(true);
+
+  useEffect(() => {
+    if (!auth) {
+      setIsCheckingRedirect(false);
+      return;
+    }
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          toast({
+            title: 'Login Successful',
+            description: 'Welcome!',
+          });
+          router.push('/dashboard');
+        } else {
+          setIsCheckingRedirect(false);
+        }
+      })
+      .catch((error) => {
+        console.error('Google login error:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: 'Could not log in with Google. Please try again.',
+        });
+        setIsCheckingRedirect(false);
+      });
+  }, [router, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,23 +111,7 @@ export default function LoginPage() {
     }
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome!',
-      });
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error('Google login error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Could not log in with Google. Please try again.',
-      });
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    await signInWithRedirect(auth, provider);
   };
 
   if (!isFirebaseConfigured) {
@@ -127,6 +142,14 @@ export default function LoginPage() {
             </Alert>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+  
+  if (isCheckingRedirect) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Loader2 className="h-12 w-12 animate-spin" />
       </div>
     );
   }
