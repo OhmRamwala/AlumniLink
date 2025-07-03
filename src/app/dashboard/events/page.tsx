@@ -383,7 +383,7 @@ export default function EventsPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-1">
-              <p className="text-sm">{event.description}</p>
+              <p className="text-sm">{event.summary}</p>
             </CardContent>
             <CardFooter className="flex justify-between items-center p-6 pt-0">
               <EventDetailsDialog event={event} />
