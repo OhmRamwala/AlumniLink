@@ -1,4 +1,11 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
+
 import {
   Card,
   CardContent,
@@ -15,25 +22,108 @@ import {
   HeartHandshake,
   MessagesSquare,
   Briefcase,
-  MapPin,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import { mockNews, mockEvents, mockThreads, mockJobs } from '@/lib/mock-data';
-
-// MOCK: Simulate logged-in user role. Change to 'alumni' to see the alumni view.
-const currentUserRole = 'student';
-const currentUser = {
-  // A full implementation would get this from an auth context.
-  firstName: currentUserRole === 'alumni' ? 'Jane' : 'Emily',
-};
+import type { User as UserProfile } from '@/lib/types';
 
 export default function DashboardPage() {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!auth || !db) {
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setUserProfile(userDoc.data() as UserProfile);
+        }
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-9 w-1/2" />
+          <Skeleton className="h-6 w-3/4" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-5 w-64" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-20 w-full" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-10 w-full" />
+            </CardFooter>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-48" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-10 w-full" />
+            </CardFooter>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-7 w-48" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-10 w-full" />
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome to your dashboard!
+        </h1>
+        <p className="text-muted-foreground">
+          Could not load user profile. Please try logging in again.
+        </p>
+        <Button asChild className="mt-4">
+          <Link href="/login">Go to Login</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {currentUser.firstName}!
+          Welcome back, {userProfile.firstName}!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s a quick look at what&apos;s happening in your network.
@@ -42,7 +132,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Conditional Cards for Alumni vs. Student */}
-        {currentUserRole === 'alumni' ? (
+        {userProfile.role === 'alumni' ? (
           <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
               <div className="flex items-center gap-2">
