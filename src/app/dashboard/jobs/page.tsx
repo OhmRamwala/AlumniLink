@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -120,10 +121,14 @@ function JobFormDialog({ job, userProfile, onSave }: { job?: Job, userProfile: U
       onSave();
     } catch (error) {
       console.error('Error saving job:', error);
+      let description = 'Failed to save job.';
+      if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+          description = 'Permission denied. Ensure you are an admin and Firestore rules are set correctly.';
+      }
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to save job.',
+        description: description,
       });
     } finally {
       setIsSubmitting(false);

@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -118,10 +119,14 @@ function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => vo
       onSave();
     } catch (error) {
       console.error('Error saving event:', error);
+      let description = 'Failed to save event.';
+       if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
+         description = 'Permission denied. Ensure you are an admin and Firestore rules are set correctly.';
+       }
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to save event.',
+        description,
       });
     } finally {
       setIsSubmitting(false);
