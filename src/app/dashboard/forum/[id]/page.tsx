@@ -166,7 +166,7 @@ export default function ForumThreadPage() {
       console.error('Error posting reply:', error);
       let description = 'Failed to post reply.';
       if (error instanceof Error && 'code' in error && (error as any).code === 'permission-denied') {
-        description = 'Permission denied. Ensure you have the rights to post a reply.';
+        description = 'Permission denied. Only alumni and admins can post replies.';
       }
       toast({ variant: 'destructive', title: 'Error', description });
     } finally {
@@ -399,7 +399,7 @@ export default function ForumThreadPage() {
 
       <Separator />
 
-      {currentUser && (currentUser.role === 'alumni' || currentUser.role === 'admin') && (
+      {currentUser && (
         <div className="space-y-2">
             <Textarea
               placeholder="Write a reply..."
