@@ -1,0 +1,44 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      // Allow user creation if the user is authenticated.
+      // The client-side code ensures they can only create their own profile.
+      allow create: if request.auth != null;
+      // Only the user themselves can update their own profile.
+      allow update: if request.auth.uid == userId;
+    }
+    match /news/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /events/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /threads/{threadId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if (request.auth.uid == resource.data.postedBy.id || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        || (request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['replyCount', 'lastActivity']));
+      allow delete: if resource.data.postedBy.id == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /threads/{threadId}/replies/{replyId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if resource.data.postedBy.id == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /donations/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /jobs/{jobId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'alumni'];
+      allow update, delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' 
+        || (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'alumni' && resource.data.postedBy.id == request.auth.uid);
+    }
+  }
+}
