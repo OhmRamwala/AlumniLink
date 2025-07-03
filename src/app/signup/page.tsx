@@ -28,7 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
@@ -73,7 +73,7 @@ const baseSchema = z.object({
     }),
 });
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -118,9 +118,9 @@ export default function SignupPage() {
       baseSchema.extend({
         role: z.literal('student'),
         about: z.string().min(1, { message: 'This field is required.' }),
-        cv: cvSchema,
         linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
         github: z.string().url({ message: 'Please enter a valid URL.' }),
+        cv: cvSchema,
       }),
       baseSchema.extend({
         role: z.literal('alumni'),
@@ -671,4 +671,12 @@ export default function SignupPage() {
       </Card>
     </div>
   );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
+  )
 }
