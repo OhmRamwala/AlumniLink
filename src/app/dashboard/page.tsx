@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -43,24 +44,36 @@ export default function DashboardPage() {
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as UserProfile);
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserProfile(userDoc.data() as UserProfile);
+          }
+
+          // Fetch latest news
+          const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+          const newsSnapshot = await getDocs(newsQuery);
+          setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
+
+          // Fetch latest events
+          const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+          const eventsSnapshot = await getDocs(eventsQuery);
+          setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
+
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error);
+            // In case of permission errors, we can land here.
+            // Set data to empty arrays to prevent crash.
+            setNews([]);
+            setEvents([]);
+        } finally {
+            setIsLoading(false);
         }
-
-        // Fetch latest news
-        const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-        const newsSnapshot = await getDocs(newsQuery);
-        setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
-
-        // Fetch latest events
-        const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
-        const eventsSnapshot = await getDocs(eventsQuery);
-        setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
-
+      } else {
+        // No user logged in
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => unsubscribe();
