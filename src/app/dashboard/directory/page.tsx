@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -113,9 +114,11 @@ export default function DirectoryPage() {
             <SelectValue placeholder="Filter by country" />
           </SelectTrigger>
           <SelectContent>
-            {countries.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country === 'all' ? 'All Countries' : country}
+            {countries.map((country, index) => (
+              <SelectItem key={`${country}-${index}`} value={country}>
+                {country === 'all'
+                  ? 'All Countries'
+                  : country || 'Unspecified'}
               </SelectItem>
             ))}
           </SelectContent>
