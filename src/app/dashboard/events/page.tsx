@@ -10,7 +10,7 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
-  serverTimestamp,
+  updateDoc,
   doc,
   getDoc,
   Timestamp,
@@ -49,7 +49,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, Clock, MapPin, PlusCircle, Loader2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, PlusCircle, Loader2, Pencil } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarPicker } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -59,74 +63,119 @@ const eventSchema = z.object({
   description: z.string().min(1, 'Description is required.'),
   url: z.string().url('Must be a valid URL.'),
   imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+  date: z.date({ required_error: 'A date is required.' }),
 });
 type EventFormValues = z.infer<typeof eventSchema>;
 
-function CreateEventDialog({ onPost }: { onPost: () => void }) {
+function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => void }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [eventDate, setEventDate] = useState<Date | undefined>();
+  const isEditMode = !!event;
 
+  const getInitialDate = () => {
+    if (isEditMode && event.date) {
+      if (event.date instanceof Timestamp) return event.date.toDate();
+      if (typeof event.date === 'string') return new Date(event.date);
+      return event.date;
+    }
+    return undefined;
+  };
+  
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
-    defaultValues: { title: '', time: '', location: '', summary: '', description: '', url: '', imageUrl: '' },
+    defaultValues: isEditMode
+      ? { ...event, date: getInitialDate(), imageUrl: event.imageUrl || '' }
+      : { title: '', time: '', location: '', summary: '', description: '', url: '', imageUrl: '' },
   });
 
-  async function onSubmit(values: EventFormValues) {
-    if (!db || !eventDate) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please select a date.' });
-        return;
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset({ ...event, date: getInitialDate(), imageUrl: event.imageUrl || '' });
     }
+  }, [event, form, isEditMode]);
+
+  async function onSubmit(values: EventFormValues) {
+    if (!db) return;
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'events'), {
+      const dataToSave = {
         ...values,
-        date: Timestamp.fromDate(eventDate),
-      });
-      toast({ title: 'Success', description: 'Event created.' });
+        date: Timestamp.fromDate(values.date),
+      };
+
+      if (isEditMode) {
+        const eventRef = doc(db, 'events', event.id);
+        await updateDoc(eventRef, dataToSave);
+        toast({ title: 'Success', description: 'Event updated.' });
+      } else {
+        await addDoc(collection(db, 'events'), dataToSave);
+        toast({ title: 'Success', description: 'Event created.' });
+      }
+
       setOpen(false);
       form.reset();
-      onPost();
+      onSave();
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('Error saving event:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to create event.',
+        description: 'Failed to save event.',
       });
     } finally {
       setIsSubmitting(false);
     }
   }
 
+  const triggerButton = isEditMode ? (
+    <Button variant="ghost" size="icon">
+      <Pencil className="h-4 w-4" />
+    </Button>
+  ) : (
+    <Button>
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Create Event
+    </Button>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create Event
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create a New Event</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit' : 'Create'} Event</DialogTitle>
           <DialogDescription>
-            Share a new event with the community.
+            {isEditMode ? 'Update event details below.' : 'Share a new event with the community.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
             <FormField control={form.control} name="title" render={({ field }) => (
                 <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            {/* Simple text inputs for date and time for now */}
-            <FormField control={form.control} name="time" render={({ field }) => (
-                <FormItem><FormLabel>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM - 8:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="date" render={({ field }) => (
+                  <FormItem className="flex flex-col"><FormLabel>Date</FormLabel>
+                    <Popover><PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                            {field.value ? (format(field.value, "PPP")) : (<span>Pick a date</span>)}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarPicker mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date("1900-01-01")} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+              )} />
+              <FormField control={form.control} name="time" render={({ field }) => (
+                  <FormItem><FormLabel>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
              <FormField control={form.control} name="location" render={({ field }) => (
                 <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g. Grand Ballroom or Online" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
@@ -145,7 +194,7 @@ function CreateEventDialog({ onPost }: { onPost: () => void }) {
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Event
+                {isEditMode ? 'Save Changes' : 'Create Event'}
               </Button>
             </DialogFooter>
           </form>
@@ -281,7 +330,7 @@ export default function EventsPage() {
             Join us for our upcoming events and connect with the community.
             </p>
         </div>
-        {userProfile?.role === 'admin' && <CreateEventDialog onPost={fetchEvents} />}
+        {userProfile?.role === 'admin' && <EventFormDialog onSave={fetchEvents} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
@@ -315,9 +364,10 @@ export default function EventsPage() {
             <CardContent className="flex-1">
               <p className="text-sm">{event.description}</p>
             </CardContent>
-            <div className="p-6 pt-0">
+            <CardFooter className="flex justify-between items-center p-6 pt-0">
               <EventDetailsDialog event={event} />
-            </div>
+              {userProfile?.role === 'admin' && <EventFormDialog event={event} onSave={fetchEvents} />}
+            </CardFooter>
           </Card>
         ))}
       </div>

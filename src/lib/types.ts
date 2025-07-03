@@ -28,6 +28,7 @@ export interface Job {
   fullDescription: string;
   url: string;
   postedBy: Pick<User, 'id' | 'firstName' | 'lastName'>;
+  postedAt?: Timestamp;
 }
 
 export interface NewsArticle {

@@ -1,6 +1,23 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 import {
   Card,
   CardContent,
@@ -20,7 +37,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -29,84 +45,224 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { mockJobs } from '@/lib/mock-data';
-import { MapPin, PlusCircle } from 'lucide-react';
+import { MapPin, PlusCircle, Loader2, Pencil } from 'lucide-react';
 import { JobSummary } from '@/components/jobs/job-summary';
+import type { Job, User as UserProfile } from '@/lib/types';
 
-// MOCK: Simulate logged-in user role. Change to 'alumni' to see the post job button.
-const currentUserRole = 'student';
+const jobSchema = z.object({
+  title: z.string().min(1, 'Title is required.'),
+  company: z.string().min(1, 'Company is required.'),
+  location: z.string().min(1, 'Location is required.'),
+  type: z.enum(['Full-time', 'Part-time', 'Internship']),
+  shortDescription: z.string().min(1, 'Short description is required.'),
+  fullDescription: z.string().min(1, 'Full description is required.'),
+  url: z.string().url('Must be a valid URL.'),
+});
+type JobFormValues = z.infer<typeof jobSchema>;
 
-function PostJobDialog() {
+function JobFormDialog({ job, userProfile, onSave }: { job?: Job, userProfile: UserProfile | null, onSave: () => void }) {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditMode = !!job;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    setOpen(false); // Close dialog on submit
-  };
+  const form = useForm<JobFormValues>({
+    resolver: zodResolver(jobSchema),
+    defaultValues: isEditMode ? job : {
+      title: '',
+      company: '',
+      location: '',
+      type: 'Full-time',
+      shortDescription: '',
+      fullDescription: '',
+      url: ''
+    },
+  });
+  
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset(job);
+    }
+  }, [job, form, isEditMode]);
+
+  async function onSubmit(values: JobFormValues) {
+    if (!db || !userProfile) return;
+    setIsSubmitting(true);
+    try {
+      if (isEditMode) {
+        const jobRef = doc(db, 'jobs', job.id);
+        await updateDoc(jobRef, values);
+        toast({ title: 'Success', description: 'Job updated.' });
+      } else {
+        await addDoc(collection(db, 'jobs'), {
+          ...values,
+          postedAt: serverTimestamp(),
+          postedBy: {
+            id: userProfile.id,
+            firstName: userProfile.firstName,
+            lastName: userProfile.lastName,
+          },
+        });
+        toast({ title: 'Success', description: 'Job posted.' });
+      }
+      setOpen(false);
+      form.reset();
+      onSave();
+    } catch (error) {
+      console.error('Error saving job:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save job.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const triggerButton = isEditMode ? (
+    <Button variant="ghost" size="icon">
+      <Pencil className="h-4 w-4" />
+    </Button>
+  ) : (
+    <Button>
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Post a Job
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Post a Job
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Post a New Job Opening</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit' : 'Post a New'} Job Opening</DialogTitle>
           <DialogDescription>
-            Share an opportunity with the alumni network. Fill out the details below.
+            Share an opportunity with the network. Fill out the details below.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
-          <div className="space-y-2">
-            <Label htmlFor="job-title">Job Title</Label>
-            <Input id="job-title" placeholder="e.g., Software Engineer" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="company-name">Company</Label>
-            <Input id="company-name" placeholder="e.g., Acme Inc." required />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input id="location" placeholder="e.g., New York, NY or Remote" required />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+            <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem><FormLabel>Job Title</FormLabel><FormControl><Input placeholder="e.g., Software Engineer" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="company" render={({ field }) => (
+                <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="e.g., Acme Inc." {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="location" render={({ field }) => (
+                  <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., New York, NY or Remote" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="type" render={({ field }) => (
+                <FormItem><FormLabel>Job Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            <SelectItem value="Full-time">Full-time</SelectItem>
+                            <SelectItem value="Part-time">Part-time</SelectItem>
+                            <SelectItem value="Internship">Internship</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+              )} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="job-type">Job Type</Label>
-              <Select required>
-                <SelectTrigger id="job-type">
-                  <SelectValue placeholder="Select a type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full-time">Full-time</SelectItem>
-                  <SelectItem value="part-time">Part-time</SelectItem>
-                  <SelectItem value="internship">Internship</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="job-description">Full Job Description</Label>
-            <Textarea id="job-description" rows={8} placeholder="Provide a detailed description of the role, responsibilities, and qualifications." required />
-          </div>
-           <div className="space-y-2">
-            <Label htmlFor="application-url">Application URL</Label>
-            <Input id="application-url" type="url" placeholder="https://example.com/apply" required />
-          </div>
-          <DialogFooter>
-            <Button type="submit">Post Job</Button>
-          </DialogFooter>
-        </form>
+            <FormField control={form.control} name="shortDescription" render={({ field }) => (
+                <FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea placeholder="A brief summary of the role." {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="fullDescription" render={({ field }) => (
+                <FormItem><FormLabel>Full Job Description</FormLabel><FormControl><Textarea rows={8} placeholder="Provide a detailed description of the role, responsibilities, and qualifications." {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="url" render={({ field }) => (
+                <FormItem><FormLabel>Application URL</FormLabel><FormControl><Input type="url" placeholder="https://example.com/apply" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <DialogFooter>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEditMode ? 'Save Changes' : 'Post Job'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
 }
 
 export default function JobsPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const fetchJobs = () => {
+    if (!db) return;
+    const q = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const jobsData: Job[] = [];
+      querySnapshot.forEach((doc) => {
+        jobsData.push({ id: doc.id, ...doc.data() } as Job);
+      });
+      setJobs(jobsData);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching jobs:', error);
+      setIsLoading(false);
+    });
+    return unsubscribe;
+  };
+
+  useEffect(() => {
+    if (!auth || !db) {
+      setIsLoading(false);
+      return;
+    }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+        }
+      }
+      const unsubscribeFirestore = fetchJobs();
+      return () => {
+        if (unsubscribeFirestore) unsubscribeFirestore();
+      };
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2 mt-2" /></CardHeader>
+              <CardContent><Skeleton className="h-16 w-full" /></CardContent>
+              <CardFooter><Skeleton className="h-10 w-32" /></CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
@@ -116,10 +272,10 @@ export default function JobsPage() {
             Find your next opportunity from companies in our network.
           </p>
         </div>
-        {currentUserRole === 'alumni' && <PostJobDialog />}
+        {userProfile?.role === 'admin' && <JobFormDialog userProfile={userProfile} onSave={fetchJobs} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2">
-        {mockJobs.map((job) => (
+        {jobs.map((job) => (
           <Card key={job.id} className="flex flex-col">
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -145,19 +301,24 @@ export default function JobsPage() {
                   <MapPin className="h-4 w-4" />
                   {job.location}
                 </div>
-                <div className="text-xs">
-                  Posted by{' '}
-                  <Link
-                    href={`/dashboard/directory/${job.postedBy.id}`}
-                    className="font-semibold text-primary hover:underline"
-                  >
-                    {job.postedBy.firstName} {job.postedBy.lastName}
-                  </Link>
-                </div>
+                {job.postedBy && (
+                  <div className="text-xs">
+                    Posted by{' '}
+                    <Link
+                      href={`/dashboard/directory/${job.postedBy.id}`}
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      {job.postedBy.firstName} {job.postedBy.lastName}
+                    </Link>
+                  </div>
+                )}
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex justify-between items-center">
               <JobSummary job={job} />
+              {userProfile?.role === 'admin' && (
+                <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
+              )}
             </CardFooter>
           </Card>
         ))}

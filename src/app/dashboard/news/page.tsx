@@ -11,12 +11,13 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
+  updateDoc,
   serverTimestamp,
   doc,
   getDoc,
   Timestamp,
 } from 'firebase/firestore';
-import { onAuthStateChanged, type User as AuthUser } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -41,7 +42,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -52,7 +52,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, PlusCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, PlusCircle, Loader2, Pencil } from 'lucide-react';
 
 const newsSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -63,53 +63,76 @@ const newsSchema = z.object({
 });
 type NewsFormValues = z.infer<typeof newsSchema>;
 
-function PostNewsDialog({ onPost }: { onPost: () => void }) {
+function NewsFormDialog({ article, onSave }: { article?: NewsArticle, onSave: () => void }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditMode = !!article;
 
   const form = useForm<NewsFormValues>({
     resolver: zodResolver(newsSchema),
-    defaultValues: { title: '', source: '', summary: '', content: '', imageUrl: '' },
+    defaultValues: isEditMode
+      ? { ...article, imageUrl: article.imageUrl || '' }
+      : { title: '', source: '', summary: '', content: '', imageUrl: '' },
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset({ ...article, imageUrl: article.imageUrl || '' });
+    }
+  }, [article, form, isEditMode]);
 
   async function onSubmit(values: NewsFormValues) {
     if (!db) return;
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'news'), {
-        ...values,
-        date: serverTimestamp(),
-      });
-      toast({ title: 'Success', description: 'News article posted.' });
+      if (isEditMode) {
+        const articleRef = doc(db, 'news', article.id);
+        await updateDoc(articleRef, values);
+        toast({ title: 'Success', description: 'News article updated.' });
+      } else {
+        await addDoc(collection(db, 'news'), {
+          ...values,
+          date: serverTimestamp(),
+        });
+        toast({ title: 'Success', description: 'News article posted.' });
+      }
       setOpen(false);
       form.reset();
-      onPost();
+      onSave();
     } catch (error) {
-      console.error('Error posting news:', error);
+      console.error('Error saving news:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to post news article.',
+        description: 'Failed to save news article.',
       });
     } finally {
       setIsSubmitting(false);
     }
   }
+  
+  const triggerButton = isEditMode ? (
+    <Button variant="ghost" size="icon">
+      <Pencil className="h-4 w-4" />
+    </Button>
+  ) : (
+    <Button>
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Post News
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Post News
-        </Button>
+        {triggerButton}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Post a New News Article</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit' : 'Post'} a News Article</DialogTitle>
           <DialogDescription>
-            Share an update with the community.
+            {isEditMode ? 'Update the details below.' : 'Share an update with the community.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -135,7 +158,7 @@ function PostNewsDialog({ onPost }: { onPost: () => void }) {
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Post Article
+                {isEditMode ? 'Save Changes' : 'Post Article'}
               </Button>
             </DialogFooter>
           </form>
@@ -231,7 +254,7 @@ export default function NewsPage() {
             The latest news and stories from the alumni community.
           </p>
         </div>
-        {userProfile?.role === 'admin' && <PostNewsDialog onPost={fetchNews} />}
+        {userProfile?.role === 'admin' && <NewsFormDialog onSave={fetchNews} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
@@ -254,12 +277,15 @@ export default function NewsPage() {
             <CardContent className="flex-1">
               <p className="text-sm">{article.summary}</p>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex justify-between items-center">
               <Button asChild variant="secondary" className="w-full">
                 <Link href={`/dashboard/news/${article.id}`}>
                   Read More <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
+               {userProfile?.role === 'admin' && (
+                <NewsFormDialog article={article} onSave={fetchNews} />
+              )}
             </CardFooter>
           </Card>
         ))}
