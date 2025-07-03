@@ -61,8 +61,8 @@ const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   time: z.string().min(1, 'Time is required.'),
   location: z.string().min(1, 'Location is required.'),
-  summary: z.string().min(1, 'Summary is required.'),
-  description: z.string().min(1, 'Description is required.'),
+  summary: z.string().min(1, 'Summary is required.').max(160, 'Summary must be 160 characters or less.'),
+  description: z.string().min(1, 'Description is required.').max(700, 'Description must be 700 characters or less.'),
   url: z.string().url('Must be a valid URL.'),
   imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
   date: z.date({ required_error: 'A date is required.' }),
@@ -186,10 +186,24 @@ function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => vo
                 <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g. Grand Ballroom or Online" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="summary" render={({ field }) => (
-                <FormItem><FormLabel>Summary</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                    <FormLabel>Summary</FormLabel>
+                    <FormControl><Textarea {...field} /></FormControl>
+                    <div className="flex justify-between">
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">{form.watch('summary')?.length || 0} / 160</p>
+                    </div>
+                </FormItem>
             )} />
              <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl><Textarea rows={5} {...field} /></FormControl>
+                    <div className="flex justify-between">
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">{form.watch('description')?.length || 0} / 700</p>
+                    </div>
+                </FormItem>
             )} />
              <FormField control={form.control} name="url" render={({ field }) => (
                 <FormItem><FormLabel>RSVP/Event URL</FormLabel><FormControl><Input type="url" {...field} /></FormControl><FormMessage /></FormItem>
@@ -383,7 +397,7 @@ export default function EventsPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-1">
-              <p className="text-sm">{event.summary}</p>
+              <p className="text-sm text-muted-foreground line-clamp-3">{event.summary}</p>
             </CardContent>
             <CardFooter className="flex justify-between items-center p-6 pt-0">
               <EventDetailsDialog event={event} />
