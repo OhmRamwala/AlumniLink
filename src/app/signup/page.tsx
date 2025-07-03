@@ -78,17 +78,39 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = useMemo(() => {
-    const cvSchema = z
-      .instanceof(FileList)
-      .refine((files) => files?.length === 1, 'CV is required.')
-      .refine(
-        (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-        `Max file size is 5MB.`
-      )
-      .refine(
-        (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-        'Only .pdf files are accepted.'
-      );
+    const cvSchema = z.any().superRefine((val, ctx) => {
+      if (typeof window === 'undefined') {
+        // Allow any value on the server, validation is client-side only.
+        return;
+      }
+      if (!(val instanceof FileList) || val.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "CV is required.",
+        });
+        return;
+      }
+      if (val.length > 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Only one file is allowed.",
+        });
+        return;
+      }
+      const file = val[0];
+      if (file.size > MAX_FILE_SIZE) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Max file size is 5MB.`,
+        });
+      }
+      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Only .pdf files are accepted.',
+        });
+      }
+    });
 
     return z.discriminatedUnion('role', [
       baseSchema.extend({
@@ -415,7 +437,7 @@ export default function SignupPage() {
                         </FormItem>
                       )}
                     />
-                     <FormField
+                    <FormField
                       control={form.control}
                       name="cv"
                       render={({ field }) => (
