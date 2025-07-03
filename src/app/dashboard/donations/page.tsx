@@ -16,6 +16,7 @@ import {
   getDoc,
   serverTimestamp,
   Timestamp,
+  deleteDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -52,7 +53,7 @@ import {
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { PlusCircle, Loader2, Pencil } from 'lucide-react';
+import { PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 
 const campaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -169,6 +170,7 @@ export default function DonationsPage() {
     const [campaigns, setCampaigns] = useState<DonationCampaign[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const { toast } = useToast();
 
     const fetchCampaigns = () => {
         if (!db) return;
@@ -214,6 +216,20 @@ export default function DonationsPage() {
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
     }
   
+    const handleDeleteCampaign = async (campaignId: string) => {
+      if (!db) return;
+      const isConfirmed = window.confirm("Are you sure you want to delete this campaign?");
+      if (!isConfirmed) return;
+
+      try {
+          await deleteDoc(doc(db, "donations", campaignId));
+          toast({ title: 'Success', description: 'Campaign has been deleted.' });
+      } catch (error) {
+          console.error("Error deleting campaign: ", error);
+          toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete campaign.' });
+      }
+    };
+
   if (isLoading) {
     return (
         <div className="space-y-6">
@@ -275,7 +291,14 @@ export default function DonationsPage() {
                <Button className="w-full bg-accent hover:bg-accent/90">
                  Donate Now
                </Button>
-               {userProfile?.role === 'admin' && <CampaignFormDialog campaign={campaign} onSave={fetchCampaigns} />}
+               {userProfile?.role === 'admin' && (
+                <div className="flex items-center ml-2">
+                  <CampaignFormDialog campaign={campaign} onSave={fetchCampaigns} />
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteCampaign(campaign.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+               )}
             </CardFooter>
           </Card>
         ))}

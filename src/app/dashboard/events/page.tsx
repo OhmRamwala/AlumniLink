@@ -15,6 +15,7 @@ import {
   doc,
   getDoc,
   Timestamp,
+  deleteDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -50,7 +51,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, Clock, MapPin, PlusCircle, Loader2, Pencil } from 'lucide-react';
+import { Calendar, Clock, MapPin, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarPicker } from '@/components/ui/calendar';
@@ -258,6 +259,7 @@ export default function EventsPage() {
     const [events, setEvents] = useState<AppEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const { toast } = useToast();
 
     const fetchEvents = () => {
         if (!db) return;
@@ -298,6 +300,20 @@ export default function EventsPage() {
     
         return () => unsubscribeAuth();
       }, []);
+
+    const handleDeleteEvent = async (eventId: string) => {
+        if (!db) return;
+        const isConfirmed = window.confirm("Are you sure you want to delete this event?");
+        if (!isConfirmed) return;
+
+        try {
+            await deleteDoc(doc(db, "events", eventId));
+            toast({ title: 'Success', description: 'Event has been deleted.' });
+        } catch (error) {
+            console.error("Error deleting event: ", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete event.' });
+        }
+    };
 
   const formatDate = (date: Timestamp | Date | string) => {
     if (date instanceof Timestamp) return format(date.toDate(), 'MMMM d, yyyy');
@@ -371,7 +387,14 @@ export default function EventsPage() {
             </CardContent>
             <CardFooter className="flex justify-between items-center p-6 pt-0">
               <EventDetailsDialog event={event} />
-              {userProfile?.role === 'admin' && <EventFormDialog event={event} onSave={fetchEvents} />}
+              {userProfile?.role === 'admin' && (
+                <div className="flex items-center ml-2">
+                  <EventFormDialog event={event} onSave={fetchEvents} />
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteEvent(event.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              )}
             </CardFooter>
           </Card>
         ))}

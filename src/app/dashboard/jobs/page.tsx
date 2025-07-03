@@ -15,6 +15,7 @@ import {
   serverTimestamp,
   doc,
   getDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -56,7 +57,7 @@ import {
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, PlusCircle, Loader2, Pencil } from 'lucide-react';
+import { MapPin, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { JobSummary } from '@/components/jobs/job-summary';
 import type { Job, User as UserProfile } from '@/lib/types';
 
@@ -208,6 +209,7 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { toast } = useToast();
 
   const fetchJobs = () => {
     if (!db) return;
@@ -247,6 +249,20 @@ export default function JobsPage() {
 
     return () => unsubscribeAuth();
   }, []);
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!db) return;
+    const isConfirmed = window.confirm("Are you sure you want to delete this job posting?");
+    if (!isConfirmed) return;
+
+    try {
+        await deleteDoc(doc(db, "jobs", jobId));
+        toast({ title: 'Success', description: 'Job posting has been deleted.' });
+    } catch (error) {
+        console.error("Error deleting job posting: ", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete job posting.' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -322,7 +338,12 @@ export default function JobsPage() {
             <CardFooter className="flex justify-between items-center">
               <JobSummary job={job} />
               {userProfile && (userProfile.role === 'admin' || (job.postedBy && userProfile.id === job.postedBy.id)) && (
-                <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
+                <div className="flex items-center ml-2">
+                  <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteJob(job.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               )}
             </CardFooter>
           </Card>

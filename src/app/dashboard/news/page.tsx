@@ -17,6 +17,7 @@ import {
   doc,
   getDoc,
   Timestamp,
+  deleteDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -53,7 +54,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, PlusCircle, Loader2, Pencil } from 'lucide-react';
+import { ArrowRight, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 
 const newsSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -178,6 +179,7 @@ export default function NewsPage() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { toast } = useToast();
 
   const fetchNews = () => {
     if (!db) return;
@@ -218,6 +220,20 @@ export default function NewsPage() {
 
     return () => unsubscribeAuth();
   }, []);
+
+  const handleDeleteArticle = async (articleId: string) => {
+    if (!db) return;
+    const isConfirmed = window.confirm("Are you sure you want to delete this article?");
+    if (!isConfirmed) return;
+
+    try {
+        await deleteDoc(doc(db, "news", articleId));
+        toast({ title: 'Success', description: 'Article has been deleted.' });
+    } catch (error) {
+        console.error("Error deleting article: ", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete article.' });
+    }
+  };
 
   const formatDate = (date: Timestamp | Date | string) => {
     if (date instanceof Timestamp) {
@@ -289,7 +305,12 @@ export default function NewsPage() {
                 </Link>
               </Button>
                {userProfile?.role === 'admin' && (
-                <NewsFormDialog article={article} onSave={fetchNews} />
+                <div className="flex items-center ml-2">
+                  <NewsFormDialog article={article} onSave={fetchNews} />
+                  <Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               )}
             </CardFooter>
           </Card>
