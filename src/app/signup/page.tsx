@@ -118,9 +118,9 @@ function SignupForm() {
       baseSchema.extend({
         role: z.literal('student'),
         about: z.string().min(1, { message: 'This field is required.' }),
+        cv: cvSchema,
         linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
         github: z.string().url({ message: 'Please enter a valid URL.' }),
-        cv: cvSchema,
       }),
       baseSchema.extend({
         role: z.literal('alumni'),
@@ -164,10 +164,10 @@ function SignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!auth || !db || !storage) {
+      toast({ variant: 'destructive', title: 'Configuration Error', description: 'Firebase is not configured.' });
       return;
     }
     setIsLoading(true);
-    
     let user: User | null = null;
 
     try {
@@ -179,20 +179,29 @@ function SignupForm() {
       );
       user = userCredential.user;
 
-      // Step 2: Prepare and save the user document to Firestore.
+      // Step 2: Now that user is authenticated, check for enrollment number uniqueness.
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        throw { code: 'auth/enrollment-number-already-in-use' };
+      }
+
+      // Step 3: Prepare and save the user document to Firestore.
       const { password, ...userData } = values;
       const dataToSave: { [key: string]: any } = {
         ...userData,
         createdAt: new Date(),
       };
 
-      if (values.role === 'student' && values.cv && values.cv.length > 0) {
+      if (values.role === 'student' && 'cv' in values && values.cv?.length > 0) {
         const cvFile = values.cv[0];
         const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
         await uploadBytes(storageRef, cvFile);
         dataToSave.cvUrl = await getDownloadURL(storageRef);
       }
-      
+
       if ('cv' in dataToSave) {
         delete dataToSave.cv;
       }
@@ -206,9 +215,10 @@ function SignupForm() {
 
       const redirectUrl = searchParams.get('redirect');
       router.push(redirectUrl || '/dashboard');
+
     } catch (error: any) {
-      // If any part of the process fails, especially after user creation,
-      // we attempt to delete the user from Auth to prevent orphaned accounts.
+      // If any part of the process fails after user creation,
+      // we must delete the user from Auth to prevent orphaned accounts.
       if (user) {
         await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
       }
@@ -219,7 +229,12 @@ function SignupForm() {
         errorMessage = 'This email address is already in use.';
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'The password is too weak.';
+      } else if (error.code === 'auth/enrollment-number-already-in-use') {
+        errorMessage = 'This enrollment number is already registered.';
+      } else if (error.code === 'permission-denied') {
+        errorMessage = "Signup failed due to a permissions issue. Please ensure your Firestore security rules are configured correctly as per the instructions.";
       }
+
       toast({
         variant: 'destructive',
         title: 'Signup Failed',
