@@ -14,14 +14,7 @@ export function PublicHeader() {
         <span className="sr-only">AlumniLink</span>
       </Link>
        <h1 className="ml-2 text-lg font-bold">AlumniLink</h1>
-      <nav className="ml-auto flex gap-4 sm:gap-6">
-        <Link
-          href="#jobs"
-          className="text-sm font-medium hover:underline underline-offset-4"
-          prefetch={false}
-        >
-          Jobs
-        </Link>
+      <nav className="ml-auto flex items-center gap-4 sm:gap-6">
         <Link
           href="#events"
           className="text-sm font-medium hover:underline underline-offset-4"
@@ -36,11 +29,15 @@ export function PublicHeader() {
         >
           News
         </Link>
-        <Button asChild variant="outline" size="sm">
-            <Link href="/login">Login</Link>
-        </Button>
+        <Link
+          href="#jobs"
+          className="text-sm font-medium hover:underline underline-offset-4"
+          prefetch={false}
+        >
+          Jobs
+        </Link>
          <Button asChild size="sm">
-            <Link href="/signup">Sign Up</Link>
+            <Link href="/login">Login/Signup</Link>
         </Button>
       </nav>
     </header>

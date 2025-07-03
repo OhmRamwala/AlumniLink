@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { PublicHeader } from '@/components/layout/public-header';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { mockJobs, mockEvents, mockNews } from '@/lib/mock-data';
-import { ArrowRight, Briefcase, Calendar, Newspaper } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -52,45 +52,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* Jobs Section */}
-        <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Explore exclusive job openings from companies within the alumni network.
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {mockJobs.slice(0, 3).map((job) => (
-                <Card key={job.id}>
-                  <CardHeader>
-                    <CardTitle>{job.title}</CardTitle>
-                    <CardDescription>{job.company} - {job.location}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
-                  </CardContent>
-                  <CardFooter>
-                     <AuthRedirect redirectUrl={`/dashboard/jobs`}>
-                      <Button variant="outline" className="w-full">Apply Now</Button>
-                    </AuthRedirect>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-             <div className="text-center">
-                <AuthRedirect redirectUrl="/dashboard/jobs">
-                  <Button>View All Jobs <ArrowRight className="ml-2"/></Button>
-                </AuthRedirect>
-            </div>
-          </div>
-        </section>
-
+        
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
           <div className="container px-4 md:px-6">
@@ -114,17 +76,17 @@ export default function HomePage() {
                     <p className="text-sm text-muted-foreground">{event.summary}</p>
                   </CardContent>
                   <CardFooter>
-                     <AuthRedirect redirectUrl={`/dashboard/events`}>
-                      <Button variant="outline" className="w-full">Learn More</Button>
-                    </AuthRedirect>
+                     <Button variant="outline" className="w-full" asChild>
+                        <AuthRedirect redirectUrl={`/dashboard/events`}>Learn More</AuthRedirect>
+                     </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
              <div className="text-center">
-                <AuthRedirect redirectUrl="/dashboard/events">
-                  <Button>View All Events <ArrowRight className="ml-2"/></Button>
-                </AuthRedirect>
+                <Button asChild>
+                  <AuthRedirect redirectUrl="/dashboard/events">View All Events <ArrowRight className="ml-2"/></AuthRedirect>
+                </Button>
             </div>
           </div>
         </section>
@@ -153,17 +115,55 @@ export default function HomePage() {
 
                   </CardContent>
                    <CardFooter>
-                     <AuthRedirect redirectUrl={`/dashboard/news/${article.id}`}>
-                      <Button variant="outline" className="w-full">Read More</Button>
-                    </AuthRedirect>
+                     <Button variant="outline" className="w-full" asChild>
+                      <AuthRedirect redirectUrl={`/dashboard/news/${article.id}`}>Read More</AuthRedirect>
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
              <div className="text-center">
-                <AuthRedirect redirectUrl="/dashboard/news">
-                  <Button>View All News <ArrowRight className="ml-2"/></Button>
-                </AuthRedirect>
+                <Button asChild>
+                    <AuthRedirect redirectUrl="/dashboard/news">View All News <ArrowRight className="ml-2"/></AuthRedirect>
+                </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Jobs Section */}
+        <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Explore exclusive job openings from companies within the alumni network.
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
+              {mockJobs.slice(0, 3).map((job) => (
+                <Card key={job.id}>
+                  <CardHeader>
+                    <CardTitle>{job.title}</CardTitle>
+                    <CardDescription>{job.company} - {job.location}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
+                  </CardContent>
+                  <CardFooter>
+                     <Button variant="outline" className="w-full" asChild>
+                      <AuthRedirect redirectUrl={`/dashboard/jobs`}>Apply Now</AuthRedirect>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+             <div className="text-center">
+                <Button asChild>
+                  <AuthRedirect redirectUrl="/dashboard/jobs">View All Jobs <ArrowRight className="ml-2"/></AuthRedirect>
+                </Button>
             </div>
           </div>
         </section>
