@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Link2, Linkedin, Github, Loader2, AlertTriangle, UploadCloud } from 'lucide-react';
+import { Link2, Linkedin, Github, Loader2, AlertTriangle, UploadCloud, ChevronsUpDown, Check } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -36,6 +36,11 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { countries } from '@/lib/countries';
+import { cn } from '@/lib/utils';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf'];
@@ -78,6 +83,7 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
 
   const formSchema = useMemo(() => {
     const cvSchema = z.any().superRefine((val, ctx) => {
@@ -383,15 +389,64 @@ function SignupForm() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
+                 <FormField
                   control={form.control}
                   name="country"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="United States" {...field} disabled={isLoading} />
-                      </FormControl>
+                      <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                              disabled={isLoading}
+                            >
+                              {field.value
+                                ? countries.find(
+                                    (country) => country.label === field.value
+                                  )?.label
+                                : "Select country"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search country..." />
+                            <CommandEmpty>No country found.</CommandEmpty>
+                            <CommandGroup>
+                                <ScrollArea className="h-72">
+                                  {countries.map((country) => (
+                                    <CommandItem
+                                      value={country.label}
+                                      key={country.value}
+                                      onSelect={() => {
+                                        form.setValue("country", country.label)
+                                        setCountryPopoverOpen(false)
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          country.label === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {country.label}
+                                    </CommandItem>
+                                  ))}
+                                </ScrollArea>
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}

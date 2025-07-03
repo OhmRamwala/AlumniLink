@@ -16,9 +16,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2, FileText, ChevronsUpDown, Check } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { countries } from '@/lib/countries';
+import { cn } from '@/lib/utils';
 
 // Reusing and adapting the schemas from signup
 const profileSchema = z.object({
@@ -50,6 +55,7 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -181,9 +187,67 @@ export default function ProfilePage() {
                                 )} />
                             </div>
                         )}
-                        <FormField control={form.control} name="country" render={({ field }) => (
-                            <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
+                        <FormField
+                            control={form.control}
+                            name="country"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Country</FormLabel>
+                                    <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            className={cn(
+                                                "w-full justify-between",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value
+                                                ? countries.find(
+                                                    (country) => country.label === field.value
+                                                )?.label
+                                                : "Select country"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Search country..." />
+                                            <CommandEmpty>No country found.</CommandEmpty>
+                                            <CommandGroup>
+                                                <ScrollArea className="h-72">
+                                                    {countries.map((country) => (
+                                                    <CommandItem
+                                                        value={country.label}
+                                                        key={country.value}
+                                                        onSelect={() => {
+                                                            form.setValue("country", country.label)
+                                                            setCountryPopoverOpen(false)
+                                                        }}
+                                                    >
+                                                        <Check
+                                                        className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            country.label === field.value
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                        )}
+                                                        />
+                                                        {country.label}
+                                                    </CommandItem>
+                                                    ))}
+                                                </ScrollArea>
+                                            </CommandGroup>
+                                        </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField control={form.control} name="about" render={({ field }) => (
                            <FormItem><FormLabel>About</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
