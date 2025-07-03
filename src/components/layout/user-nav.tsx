@@ -23,6 +23,7 @@ interface UserProfile {
   firstName: string;
   lastName: string;
   email: string;
+  avatar?: string;
 }
 
 export function UserNav() {
@@ -51,12 +52,13 @@ export function UserNav() {
       } else {
         setUser(null);
         setUserProfile(null);
+        router.push('/login');
       }
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const handleLogout = async () => {
     if (!auth) return;
@@ -88,7 +90,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            {/* The avatar image is not stored yet, so we use a fallback */}
+            <AvatarImage src={userProfile.avatar} alt={`${userProfile.firstName} ${userProfile.lastName}`} />
             <AvatarFallback>{fallback.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
@@ -106,7 +108,7 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>Profile</DropdownMenuItem>
           <DropdownMenuItem>Settings</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
