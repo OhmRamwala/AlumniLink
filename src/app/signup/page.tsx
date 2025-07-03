@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Link2, Linkedin, Github } from 'lucide-react';
+import { Link2, Linkedin, Github, Loader2, AlertTriangle } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
@@ -28,6 +28,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // Base schema for common fields
 const baseSchema = z.object({
@@ -46,7 +52,9 @@ const baseSchema = z.object({
   enrollmentNo: z.string().regex(/^[0-9]+$/, {
     message: 'Enrollment number must contain only digits.',
   }),
-  department: z.string().min(1, { message: 'Department is required.' }),
+  department: z.string().min(1, { message: 'Department is required.' }).regex(/^[a-zA-Z ]*$/, {
+      message: 'Department can only contain letters and spaces.',
+    }),
   location: z.string().min(1, { message: 'Location is required.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z
@@ -99,6 +107,9 @@ const formSchema = z.discriminatedUnion('role', [
 
 export default function SignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -123,11 +134,84 @@ export default function SignupPage() {
   // We need to get the register method for the uncontrolled file input
   const { register } = form;
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // This function will only be called if the form is valid.
-    // In a real app, you would handle form submission to your backend here.
-    console.log(values);
-    router.push('/dashboard');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth || !db) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      const user = userCredential.user;
+
+      // Don't save password or cv file object in Firestore
+      const { password, cv, ...userData } = values;
+
+      // In a real app, you would upload the CV to Firebase Storage and get a URL.
+      // For now, we are not storing the CV.
+
+      await setDoc(doc(db, 'users', user.uid), {
+        ...userData,
+        createdAt: new Date(),
+      });
+
+      toast({
+        title: 'Account Created!',
+        description: 'You have been successfully signed up.',
+      });
+
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email address is already in use.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'The password is too weak.';
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Signup Failed',
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (!isFirebaseConfigured) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-lg mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">Configuration Needed</CardTitle>
+            <CardDescription>
+              Your application is not connected to Firebase.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Firebase Not Configured</AlertTitle>
+              <AlertDescription>
+                <p>
+                  To get started, you need to add your Firebase project's
+                  configuration to the <code>.env</code> file.
+                </p>
+                <p className="mt-2">
+                  Please refer to the Firebase documentation to find your
+                  project credentials and add them to the empty{' '}
+                  <code>.env</code> file in the root of this project.
+                </p>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -154,7 +238,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Max" {...field} />
+                        <Input placeholder="Max" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,7 +251,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Robinson" {...field} />
+                        <Input placeholder="Robinson" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -183,7 +267,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Enrollment No.</FormLabel>
                       <FormControl>
-                        <Input placeholder="123456789" {...field} />
+                        <Input placeholder="123456789" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -196,7 +280,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Department</FormLabel>
                       <FormControl>
-                        <Input placeholder="Computer Science" {...field} />
+                        <Input placeholder="Computer Science" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -212,7 +296,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Location</FormLabel>
                       <FormControl>
-                        <Input placeholder="New York, NY" {...field} />
+                        <Input placeholder="New York, NY" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -229,6 +313,7 @@ export default function SignupPage() {
                           type="email"
                           placeholder="m@example.com"
                           {...field}
+                          disabled={isLoading}
                         />
                       </FormControl>
                       <FormMessage />
@@ -244,7 +329,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} disabled={isLoading} />
                     </FormControl>
                     <FormDescription>
                       Must be 8+ characters with uppercase, lowercase, number,
@@ -265,7 +350,6 @@ export default function SignupPage() {
                       <RadioGroup
                         onValueChange={(value) => {
                           field.onChange(value);
-                          // When role changes, reset fields from the other role
                           form.reset({
                             ...form.getValues(),
                             role: value as 'student' | 'alumni',
@@ -276,6 +360,7 @@ export default function SignupPage() {
                         }}
                         defaultValue={field.value}
                         className="flex gap-4"
+                        disabled={isLoading}
                       >
                         <FormItem className="flex items-center space-x-2">
                           <FormControl>
@@ -311,6 +396,7 @@ export default function SignupPage() {
                             <Textarea
                               placeholder="I'm a passionate developer interested in AI..."
                               {...field}
+                              disabled={isLoading}
                             />
                           </FormControl>
                           <FormMessage />
@@ -335,6 +421,7 @@ export default function SignupPage() {
                                   placeholder="https://linkedin.com/in/..."
                                   className="pl-10"
                                   {...field}
+                                  disabled={isLoading}
                                 />
                               </div>
                             </FormControl>
@@ -356,6 +443,7 @@ export default function SignupPage() {
                                   placeholder="https://github.com/..."
                                   className="pl-10"
                                   {...field}
+                                  disabled={isLoading}
                                 />
                               </div>
                             </FormControl>
@@ -377,6 +465,7 @@ export default function SignupPage() {
                               type="file"
                               accept=".pdf"
                               {...register('cv')}
+                              disabled={isLoading}
                             />
                           </FormControl>
                           <FormMessage />
@@ -403,6 +492,7 @@ export default function SignupPage() {
                               <Input
                                 placeholder="Software Engineer"
                                 {...field}
+                                disabled={isLoading}
                               />
                             </FormControl>
                             <FormMessage />
@@ -416,7 +506,7 @@ export default function SignupPage() {
                           <FormItem>
                             <FormLabel>Company</FormLabel>
                             <FormControl>
-                              <Input placeholder="Acme Inc." {...field} />
+                              <Input placeholder="Acme Inc." {...field} disabled={isLoading} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -433,6 +523,7 @@ export default function SignupPage() {
                             <Textarea
                               placeholder="Experienced professional with a demonstrated history of working in the computer software industry."
                               {...field}
+                              disabled={isLoading}
                             />
                           </FormControl>
                           <FormMessage />
@@ -459,6 +550,7 @@ export default function SignupPage() {
                                   placeholder="https://linkedin.com/in/..."
                                   className="pl-10"
                                   {...field}
+                                  disabled={isLoading}
                                 />
                               </div>
                             </FormControl>
@@ -480,6 +572,7 @@ export default function SignupPage() {
                                   placeholder="https://github.com/..."
                                   className="pl-10"
                                   {...field}
+                                  disabled={isLoading}
                                 />
                               </div>
                             </FormControl>
@@ -492,7 +585,8 @@ export default function SignupPage() {
                 </>
               )}
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create an account
               </Button>
             </form>
