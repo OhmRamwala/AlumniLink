@@ -31,7 +31,7 @@ import {
 import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -116,9 +116,9 @@ export default function SignupPage() {
       baseSchema.extend({
         role: z.literal('student'),
         about: z.string().min(1, { message: 'This field is required.' }),
+        cv: cvSchema,
         linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
         github: z.string().url({ message: 'Please enter a valid URL.' }),
-        cv: cvSchema,
       }),
       baseSchema.extend({
         role: z.literal('alumni'),
@@ -166,6 +166,22 @@ export default function SignupPage() {
     }
     setIsLoading(true);
     try {
+      // Check for unique enrollment number first
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        toast({
+          variant: 'destructive',
+          title: 'Signup Failed',
+          description: 'This enrollment number is already in use.',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // If enrollment number is unique, proceed with creating the user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
@@ -176,7 +192,6 @@ export default function SignupPage() {
       const { password, ...userData } = values;
       const dataToSave: { [key: string]: any } = {
         ...userData,
-        cvUrl: '',
         createdAt: new Date(),
       };
 
@@ -187,7 +202,7 @@ export default function SignupPage() {
         dataToSave.cvUrl = await getDownloadURL(storageRef);
       }
       
-      if (dataToSave.cv) {
+      if ('cv' in dataToSave) {
         delete dataToSave.cv;
       }
 
