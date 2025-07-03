@@ -73,13 +73,6 @@ const studentFields = {
   about: z.string().min(1, { message: 'This field is required.' }),
   linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
   github: z.string().url({ message: 'Please enter a valid URL.' }),
-  cv: z
-    .any()
-    .refine((files) => files?.length === 1, 'CV is required.')
-    .refine(
-      (files) => files?.[0]?.type === 'application/pdf',
-      'Only .pdf files are accepted.'
-    ),
 };
 
 // Schema for alumni-specific fields
@@ -131,9 +124,6 @@ export default function SignupPage() {
 
   const role = form.watch('role');
 
-  // We need to get the register method for the uncontrolled file input
-  const { register } = form;
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!auth || !db) {
       return;
@@ -147,11 +137,8 @@ export default function SignupPage() {
       );
       const user = userCredential.user;
 
-      // Don't save password or cv file object in Firestore
-      const { password, cv, ...userData } = values;
-
-      // In a real app, you would upload the CV to Firebase Storage and get a URL.
-      // For now, we are not storing the CV.
+      // Don't save password in Firestore
+      const { password, ...userData } = values;
 
       await setDoc(doc(db, 'users', user.uid), {
         ...userData,
@@ -355,7 +342,6 @@ export default function SignupPage() {
                             role: value as 'student' | 'alumni',
                             company: '',
                             position: '',
-                            cv: undefined,
                           });
                         }}
                         defaultValue={field.value}
@@ -452,26 +438,6 @@ export default function SignupPage() {
                         )}
                       />
                     </div>
-                  </div>
-                  <div className="space-y-4 pt-4 border-t">
-                    <FormField
-                      control={form.control}
-                      name="cv"
-                      render={() => (
-                        <FormItem>
-                          <FormLabel>Upload CV (.pdf only)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="file"
-                              accept=".pdf"
-                              {...register('cv')}
-                              disabled={isLoading}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
                 </>
               )}
