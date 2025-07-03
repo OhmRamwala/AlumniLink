@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, Suspense } from 'react';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -38,7 +38,19 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      if (!userCredential.user.emailVerified) {
+        await signOut(auth);
+        toast({
+            variant: 'destructive',
+            title: 'Email Not Verified',
+            description: 'Please check your inbox to verify your email address before logging in.',
+        });
+        setIsLoading(false);
+        return;
+      }
+
       toast({
         title: 'Login Successful',
         description: 'Welcome back!',

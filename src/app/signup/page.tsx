@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/form';
 import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { createUserWithEmailAndPassword, type User } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, type User } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -142,14 +142,16 @@ function SignupForm() {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         user = userCredential.user;
 
-        // Step 2: Prepare and save the user document to Firestore.
+        // Step 2: Send verification email
+        await sendEmailVerification(user);
+
+        // Step 3: Prepare and save the user document to Firestore.
         const { password, ...userData } = values;
         const dataToSave: { [key: string]: any } = { ...userData, createdAt: new Date() };
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
 
-        toast({ title: 'Account Created!', description: 'You have been successfully signed up.' });
-        router.push('/dashboard');
+        router.push(`/pending-verification?email=${encodeURIComponent(values.email)}`);
 
     } catch (error: any) {
         // If any step fails after user creation in Auth, delete the user to allow them to try again.
