@@ -31,7 +31,7 @@ import {
 import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword, type User } from 'firebase/auth';
-import { doc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -170,103 +170,89 @@ function SignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!auth || !db || !storage) {
-      toast({ variant: 'destructive', title: 'Configuration Error', description: 'Firebase is not configured.' });
-      return;
+        toast({ variant: 'destructive', title: 'Configuration Error', description: 'Firebase is not configured.' });
+        return;
     }
     setIsLoading(true);
     let user: User | null = null;
 
     try {
-      // Step 1: Check for enrollment number uniqueness first, before creating auth user.
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('enrollmentNo', '==', values.enrollmentNo));
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        throw { code: 'auth/enrollment-number-already-in-use' };
-      }
+        // Step 1: Create user in Auth.
+        const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            values.email,
+            values.password
+        );
+        user = userCredential.user;
 
-      // Step 2: Create user in Auth.
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      user = userCredential.user;
+        // Step 2: Prepare and save the user document to Firestore.
+        // Uniqueness of enrollmentNo should be enforced via Firestore security rules if it's a critical requirement.
+        const { password, ...userData } = values;
+        const dataToSave: { [key: string]: any } = {
+            ...userData,
+            createdAt: new Date(),
+        };
 
-      // Step 3: Prepare and save the user document to Firestore.
-      const { password, ...userData } = values;
-      const dataToSave: { [key: string]: any } = {
-        ...userData,
-        createdAt: new Date(),
-      };
+        if (values.role === 'student' && 'cv' in values && values.cv?.length > 0) {
+            const cvFile = values.cv[0];
+            const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
+            await uploadBytes(storageRef, cvFile);
+            dataToSave.cvUrl = await getDownloadURL(storageRef);
+        }
 
-      if (values.role === 'student' && 'cv' in values && values.cv?.length > 0) {
-        const cvFile = values.cv[0];
-        const storageRef = ref(storage, `cvs/${user.uid}.pdf`);
-        await uploadBytes(storageRef, cvFile);
-        dataToSave.cvUrl = await getDownloadURL(storageRef);
-      }
+        // Remove the FileList from the object to be saved
+        if ('cv' in dataToSave) {
+            delete dataToSave.cv;
+        }
 
-      if ('cv' in dataToSave) {
-        delete dataToSave.cv;
-      }
+        await setDoc(doc(db, 'users', user.uid), dataToSave);
 
-      await setDoc(doc(db, 'users', user.uid), dataToSave);
+        toast({
+            title: 'Account Created!',
+            description: 'You have been successfully signed up.',
+        });
 
-      toast({
-        title: 'Account Created!',
-        description: 'You have been successfully signed up.',
-      });
-
-      const redirectUrl = searchParams.get('redirect');
-      router.push(redirectUrl || '/dashboard');
+        const redirectUrl = searchParams.get('redirect');
+        router.push(redirectUrl || '/dashboard');
 
     } catch (error: any) {
-      // If any part of the process fails after user creation,
-      // we must delete the user from Auth to prevent orphaned accounts.
-      if (user) {
-        await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
-      }
-
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      
-      const knownErrorCodes = [
-        'auth/email-already-in-use',
-        'auth/weak-password',
-        'auth/enrollment-number-already-in-use',
-        'permission-denied',
-      ];
-      
-      if (knownErrorCodes.includes(error.code)) {
-         switch (error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage = 'This email address is already in use.';
-            break;
-          case 'auth/weak-password':
-            errorMessage = 'The password is too weak.';
-            break;
-          case 'auth/enrollment-number-already-in-use':
-            errorMessage = 'This enrollment number is already registered.';
-            break;
-          case 'permission-denied':
-            errorMessage = "Signup failed due to a permissions issue. Please ensure your Firestore security rules are configured correctly.";
-            break;
+        // If any part of the process fails after user creation,
+        // we must delete the user from Auth to prevent orphaned accounts.
+        if (user) {
+            await user.delete().catch(e => console.error("Failed to clean up user from Auth:", e));
         }
-      } else {
-        // Log only unexpected errors
-        console.error('Signup error:', error);
-      }
 
-      toast({
-        variant: 'destructive',
-        title: 'Signup Failed',
-        description: errorMessage,
-      });
+        let errorMessage = 'An unexpected error occurred. Please try again.';
+        const errorCode = error.code;
+
+        switch (errorCode) {
+            case 'auth/email-already-in-use':
+                errorMessage = 'This email address is already in use.';
+                break;
+            case 'auth/weak-password':
+                errorMessage = 'The password is too weak.';
+                break;
+            case 'storage/unauthorized':
+                errorMessage = "CV upload failed due to a permissions issue. Please check your Firebase Storage rules.";
+                break;
+            case 'permission-denied':
+                errorMessage = "Saving your profile failed due to a database permissions issue. Please ensure your Firestore security rules are configured correctly.";
+                break;
+            default:
+                console.error('Signup error:', error);
+                break;
+        }
+
+        toast({
+            variant: 'destructive',
+            title: 'Signup Failed',
+            description: errorMessage,
+        });
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  }
+}
+
 
   if (!isFirebaseConfigured) {
     return (
