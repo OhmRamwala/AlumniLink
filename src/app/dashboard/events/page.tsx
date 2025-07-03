@@ -162,7 +162,7 @@ function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => vo
             )} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField control={form.control} name="date" render={({ field }) => (
-                  <FormItem className="flex flex-col"><FormLabel>Date</FormLabel>
+                  <FormItem><FormLabel>Date</FormLabel>
                     <Popover><PopoverTrigger asChild>
                         <FormControl>
                           <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
