@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -13,15 +14,54 @@ import { PublicHeader } from '@/components/layout/public-header';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { mockJobs, mockEvents, mockNews } from '@/lib/mock-data';
 import { ArrowRight } from 'lucide-react';
-import type { AppEvent, NewsArticle } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
+import type { AppEvent, NewsArticle, Job } from '@/lib/types';
+import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
 
-export default function HomePage() {
-  const events = mockEvents;
-  const news = mockNews;
+export default async function HomePage() {
+  let events: AppEvent[] = [];
+  let news: NewsArticle[] = [];
+  let jobs: Job[] = [];
+
+  // Gracefully fetch data, falling back to mock data on error.
+  // This allows the public page to render even if Firestore rules are restrictive.
+  if (isFirebaseConfigured && db) {
+    try {
+      const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+      const eventsSnapshot = await getDocs(eventsQuery);
+      events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent));
+    } catch (e) {
+      console.warn("Could not fetch real-time events, falling back to mock data. This might be due to Firestore security rules.");
+      events = mockEvents.slice(0, 3);
+    }
+
+    try {
+      const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+      const newsSnapshot = await getDocs(newsQuery);
+      news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
+    } catch (e) {
+      console.warn("Could not fetch real-time news, falling back to mock data. This might be due to Firestore security rules.");
+      news = mockNews.slice(0, 3);
+    }
+    
+    try {
+      const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(3));
+      const jobsSnapshot = await getDocs(jobsQuery);
+      jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
+    } catch (e) {
+      console.warn("Could not fetch real-time jobs, falling back to mock data. This might be due to Firestore security rules.");
+      jobs = mockJobs.slice(0, 3);
+    }
+  } else {
+    // If firebase is not configured, use mock data.
+    events = mockEvents.slice(0, 3);
+    news = mockNews.slice(0, 3);
+    jobs = mockJobs.slice(0, 3);
+  }
 
   const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
+    if (!date) return ''; // Handle cases where date might be undefined
     if (date instanceof Timestamp) return format(date.toDate(), f);
     if (date instanceof Date) return format(date, f);
     if (typeof date === 'string') {
@@ -84,7 +124,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {events.slice(0, 3).map((event) => (
+              {events.map((event) => (
                  <Card key={event.id}>
                   <CardHeader>
                     <CardTitle>{event.title}</CardTitle>
@@ -122,7 +162,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {news.slice(0, 3).map((article) => (
+              {news.map((article) => (
                 <Card key={article.id}>
                   <CardHeader>
                     <CardTitle>{article.title}</CardTitle>
@@ -161,7 +201,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
-              {mockJobs.slice(0, 3).map((job) => (
+              {jobs.map((job) => (
                 <Card key={job.id}>
                   <CardHeader>
                     <CardTitle>{job.title}</CardTitle>
