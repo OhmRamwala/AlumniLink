@@ -317,7 +317,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
-              <p className="text-xs text-muted-foreground">&copy; 2024 AlumniLink. All rights reserved.</p>
+              <p className="text-xs text-muted-foreground">&copy; 2025 AlumniLink. All rights reserved.</p>
               <nav className="flex gap-4 sm:gap-6 mt-4 sm:mt-0">
                 <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
                   Terms of Service
