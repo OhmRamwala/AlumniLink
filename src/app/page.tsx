@@ -90,68 +90,6 @@ export default async function HomePage() {
         {/* Hero Section */}
         <HeroCarousel />
         
-        {/* Alumni Platform Section */}
-        <section className="relative w-full bg-blue-900 text-primary-foreground py-12 md:py-16">
-          <Image
-              src="https://i.ibb.co/LhkrMW47/main2.webp"
-              alt="University campus background"
-              fill
-              className="object-cover opacity-10"
-              data-ai-hint="university campus"
-          />
-          <div className="relative container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <h2 className="text-3xl font-bold tracking-tighter uppercase sm:text-4xl">CKPCET Alumni Platform</h2>
-            </div>
-            <div className="mx-auto grid max-w-6xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-4">
-              <AuthRedirect redirectUrl="/dashboard/directory">
-                <div className="flex flex-col items-center text-center gap-4 cursor-pointer">
-                  <div className="bg-primary-foreground rounded-full p-4">
-                    <Users className="h-10 w-10 text-blue-900" />
-                  </div>
-                  <h3 className="text-lg font-bold uppercase">Alumni Directory</h3>
-                  <p className="text-sm text-primary-foreground/80">
-                    Explore complete Alumni Directory & connect with alumni with your interests & domain.
-                  </p>
-                </div>
-              </AuthRedirect>
-              <AuthRedirect redirectUrl="/dashboard/directory">
-                <div className="flex flex-col items-center text-center gap-4 cursor-pointer">
-                  <div className="bg-primary-foreground rounded-full p-4">
-                    <BookUser className="h-10 w-10 text-blue-900" />
-                  </div>
-                  <h3 className="text-lg font-bold uppercase">Your Batchmates</h3>
-                  <p className="text-sm text-primary-foreground/80">
-                    View our exclusive Batchmates Directory to know about whereabouts of your batchmates.
-                  </p>
-                </div>
-              </AuthRedirect>
-              <AuthRedirect redirectUrl="/dashboard/directory">
-                <div className="flex flex-col items-center text-center gap-4 cursor-pointer">
-                  <div className="bg-primary-foreground rounded-full p-4">
-                    <MapPin className="h-10 w-10 text-blue-900" />
-                  </div>
-                  <h3 className="text-lg font-bold uppercase">Alumni in Your City</h3>
-                  <p className="text-sm text-primary-foreground/80">
-                    Find alumni living in your city & be a part of meetups in your cities.
-                  </p>
-                </div>
-              </AuthRedirect>
-              <AuthRedirect redirectUrl="/dashboard/profile">
-                <div className="flex flex-col items-center text-center gap-4 cursor-pointer">
-                  <div className="bg-primary-foreground rounded-full p-4">
-                    <User className="h-10 w-10 text-blue-900" />
-                  </div>
-                  <h3 className="text-lg font-bold uppercase">Your Alumni Profile</h3>
-                  <p className="text-sm text-primary-foreground/80">
-                    Create & complete your Alumni Profile & remain connected with all opportunities matching your interest.
-                  </p>
-                </div>
-              </AuthRedirect>
-            </div>
-          </div>
-        </section>
-
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
           <div className="container px-4 md:px-6">
