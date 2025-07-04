@@ -29,7 +29,7 @@ const images = [
     hint: 'lecture hall',
   },
   {
-    src: 'https://i.ibb.co/Q3hjCZvg/login-background.png',
+    src: 'https://i.ibb.co/Vpbh5XXq/main5.jpg',
     alt: 'Alumni networking event',
     hint: 'networking event',
   },
