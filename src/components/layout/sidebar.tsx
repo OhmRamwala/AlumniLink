@@ -28,6 +28,7 @@ import {
   Link2,
   HeartHandshake,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -106,7 +107,12 @@ export function AppSidebar() {
             href="/dashboard"
             className="flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
           >
-            <Link2 className="h-8 w-8 flex-shrink-0 text-primary" />
+            <Link2
+              className={cn(
+                'flex-shrink-0 text-primary transition-all',
+                state === 'expanded' ? 'h-6 w-6' : 'h-4 w-4'
+              )}
+            />
             {state === 'expanded' && (
               <span className="whitespace-nowrap text-xl font-semibold">
                 AlumniLink
