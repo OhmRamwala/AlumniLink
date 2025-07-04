@@ -106,7 +106,10 @@ export function AppSidebar() {
         <div className="flex h-8 w-full items-center justify-between">
           <Link
             href="/dashboard"
-            className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
+            className={cn(
+              'flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground',
+              state === 'collapsed' && 'w-full justify-center'
+            )}
           >
             <Link2
               className={cn(
@@ -114,7 +117,7 @@ export function AppSidebar() {
               )}
             />
             {state === 'expanded' && (
-              <span className="whitespace-nowrap text-lg font-semibold">
+              <span className="whitespace-nowrap font-semibold">
                 AlumniLink
               </span>
             )}
@@ -131,7 +134,7 @@ export function AppSidebar() {
                 tooltip={{
                   children: item.label,
                   side: 'right',
-                  align: 'start',
+                  align: 'center',
                   alignOffset: 4,
                 }}
               >
@@ -145,7 +148,12 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenuItem>
           <Link href="/login">
-            <SidebarMenuButton tooltip="Logout">
+            <SidebarMenuButton tooltip={{
+                children: 'Logout',
+                side: 'right',
+                align: 'center',
+                alignOffset: 4,
+            }}>
               <LogOut />
               <span>Logout</span>
             </SidebarMenuButton>
