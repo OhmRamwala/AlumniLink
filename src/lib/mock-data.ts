@@ -98,23 +98,72 @@ Preferred Requirements:
 ];
 
 export const mockNews: NewsArticle[] = [
-  { id: 'news-1', title: 'University Announces New Tech Campus', source: 'University Press', date: '2024-07-20', summary: 'A new state-of-the-art technology campus will open its doors to students in Fall 2025.', url: '/dashboard/news/news-1', imageUrl: 'https://placehold.co/600x400.png', content: `The university has announced the development of a brand new, state-of-the-art technology campus, set to open in the fall of 2025. This ambitious project aims to foster innovation and provide students with cutting-edge resources that mirror the fast-paced evolution of the tech industry.
-
-The campus will feature modern laboratories equipped for research in artificial intelligence, robotics, and biotechnology. It will also house collaborative workspaces designed to encourage interdisciplinary projects, and an entrepreneurship hub to support student-led startups from conception to launch. "We are thrilled to provide our students with an environment that not only educates but also inspires the next wave of innovators," said the University President during the announcement ceremony. "This campus is a testament to our commitment to staying at the forefront of technological education."
-
-The project is funded by a combination of government grants for educational infrastructure and generous donations from esteemed alumni who have made their mark in the technology sector. The university has launched a new fundraising campaign to equip the labs with the latest technology and to establish scholarships for students from underprivileged backgrounds who wish to enroll in the new programs.` },
-  { id: 'news-2', title: 'Alumni Startup Receives $10M in Funding', source: 'TechCrunch', date: '2024-07-18', summary: 'Connectify, a startup founded by two alumni, has secured series A funding to expand its operations.', url: '/dashboard/news/news-2', imageUrl: 'https://placehold.co/600x400.png', content: `Connectify, a social networking platform for professionals founded by alumni Jane Doe (Class of 2018) and John Smith (Class of 2015), has successfully closed a $10 million Series A funding round. The round was led by Future Ventures, with significant participation from several angel investors, many of whom are also alumni of the university.
-
-The company plans to use the capital injection to scale its engineering team, accelerate its expansion into European and Asian markets, and develop new features, including an AI-powered mentorship matching service. "This is a huge milestone for us, and it validates the hard work our team has put in," said CEO Jane Doe in a press release. "We are incredibly grateful for the support of our investors and the entire alumni community, which has been instrumental in our growth." Connectify has seen its user base grow by 300% in the last year, positioning it as a strong competitor in the professional networking space.` },
-  { id: 'news-3', title: 'Annual Homecoming Gala Breaks Records', source: 'Alumni Association', date: '2024-07-15', summary: 'This year\'s homecoming gala was the most successful yet, with record attendance and funds raised.', url: '/dashboard/news/news-3', imageUrl: 'https://placehold.co/600x400.png', content: `The annual Homecoming Gala, held last Saturday at the Grand Ballroom, was a resounding success, breaking all previous records for attendance and fundraising. Over 500 alumni, faculty, and friends of the university gathered to celebrate, reconnect, and support the institution's future endeavors.
-
-The event raised over $200,000 for student scholarships, thanks to the generosity of the attendees and corporate sponsors. The evening featured a moving keynote address from distinguished alumnus Michael Brown (Class of 2020), who spoke about the importance of giving back. A silent auction with items donated by alumni-owned businesses was a major highlight, contributing significantly to the total funds raised. The Alumni Association extends its heartfelt thanks to everyone who attended and contributed to making the night an unforgettable success. Planning for next year's gala is already underway.` },
+  {
+    id: 'news-1',
+    title: "CKPCET Awarded 'Best Upcoming College'",
+    source: 'The Times of India',
+    date: '2024-07-20',
+    summary: 'Recognized for outstanding contribution to technical education and fostering innovation among students.',
+    url: '/dashboard/news/news-1',
+    imageUrl: 'https://placehold.co/600x400.png',
+    content: `CKP College of Engineering & Technology was recently awarded the prestigious 'Best Upcoming College' award by The Times of India. The award recognizes the institution's significant contributions to technical education, its commitment to academic excellence, and its success in fostering an environment of innovation. The college has been lauded for its state-of-the-art infrastructure, experienced faculty, and impressive placement record. The management extended its gratitude to the students, staff, and alumni for their continuous support.`
+  },
+  {
+    id: 'news-2',
+    title: 'Students Secure Top Ranks in Anna University Exams',
+    source: 'University News',
+    date: '2024-07-18',
+    summary: 'Our students have once again made us proud with their excellent academic performance in the recent university examinations.',
+    url: '/dashboard/news/news-2',
+    imageUrl: 'https://placehold.co/600x400.png',
+    content: `Students from various departments at CKPCET have secured top ranks in the latest Anna University semester examinations. This outstanding achievement is a testament to the hard work of the students and the dedication of the faculty. The college chairman congratulated the students on their success and announced scholarships for the top performers to encourage them further. This consistent academic excellence reinforces CKPCET's position as a leading institution for engineering education in the region.`
+  },
+  {
+    id: 'news-3',
+    title: 'New Robotics & AI Lab Inaugurated on Campus',
+    source: 'CKPCET Press',
+    date: '2024-07-15',
+    summary: 'The new lab, equipped with state-of-the-art technology, will provide students with hands-on experience in emerging fields.',
+    url: '/dashboard/news/news-3',
+    imageUrl: 'https://placehold.co/600x400.png',
+    content: `In a move to bolster research and practical learning in cutting-edge technologies, CKP College of Engineering & Technology has inaugurated a new Robotics and Artificial Intelligence Lab. The lab is equipped with the latest robotic arms, AI development kits, and high-performance computing resources. It will serve as a hub for students to work on innovative projects, participate in competitions, and develop skills that are highly sought after in the industry. The lab was inaugurated by a leading AI researcher and is now open for all students.`
+  },
 ];
 
 export const mockEvents: AppEvent[] = [
-  { id: 'event-1', title: 'Alumni Networking Night', date: '2024-08-15', time: '6:00 PM - 8:00 PM', location: 'Grand Ballroom', description: 'An exclusive event for alumni to connect with peers and industry leaders. Enjoy complimentary hors d\'oeuvres and refreshments while expanding your professional network.', imageUrl: 'https://placehold.co/600x400.png', summary: 'A great opportunity to expand your professional network.', url: '#' },
-  { id: 'event-2', title: 'Webinar: The Future of AI', date: '2024-08-22', time: '12:00 PM - 1:00 PM', location: 'Online', description: 'Join a panel of industry experts, including our very own alumni, as they discuss the latest trends and future outlook of Artificial Intelligence. A Q&A session will follow the discussion.', imageUrl: 'https://placehold.co/600x400.png', summary: 'Learn about the future of AI from leading experts.', url: '#' },
-  { id: 'event-3', title: 'Campus Career Fair', date: '2024-09-10', time: '10:00 AM - 4:00 PM', location: 'University Gymnasium', description: 'Open to all students and recent graduates. Meet with recruiters from over 50 top companies hiring for internships and full-time positions across various industries.', imageUrl: 'https://placehold.co/600x400.png', summary: 'Find your next career opportunity.', url: '#' },
+  {
+    id: 'event-1',
+    title: 'Innovate 2K24 - National Technical Symposium',
+    date: '2024-09-15',
+    time: '9:00 AM - 5:00 PM',
+    location: 'CKPCET Campus, Cuddalore',
+    description: 'A flagship national-level technical symposium featuring paper presentations, project expos, and workshops on the latest technologies. A great platform for budding engineers to showcase their talent.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    summary: 'Showcase your technical skills at our national-level symposium.',
+    url: '#'
+  },
+  {
+    id: 'event-2',
+    title: 'Alumni Reunion 2024',
+    date: '2024-10-05',
+    time: '10:00 AM - 4:00 PM',
+    location: 'University Auditorium',
+    description: 'Join us for a day of nostalgia, fun, and reconnection. Meet your old friends, interact with faculty, and see how the campus has grown. A day to cherish and make new memories.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    summary: 'Reconnect with old friends and relive your college days.',
+    url: '#'
+  },
+  {
+    id: 'event-3',
+    title: 'Campus Placement Drive: Wipro',
+    date: '2024-09-25',
+    time: '9:30 AM onwards',
+    location: 'Placement Cell, CKPCET',
+    description: 'Wipro is conducting an exclusive on-campus recruitment drive for final year students of all engineering branches. Come prepared to land your dream job.',
+    imageUrl: 'https://placehold.co/600x400.png',
+    summary: 'Exclusive recruitment drive by Wipro for final year students.',
+    url: '#'
+  },
 ];
 
 const mockReplies: ForumReply[] = [
