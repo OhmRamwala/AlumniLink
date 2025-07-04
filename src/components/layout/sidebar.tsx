@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -113,22 +112,22 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <div className="flex h-8 w-full items-center justify-between">
+      <SidebarHeader className="h-14 justify-center">
+        <div className="flex h-full w-full items-center">
           <Link
             href="/dashboard"
             className={cn(
-              'flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground',
-              state === 'collapsed' && 'w-full justify-center'
+              'flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full',
+              state === 'collapsed' ? 'justify-center' : 'justify-start pl-2'
             )}
           >
             <Link2
               className={cn(
-                'h-4 w-4 flex-shrink-0 text-primary transition-all'
+                'h-5 w-5 flex-shrink-0 text-primary transition-all'
               )}
             />
             {state === 'expanded' && (
-              <span className="whitespace-nowrap font-semibold">
+              <span className="whitespace-nowrap font-semibold text-base">
                 AlumniLink
               </span>
             )}
@@ -142,6 +141,7 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
+                className="justify-start"
                 tooltip={{
                   children: item.label,
                   side: 'top',
@@ -159,6 +159,7 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
+            className="w-full justify-start"
             tooltip={{
               children: 'Logout',
               side: 'top',
