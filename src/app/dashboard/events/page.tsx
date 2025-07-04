@@ -234,7 +234,7 @@ function EventDetailsDialog({ event }: { event: AppEvent }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full bg-accent hover:bg-accent/90">
+        <Button className="w-full">
           Register Now
         </Button>
       </DialogTrigger>
