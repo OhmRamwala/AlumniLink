@@ -57,26 +57,16 @@ export function PublicHeader() {
         <div className="container flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
             <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Home</Link>
             
-            <NavDropdown label="Events & News">
-                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/events">Events</AuthRedirect></DropdownMenuItem>
-                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/news">News</AuthRedirect></DropdownMenuItem>
-            </NavDropdown>
-             
-            <NavDropdown label="Batchmates">
-                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Search Alumni</AuthRedirect></DropdownMenuItem>
-            </NavDropdown>
-
+            <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Events</Link>
+            <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">News</Link>
+            
             <NavDropdown label="Find Alumni">
                 <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Alumni Directory</AuthRedirect></DropdownMenuItem>
             </NavDropdown>
 
             <NavLink redirectUrl="/dashboard/jobs">Jobs</NavLink>
-            <NavLink redirectUrl="/dashboard/donations">Lend a Hand</NavLink>
-
-             <NavDropdown label="About">
-                <DropdownMenuItem asChild><Link href="#">About the College</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="#">About Alumni Association</Link></DropdownMenuItem>
-            </NavDropdown>
+            
+            <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">About</Link>
         </div>
       </nav>
     </header>

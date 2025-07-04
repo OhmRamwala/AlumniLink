@@ -93,8 +93,8 @@ export default async function HomePage() {
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
           <div className="container px-4 md:px-6">
-             <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+             <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">Upcoming Events</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Connect and Network</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -142,8 +142,8 @@ export default async function HomePage() {
         {/* News Section */}
         <section id="news" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Community News</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Stay Informed</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -192,8 +192,8 @@ export default async function HomePage() {
         {/* Jobs Section */}
         <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -244,6 +244,21 @@ export default async function HomePage() {
                <Button asChild size="lg">
                 <Link href="/signup">Sign Up</Link>
               </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">About Us</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">C.K Pithawalla College of Engineering & Technology</h2>
+                <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Established in 1998, C.K Pithawalla College of Engineering and Technology has been a pioneer in technical education in South Gujarat. Our mission is to provide quality education, foster innovation, and produce highly skilled engineers who can contribute to society. With state-of-the-art facilities and a dedicated faculty, we are committed to nurturing the leaders of tomorrow.
+                </p>
+              </div>
             </div>
           </div>
         </section>
