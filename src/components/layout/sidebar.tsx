@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -102,19 +103,18 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex w-full items-center justify-between">
+        <div className="flex h-8 w-full items-center justify-between">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
+            className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
           >
             <Link2
               className={cn(
-                'flex-shrink-0 text-primary transition-all',
-                state === 'expanded' ? 'h-6 w-6' : 'h-4 w-4'
+                'h-4 w-4 flex-shrink-0 text-primary transition-all'
               )}
             />
             {state === 'expanded' && (
-              <span className="whitespace-nowrap text-xl font-semibold">
+              <span className="whitespace-nowrap text-lg font-semibold">
                 AlumniLink
               </span>
             )}
@@ -128,7 +128,12 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                tooltip={item.label}
+                tooltip={{
+                  children: item.label,
+                  side: 'right',
+                  align: 'start',
+                  alignOffset: 4,
+                }}
               >
                 <item.icon />
                 <span>{item.label}</span>
