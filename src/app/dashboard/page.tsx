@@ -3,7 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
 
 import {
@@ -26,7 +28,6 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
-import { mockUsers, mockNews, mockEvents, mockThreads, mockJobs, mockDonationCampaigns } from '@/lib/mock-data';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -38,13 +39,49 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setUserProfile(mockUsers[0]);
-    setNews(mockNews.slice(0, 3));
-    setEvents(mockEvents.slice(0, 3));
-    setThreads(mockThreads.slice(0, 2));
-    setJobs(mockJobs.slice(0, 2));
-    setDonationCampaigns(mockDonationCampaigns.slice(0, 3));
-    setIsLoading(false);
+    if (!auth || !db) {
+        setIsLoading(false);
+        return;
+    }
+
+    const unsubscribers: (() => void)[] = [];
+
+    const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+            }
+        } else {
+            setUserProfile(null);
+        }
+        setIsLoading(false);
+    });
+    unsubscribers.push(authUnsubscribe);
+
+    const collectionsToFetch = [
+        { name: 'news', setter: setNews, limit: 3, orderByField: 'date' },
+        { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
+        { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
+        { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
+        { name: 'donations', setter: setDonationCampaigns, limit: 3, orderByField: 'createdAt' },
+    ];
+
+    collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
+        const q = query(collection(db!, name), orderBy(orderByField, 'desc'), limit(l));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setter(data as any);
+        }, (error) => {
+            console.error(`Error fetching ${name}:`, error);
+        });
+        unsubscribers.push(unsubscribe);
+    });
+    
+    return () => {
+        unsubscribers.forEach(unsub => unsub());
+    };
   }, []);
 
   const formatDate = (date: Timestamp | Date | string | undefined, fmt = 'MMM d, yyyy') => {
