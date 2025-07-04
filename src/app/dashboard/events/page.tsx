@@ -374,7 +374,7 @@ export default function EventsPage() {
                 src={event.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={event.title}
                 fill
-                className="object-contain p-2"
+                className="object-cover"
                 data-ai-hint="networking professional"
               />
             </div>

@@ -93,8 +93,8 @@ export default async function HomePage() {
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
           <div className="container px-4 md:px-6">
-             <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+             <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">Upcoming Events</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Connect and Network</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -104,21 +104,21 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {events.length > 0 ? events.map((event) => (
-                 <Card key={event.id} className="flex flex-col">
+                 <Card key={event.id} className="flex flex-col text-center">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                     <Image
                       src={event.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                       alt={event.title}
                       fill
-                      className="object-contain p-2"
+                      className="object-cover"
                       data-ai-hint="networking professional"
                     />
                   </div>
-                  <CardHeader className="items-center text-center">
+                  <CardHeader className="items-center">
                     <CardTitle>{event.title}</CardTitle>
                     <CardDescription>{formatDate(event.date)} - {event.location}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 text-center">
+                  <CardContent className="flex-1">
                     <p className="text-sm text-muted-foreground line-clamp-3">{event.summary}</p>
                   </CardContent>
                   <CardFooter className="justify-center">
@@ -142,8 +142,8 @@ export default async function HomePage() {
         {/* News Section */}
         <section id="news" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Community News</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Stay Informed</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -153,21 +153,21 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {news.length > 0 ? news.map((article) => (
-                <Card key={article.id} className="flex flex-col">
+                <Card key={article.id} className="flex flex-col text-center">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                       <Image
                         src={article.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                         alt={article.title}
                         fill
-                        className="object-contain p-2"
+                        className="object-cover"
                         data-ai-hint="community news"
                       />
                   </div>
-                  <CardHeader className="items-center text-center">
+                  <CardHeader className="items-center">
                     <CardTitle>{article.title}</CardTitle>
                     <CardDescription>{article.source} - {formatDate(article.date)}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 text-center">
+                  <CardContent className="flex-1">
                     <p className="text-sm text-muted-foreground line-clamp-3">{article.summary}</p>
 
                   </CardContent>
@@ -192,8 +192,8 @@ export default async function HomePage() {
         {/* Jobs Section */}
         <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="space-y-2 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -203,12 +203,12 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {jobs.length > 0 ? jobs.map((job) => (
-                <Card key={job.id}>
-                  <CardHeader className="items-center text-center">
+                <Card key={job.id} className="text-center">
+                  <CardHeader className="items-center">
                     <CardTitle>{job.title}</CardTitle>
                     <CardDescription>{job.company} - {job.location}</CardDescription>
                   </CardHeader>
-                  <CardContent className="text-center">
+                  <CardContent>
                     <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
                   </CardContent>
                   <CardFooter className="justify-center">

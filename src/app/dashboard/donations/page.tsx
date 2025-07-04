@@ -268,7 +268,7 @@ export default function DonationsPage() {
                 src={campaign.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={campaign.title}
                 fill
-                className="object-contain p-2"
+                className="object-cover"
                 data-ai-hint="charity donation"
               />
             </div>

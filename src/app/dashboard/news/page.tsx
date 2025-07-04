@@ -283,7 +283,7 @@ export default function NewsPage() {
                 src={article.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={article.title}
                 fill
-                className="object-contain p-2"
+                className="object-cover"
                 data-ai-hint="community event"
               />
             </div>
