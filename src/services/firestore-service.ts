@@ -60,11 +60,31 @@ export async function searchAlumni(searchTerm: string): Promise<Pick<User, 'firs
         const alumniData = querySnapshot.docs.map(doc => doc.data() as User);
         
         const lowercasedTerm = searchTerm.toLowerCase();
-        const filteredAlumni = alumniData.filter(user => 
-            `${user.firstName} ${user.lastName}`.toLowerCase().includes(lowercasedTerm) ||
-            user.company?.toLowerCase().includes(lowercasedTerm) ||
-            user.position?.toLowerCase().includes(lowercasedTerm)
-        ).slice(0, 5); // Limit results
+        const searchTokens = lowercasedTerm.split(/\s+/).filter(Boolean);
+
+        const scoredAlumni = alumniData.map(user => {
+            let score = 0;
+            const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+            const company = (user.company || '').toLowerCase();
+            const position = (user.position || '').toLowerCase();
+
+            searchTokens.forEach(token => {
+                if (fullName.includes(token)) score += 5; // Higher weight for name match
+                if (company.includes(token)) {
+                    score += 3;
+                    if (company.startsWith(token)) score += 2; // Bonus for exact start
+                }
+                if (position.includes(token)) score += 1;
+            });
+
+            return { user, score };
+        });
+
+        const filteredAlumni = scoredAlumni
+            .filter(item => item.score > 0) // Only include users that matched something
+            .sort((a, b) => b.score - a.score) // Sort by score descending
+            .slice(0, 5) // Limit results
+            .map(item => item.user);
 
         // Return only a subset of fields to the LLM
         return filteredAlumni.map(({ firstName, lastName, position, company, country }) => ({
