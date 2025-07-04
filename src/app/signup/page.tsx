@@ -125,8 +125,6 @@ function SignupForm() {
       { rule: (pwd: string) => /[0-9]/.test(pwd), label: 'A number' },
   ], []);
 
-  const allPasswordChecksPassed = useMemo(() => passwordChecks.every(({ rule }) => rule(passwordValue || "")), [passwordValue, passwordChecks]);
-
   const handleNextStep = async () => {
     const fieldsToValidate: (keyof FormValues)[] = [
         'firstName', 'lastName', 'enrollmentNo', 'department', 'country', 'email', 'password', 'role'
@@ -199,7 +197,7 @@ function SignupForm() {
         <Card className="w-full max-w-lg mx-auto"><CardHeader><CardTitle className="text-2xl">Configuration Needed</CardTitle>
             <CardDescription>Your application is not connected to Firebase.</CardDescription></CardHeader>
           <CardContent><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Firebase Not Configured</AlertTitle>
-              <AlertDescription><p>To get started, you need to add your Firebase project's configuration to the <code>.env</code> file.</p>
+              <AlertDescription><p>To get started, you need to add your Firebase project's configuration to the d.env file.</p>
                 <p className="mt-2">Please refer to the Firebase documentation to find your project credentials and add them to the empty <code>.env</code> file in the root of this project.</p>
               </AlertDescription></Alert>
           </CardContent>
@@ -267,36 +265,38 @@ function SignupForm() {
                                 )} />
                             </div>
                             
-                            <div className="space-y-2">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField control={form.control} name="password" render={({ field }) => (
-                                        <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
-                                            <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
-                                            <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(p => !p)}>
-                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
-                                            </Button>
-                                            </div></FormControl><FormMessage />
-                                        </FormItem>
-                                    )} />
-                                     <FormField control={form.control} name="role" render={({ field }) => (
-                                        <FormItem className="pt-2"><FormLabel>I am a...</FormLabel><FormControl>
-                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
-                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
-                                            </RadioGroup></FormControl><FormMessage /></FormItem>
-                                    )} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="password" render={({ field }) => (
+                                    <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
+                                        <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
+                                        <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(p => !p)}>
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+                                        </Button>
+                                        </div></FormControl><FormMessage />
+                                    </FormItem>
+                                )} />
+                                    <FormField control={form.control} name="role" render={({ field }) => (
+                                    <FormItem className="pt-2"><FormLabel>I am a...</FormLabel><FormControl>
+                                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
+                                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
+                                        </RadioGroup></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
+
+                             <div className="flex justify-between items-end pt-2">
+                                <div className="text-xs space-y-1">
+                                    {passwordChecks.map(({ rule, label }) => (
+                                        <div key={label} className={cn("flex items-center gap-1.5 transition-colors", rule(passwordValue || "") ? 'text-foreground' : 'text-muted-foreground')}>
+                                            <Check className="h-3.5 w-3.5" />
+                                            <span>{label}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                                {passwordValue && !allPasswordChecksPassed && (
-                                    <div className="text-xs space-y-1 pt-2">
-                                        {passwordChecks.map(({ rule, label }) => (
-                                            <div key={label} className={cn("flex items-center gap-1.5 transition-colors", rule(passwordValue) ? 'text-foreground' : 'text-muted-foreground')}>
-                                                <Check className="h-3.5 w-3.5" />
-                                                <span>{label}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <Button type="button" onClick={handleNextStep}>
+                                    Next <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -339,13 +339,7 @@ function SignupForm() {
                     )}
                     </CardContent>
                     <CardFooter>
-                        {step === 1 ? (
-                            <div className="w-full flex justify-end">
-                                <Button type="button" onClick={handleNextStep}>
-                                    Next <ArrowRight className="ml-2 h-4 w-4" />
-                                </Button>
-                            </div>
-                        ) : (
+                        {step === 2 && (
                             <div className="w-full flex justify-between items-center">
                                 <Button type="button" variant="outline" onClick={() => setStep(1)}>
                                     Previous
@@ -374,5 +368,3 @@ export default function SignupPage() {
     </Suspense>
   )
 }
-
-    
