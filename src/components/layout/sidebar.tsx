@@ -87,14 +87,19 @@ export function AppSidebar() {
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as UserProfile);
+          setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+        } else {
+          // User authenticated but no profile in Firestore.
+          // This is an invalid state, so we'll log them out.
+          setUserProfile(null);
+          router.push('/login');
         }
       } else {
         setUserProfile(null);
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const handleLogout = async () => {
     if (!auth) return;
@@ -141,7 +146,7 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className="w-full"
+                className={cn('w-full', state === 'collapsed' ? 'justify-center' : 'justify-start')}
                 tooltip={{
                   children: item.label,
                   side: 'top',
@@ -159,7 +164,7 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
-            className="w-full"
+            className={cn('w-full', state === 'collapsed' ? 'justify-center' : 'justify-start')}
             tooltip={{
               children: 'Logout',
               side: 'top',
