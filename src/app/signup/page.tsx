@@ -75,6 +75,8 @@ const formSchema = z.discriminatedUnion('role', [
   z.object({
     role: z.literal('student'),
     about: z.string().min(1, { message: 'This field is required.' }),
+    linkedin: z.string().min(1, { message: 'LinkedIn profile is required.' }).url({ message: 'A valid LinkedIn URL is required.' }),
+    github: z.string().min(1, { message: 'GitHub profile is required.' }).url({ message: 'A valid GitHub URL is required.' }),
   }).merge(baseSchema),
   z.object({
     role: z.literal('alumni'),
@@ -108,6 +110,8 @@ function SignupForm() {
       email: '',
       password: '',
       about: '',
+      linkedin: '',
+      github: '',
     },
     mode: 'onTouched'
   });
@@ -146,11 +150,17 @@ function SignupForm() {
 
         const { password, ...userData } = values;
         
-        const dataToSave = { 
+        const dataToSave: any = { 
             ...userData, 
             createdAt: new Date(),
             id: user.uid,
         };
+        // Ensure optional fields are handled correctly
+        if (dataToSave.role === 'student') {
+            delete dataToSave.company;
+            delete dataToSave.position;
+        }
+
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
         router.push(`/pending-verification?email=${encodeURIComponent(values.email)}`);
@@ -248,7 +258,7 @@ function SignupForm() {
                                 )} />
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="password" render={({ field }) => (
                                     <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
                                         <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
@@ -259,7 +269,7 @@ function SignupForm() {
                                         </div></FormControl><FormMessage />
                                     </FormItem>
                                 )} />
-                                    <FormField control={form.control} name="role" render={({ field }) => (
+                                <FormField control={form.control} name="role" render={({ field }) => (
                                     <FormItem className="pt-2"><FormLabel>I am a...</FormLabel><FormControl>
                                         <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
@@ -301,25 +311,24 @@ function SignupForm() {
                                 <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} /></FormControl>
                                 <FormMessage /></FormItem>
                             )} />
-                            {role === 'alumni' && (
-                                <div className="space-y-4 pt-4 border-t">
-                                    <h4 className="text-md font-medium">Social Profiles (Optional)</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField control={form.control} name="linkedin" render={({ field }) => (
-                                            <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
-                                                    <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                                    <Input type="url" placeholder="https://linkedin.com/in/..." className="pl-10" {...field} disabled={isLoading} />
-                                                    </div></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                        <FormField control={form.control} name="github" render={({ field }) => (
-                                            <FormItem><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
-                                                    <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                                    <Input type="url" placeholder="https://github.com/..." className="pl-10" {...field} disabled={isLoading} />
-                                                    </div></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                    </div>
+                           
+                            <div className="space-y-4 pt-4 border-t">
+                                <h4 className="text-md font-medium">{role === 'alumni' ? 'Social Profiles (Optional)' : 'Social Profiles'}</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="linkedin" render={({ field }) => (
+                                        <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
+                                                <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                                <Input type="url" placeholder="https://linkedin.com/in/..." className="pl-10" {...field} disabled={isLoading} />
+                                                </div></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="github" render={({ field }) => (
+                                        <FormItem><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
+                                                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                                <Input type="url" placeholder="https://github.com/..." className="pl-10" {...field} disabled={isLoading} />
+                                                </div></FormControl><FormMessage /></FormItem>
+                                    )} />
                                 </div>
-                            )}
+                            </div>
                         </div>
                     )}
                     </CardContent>
