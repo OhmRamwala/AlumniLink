@@ -1,16 +1,10 @@
-
 'use client';
 
 import * as React from 'react';
-import Autoplay from 'embla-carousel-autoplay';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel';
+import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 const images = [
@@ -42,35 +36,32 @@ const images = [
 ];
 
 export function HeroCarousel() {
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  );
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
-      <Carousel
-        plugins={[plugin.current]}
-        className="w-full h-full"
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
-      >
-        <CarouselContent className="h-full">
-          {images.map((image, index) => (
-            <CarouselItem key={index} className="h-full">
-              <div className="relative w-full h-full">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={image.hint}
-                  priority={index === 0}
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+      {images.map((image, index) => (
+        <Image
+          key={image.src}
+          src={image.src}
+          alt={image.alt}
+          fill
+          className={cn(
+            'object-cover transition-opacity duration-1000 ease-in-out',
+            index === currentIndex ? 'opacity-100' : 'opacity-0'
+          )}
+          data-ai-hint={image.hint}
+          priority={index === 0}
+        />
+      ))}
       <div className="absolute inset-0 bg-black/50" />
       <div className="absolute inset-0 flex flex-col items-center justify-center container px-4 md:px-6">
         <div className="flex flex-col items-center space-y-6 text-center text-primary-foreground">
