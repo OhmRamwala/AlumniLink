@@ -79,37 +79,44 @@ export function AppSidebar() {
 
   useEffect(() => {
     if (!auth || !db) return;
-    
+
     let isMounted = true;
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!isMounted) return;
 
       if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (isMounted) {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (isMounted) {
             if (userDoc.exists()) {
               setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
             } else {
-              // If user exists in auth but not firestore, sign out and redirect
+              console.warn(`User with UID ${user.uid} authenticated but no profile found in Firestore. Signing out.`);
               await signOut(auth);
               router.push('/login');
             }
+          }
+        } catch (error) {
+          console.error("Error fetching user profile. Signing out.", error);
+          if (isMounted) {
+            await signOut(auth);
+            router.push('/login');
+          }
         }
       } else {
-        // User is not signed in
         if (isMounted) {
-            setUserProfile(null);
-            router.push('/login');
+          setUserProfile(null);
+          router.push('/login');
         }
       }
     });
 
     return () => {
-        isMounted = false;
-        unsubscribe();
-    }
+      isMounted = false;
+      unsubscribe();
+    };
   }, [router]);
 
   const handleLogout = async () => {
