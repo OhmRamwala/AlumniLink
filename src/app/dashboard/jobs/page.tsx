@@ -356,8 +356,8 @@ export default function JobsPage() {
                             job.type === 'Internship'
                               ? 'destructive'
                               : job.type === 'Full-time'
-                              ? 'default'
-                              : 'secondary'
+                              ? 'success'
+                              : 'default'
                           }
                         >
                           {job.type}
