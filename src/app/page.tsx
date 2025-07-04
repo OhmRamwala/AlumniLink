@@ -104,24 +104,24 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {events.length > 0 ? events.map((event) => (
-                 <Card key={event.id} className="flex flex-col">
+                 <Card key={event.id} className="flex flex-col text-center">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                     <Image
                       src={event.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                       alt={event.title}
                       fill
-                      className="object-contain p-2"
+                      className="object-cover"
                       data-ai-hint="networking professional"
                     />
                   </div>
-                  <CardHeader>
+                  <CardHeader className="items-center">
                     <CardTitle>{event.title}</CardTitle>
                     <CardDescription>{formatDate(event.date)} - {event.location}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
                     <p className="text-sm text-muted-foreground line-clamp-3">{event.summary}</p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="justify-center">
                      <Button variant="outline" className="w-full" asChild>
                         <AuthRedirect redirectUrl={`/dashboard/events`}>Learn More</AuthRedirect>
                      </Button>
@@ -153,17 +153,17 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {news.length > 0 ? news.map((article) => (
-                <Card key={article.id} className="flex flex-col">
+                <Card key={article.id} className="flex flex-col text-center">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                       <Image
                         src={article.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                         alt={article.title}
                         fill
-                        className="object-contain p-2"
+                        className="object-cover"
                         data-ai-hint="community news"
                       />
                   </div>
-                  <CardHeader>
+                  <CardHeader className="items-center">
                     <CardTitle>{article.title}</CardTitle>
                     <CardDescription>{article.source} - {formatDate(article.date)}</CardDescription>
                   </CardHeader>
@@ -171,7 +171,7 @@ export default async function HomePage() {
                     <p className="text-sm text-muted-foreground line-clamp-3">{article.summary}</p>
 
                   </CardContent>
-                   <CardFooter>
+                   <CardFooter className="justify-center">
                      <Button variant="outline" className="w-full" asChild>
                       <AuthRedirect redirectUrl={`/dashboard/news/${article.id}`}>Read More</AuthRedirect>
                     </Button>
@@ -203,15 +203,15 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {jobs.length > 0 ? jobs.map((job) => (
-                <Card key={job.id}>
-                  <CardHeader>
+                <Card key={job.id} className="text-center">
+                  <CardHeader className="items-center">
                     <CardTitle>{job.title}</CardTitle>
                     <CardDescription>{job.company} - {job.location}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="justify-center">
                      <Button variant="outline" className="w-full" asChild>
                       <AuthRedirect redirectUrl={`/dashboard/jobs`}>Apply Now</AuthRedirect>
                     </Button>
