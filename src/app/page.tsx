@@ -91,7 +91,7 @@ export default async function HomePage() {
         <HeroCarousel />
         
         {/* Events Section */}
-        <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
+        <section id="events" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">
           <div className="container px-4 md:px-6">
              <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -140,7 +140,7 @@ export default async function HomePage() {
         </section>
 
         {/* News Section */}
-        <section id="news" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="news" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -190,11 +190,11 @@ export default async function HomePage() {
         </section>
 
         {/* Jobs Section */}
-        <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="jobs" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
+                 <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">Latest Job Postings</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Explore exclusive job openings from companies within the alumni network.
@@ -230,7 +230,7 @@ export default async function HomePage() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
+        <section id="about" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -245,7 +245,7 @@ export default async function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 border-t">
+        <section className="w-full py-12 md:py-16 lg:py-20 border-t">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
