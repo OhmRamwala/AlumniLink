@@ -26,7 +26,6 @@ import {
   Link2,
   HeartHandshake,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -80,22 +79,37 @@ export function AppSidebar() {
 
   useEffect(() => {
     if (!auth || !db) return;
+    
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!isMounted) return;
+
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
-        } else {
-          await signOut(auth);
-          router.push('/login');
+        if (isMounted) {
+            if (userDoc.exists()) {
+              setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+            } else {
+              // If user exists in auth but not firestore, sign out and redirect
+              await signOut(auth);
+              router.push('/login');
+            }
         }
       } else {
-        setUserProfile(null);
-        router.push('/login');
+        // User is not signed in
+        if (isMounted) {
+            setUserProfile(null);
+            router.push('/login');
+        }
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+        isMounted = false;
+        unsubscribe();
+    }
   }, [router]);
 
   const handleLogout = async () => {
@@ -135,10 +149,10 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className="w-full justify-start"
+                className="w-full justify-between"
               >
-                <item.icon />
                 <span>{item.label}</span>
+                <item.icon />
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
@@ -148,10 +162,10 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
-            className="w-full justify-start"
+            className="w-full justify-between"
           >
-            <LogOut />
             <span>Logout</span>
+            <LogOut />
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarFooter>
