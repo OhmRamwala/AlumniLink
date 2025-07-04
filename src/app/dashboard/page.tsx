@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -220,9 +219,13 @@ export default function DashboardPage() {
               )}
             </CardContent>
             <CardFooter>
-                <Button asChild className="w-full bg-accent hover:bg-accent/90">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground"
+                >
                     <Link href="/dashboard/donations">
-                      View Campaigns
+                      Donate Now
                     </Link>
                 </Button>
             </CardFooter>
