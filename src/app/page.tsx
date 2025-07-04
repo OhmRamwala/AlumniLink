@@ -100,7 +100,7 @@ export default async function HomePage() {
                 </div>
               </div>
               <Image
-                src="https://old.ckpcet.ac.in/images/site/bg.jpg"
+                src="https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg"
                 width="600"
                 height="400"
                 alt="Hero"
