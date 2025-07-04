@@ -16,12 +16,12 @@ export const mockUsers: User[] = [
 export const mockJobs: Job[] = [
   {
     id: 'job-1',
-    title: 'Frontend Developer',
-    company: 'Innovate Inc.',
-    location: 'Remote',
-    type: 'Full-time',
-    postedBy: { id: '1', firstName: 'Jane', lastName: 'Doe' },
-    shortDescription: 'Join our team to build amazing user interfaces with React and Next.js.',
+    title: 'Mechanical Design Engineer',
+    company: 'Bosch Ltd.',
+    location: 'Frankfrut, Germany',
+    type: 'Internship',
+    postedBy: { id: '1', firstName: 'Ritika', lastName: 'Jain' },
+    shortDescription: 'Exciting opportunity to intern in Germany with R&D team focused on mechanical design, prototyping, and thermal system development.',
     fullDescription: `About the Role:
 Innovate Inc. is seeking a passionate Frontend Developer to join our dynamic team. You will be at the forefront of creating beautiful and functional web applications that our users love. This is a great opportunity to work on cutting-edge technology in a collaborative and supportive environment. We value creativity, problem-solving, and a desire to learn and grow.
 
@@ -49,11 +49,11 @@ Benefits:
   },
   {
     id: 'job-2',
-    title: 'Data Analyst Intern',
-    company: 'DataDriven Co.',
-    location: 'New York, NY',
-    type: 'Internship',
-    postedBy: { id: '6', firstName: 'David', lastName: 'Miller' },
+    title: 'UI/UX Designer (Figma + Web Design)',
+    company: 'Tata Consultancy Services',
+    location: 'Surat, India',
+    type: 'Full-time',
+    postedBy: { id: '6', firstName: 'Mihir', lastName: 'Trivedi' },
     shortDescription: 'An exciting internship opportunity for students passionate about data.',
     fullDescription: `About the Role:
 DataDriven Co. is looking for a motivated Data Analyst Intern to join our team for the summer. This is a paid internship that offers hands-on experience in a real-world data environment. You will work closely with our team of data scientists and analysts to help us make sense of our vast datasets and drive business decisions.
@@ -75,12 +75,12 @@ Preferred Requirements:
   },
   {
     id: 'job-3',
-    title: 'Backend Engineer',
-    company: 'Secure Solutions',
+    title: 'Junior Frontend Developer (React.js)',
+    company: 'CodeNest Labs',
     location: 'Austin, TX',
     type: 'Full-time',
     postedBy: { id: '7', firstName: 'Priya', lastName: 'Patel' },
-    shortDescription: 'Develop robust and scalable backend systems using Node.js and PostgreSQL.',
+    shortDescription: 'Join our engineering team to build modern, scalable frontend interfaces using React.js and integrate with real-time APIs and Firebase services.',
     fullDescription: `About the Role:
 Secure Solutions is hiring a Backend Engineer to design, develop, and maintain our server-side logic. You will be a key member of our engineering team, responsible for building the foundation of our products. We are looking for someone who is passionate about building secure, scalable, and resilient systems.
 
@@ -104,29 +104,29 @@ Preferred Requirements:
 export const mockNews: NewsArticle[] = [
   {
     id: 'news-1',
-    title: "CKPCET Awarded 'Best Upcoming College'",
-    source: 'The Times of India',
+    title: "High-Speed Dual-Band Wi-Fi Network Launched on Campus",
+    source: 'NewsClub',
     date: Timestamp.fromDate(new Date('2024-07-20')),
-    summary: 'Recognized for outstanding contribution to technical education and fostering innovation among students.',
-    imageUrl: 'https://i.ibb.co/VvzS0n1/news-1.png',
+    summary: 'CKPCET upgrades campus connectivity with a 200 Mbps 5GHz Wi-Fi network installed across labs, hostels, and classrooms.',
+    imageUrl: 'https://i.ibb.co/nMYDpSqd/1.png',
     content: `CKP College of Engineering & Technology was recently awarded the prestigious 'Best Upcoming College' award by The Times of India. The award recognizes the institution's significant contributions to technical education, its commitment to academic excellence, and its success in fostering an environment of innovation. The college has been lauded for its state-of-the-art infrastructure, experienced faculty, and impressive placement record. The management extended its gratitude to the students, staff, and alumni for their continuous support.`
   },
   {
     id: 'news-2',
-    title: 'Students Secure Top Ranks in Anna University Exams',
-    source: 'University News',
+    title: 'Alumnus Priya Desai Joins NASA’s Artemis AI Team',
+    source: 'NewsClub',
     date: Timestamp.fromDate(new Date('2024-07-18')),
-    summary: 'Our students have once again made us proud with their excellent academic performance in the recent university examinations.',
-    imageUrl: 'https://i.ibb.co/L9pD4p1/news-2.png',
+    summary: 'Priya Desai, CKPCET alumna, joins NASA’s Artemis AI division as a Senior AI Engineer, contributing to the future of space technology.',
+    imageUrl: 'https://i.ibb.co/CK4XKNGY/NASA-Worm1.jpg',
     content: `Students from various departments at CKPCET have secured top ranks in the latest Anna University semester examinations. This outstanding achievement is a testament to the hard work of the students and the dedication of the faculty. The college chairman congratulated the students on their success and announced scholarships for the top performers to encourage them further. This consistent academic excellence reinforces CKPCET's position as a leading institution for engineering education in the region.`
   },
   {
     id: 'news-3',
-    title: 'New Robotics & AI Lab Inaugurated on Campus',
-    source: 'CKPCET Press',
+    title: 'CKPCET Signs MoU with Google Cloud India',
+    source: 'NewsClub',
     date: Timestamp.fromDate(new Date('2024-07-15')),
-    summary: 'The new lab, equipped with state-of-the-art technology, will provide students with hands-on experience in emerging fields.',
-    imageUrl: 'https://i.ibb.co/yQn7w0y/news-3.png',
+    summary: 'CKPCET collaborates with Google Cloud India to enhance cloud computing education and resources for students, including access to training and certifications.',
+    imageUrl: 'https://i.ibb.co/jv85ynhZ/google-anant-featured-760x570.jpg',
     content: `In a move to bolster research and practical learning in cutting-edge technologies, CKP College of Engineering & Technology has inaugurated a new Robotics and Artificial Intelligence Lab. The lab is equipped with the latest robotic arms, AI development kits, and high-performance computing resources. It will serve as a hub for students to work on innovative projects, participate in competitions, and develop skills that are highly sought after in the industry. The lab was inaugurated by a leading AI researcher and is now open for all students.`
   },
 ];
@@ -134,35 +134,35 @@ export const mockNews: NewsArticle[] = [
 export const mockEvents: AppEvent[] = [
   {
     id: 'event-1',
-    title: 'Innovate 2K24 - National Technical Symposium',
-    date: Timestamp.fromDate(new Date('2024-09-15')),
-    time: '9:00 AM - 5:00 PM',
-    location: 'CKPCET Campus, Cuddalore',
+    title: 'One Day Hands-on Workshop on Generative AI with Google Vertex AI',
+    date: Timestamp.fromDate(new Date('2025-07-30')),
+    time: '10:30 AM – 1:30 PM',
+    location: 'D2 Seminar Hall',
     description: 'A flagship national-level technical symposium featuring paper presentations, project expos, and workshops on the latest technologies. A great platform for budding engineers to showcase their talent.',
-    imageUrl: 'https://i.ibb.co/P9tLdFq/event-1.png',
-    summary: 'Showcase your technical skills at our national-level symposium.',
+    imageUrl: 'https://i.ibb.co/tfRpbgS/maxresdefault-2-Ih7q-Vdf-max-1300x1300.png',
+    summary: 'A cutting-edge hands-on workshop on building real-world GenAI apps using Google Vertex AI, Gemini Pro, and PaLM API, led by a Google Cloud expert.',
     url: '#'
   },
   {
     id: 'event-2',
-    title: 'Alumni Reunion 2024',
-    date: Timestamp.fromDate(new Date('2024-10-05')),
-    time: '10:00 AM - 4:00 PM',
-    location: 'University Auditorium',
+    title: 'One Day Workshop on Cyber Security',
+    date: Timestamp.fromDate(new Date('2025-7-22')),
+    time: '10:00 AM – 12:00 PM',
+    location: 'D2 Seminar Hall',
     description: 'Join us for a day of nostalgia, fun, and reconnection. Meet your old friends, interact with faculty, and see how the campus has grown. A day to cherish and make new memories.',
-    imageUrl: 'https://i.ibb.co/pwnj2sC/event-2.png',
-    summary: 'Reconnect with old friends and relive your college days.',
+    imageUrl: 'https://i.ibb.co/F4kkxs13/qqqqq.jpg',
+    summary: 'A one-day workshop on Cyber Security organized by the Computer & IT Engineering Department, focusing on modern cybersecurity threats and defenses.',
     url: '#'
   },
   {
     id: 'event-3',
-    title: 'Campus Placement Drive: Wipro',
-    date: Timestamp.fromDate(new Date('2024-09-25')),
-    time: '9:30 AM onwards',
-    location: 'Placement Cell, CKPCET',
+    title: 'One Day Workshop on Flutter App Development',
+    date: Timestamp.fromDate(new Date('2025-07-15')),
+    time: '11:00 AM – 2:00 PM',
+    location: 'D7 Seminar Hall',
     description: 'Wipro is conducting an exclusive on-campus recruitment drive for final year students of all engineering branches. Come prepared to land your dream job.',
-    imageUrl: 'https://i.ibb.co/fHnBddR/event-3.png',
-    summary: 'Exclusive recruitment drive by Wipro for final year students.',
+    imageUrl: 'https://i.ibb.co/JRL4t9PG/fds.jpg',
+    summary: 'Learn to build beautiful, fast, cross-platform mobile apps using Flutter and Dart, with hands-on training by a Google-certified developer. Ideal for beginners and intermediate Android/iOS developers.',
     url: '#'
   },
 ];
