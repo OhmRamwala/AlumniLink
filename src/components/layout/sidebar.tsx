@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -26,6 +27,7 @@ import {
   Link2,
   HeartHandshake,
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const menuItems = [
   {
@@ -94,7 +96,9 @@ export function AppSidebar() {
               setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
             } else {
               console.warn(`User with UID ${user.uid} authenticated but no profile found in Firestore. Signing out.`);
-              await signOut(auth);
+              if (auth) {
+                await signOut(auth);
+              }
               router.push('/login');
             }
           }
@@ -102,7 +106,9 @@ export function AppSidebar() {
           console.error("Error fetching user profile. Signing out.", error);
           if (isMounted) {
             try {
-              await signOut(auth);
+              if (auth) {
+                await signOut(auth);
+              }
             } catch (e) {
               console.error("Nested sign out failed", e);
             }
@@ -139,20 +145,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="h-14">
-        <div className="flex h-full w-full items-center">
-          <Link
-            href="/dashboard"
-            className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full justify-start pl-2"
-          >
-            <Link2
-              className="h-5 w-5 flex-shrink-0 text-primary transition-all"
-            />
-            <span className="whitespace-nowrap font-semibold text-base">
-              AlumniLink
-            </span>
-          </Link>
-        </div>
+      <SidebarHeader>
+        <Link
+          href="/dashboard"
+          className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full justify-start pl-2"
+        >
+          <Link2 className="h-5 w-5 flex-shrink-0 text-primary transition-all" />
+          <span className="whitespace-nowrap font-semibold text-base">AlumniLink</span>
+        </Link>
       </SidebarHeader>
       <SidebarMenu className="flex-1">
         {visibleMenuItems.map((item) => (
