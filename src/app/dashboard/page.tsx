@@ -186,8 +186,8 @@ export default function DashboardPage() {
         {userProfile.role === 'alumni' || userProfile.role === 'admin' ? (
           <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <HeartHandshake className="h-6 w-6" />
+              <div className="flex items-start gap-3">
+                <HeartHandshake className="h-7 w-7 mt-1" />
                 <CardTitle>Support the University</CardTitle>
               </div>
               <CardDescription>
@@ -233,8 +233,8 @@ export default function DashboardPage() {
         ) : (
           <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-6 w-6" />
+              <div className="flex items-start gap-3">
+                <Briefcase className="h-7 w-7 mt-1" />
                 <CardTitle>Recent Job Postings</CardTitle>
               </div>
               <CardDescription>
@@ -265,8 +265,8 @@ export default function DashboardPage() {
 
         <Card className="flex flex-col">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <Newspaper className="h-6 w-6" />
+            <div className="flex items-start gap-3">
+              <Newspaper className="h-7 w-7 mt-1" />
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
@@ -298,8 +298,8 @@ export default function DashboardPage() {
 
         <Card className="flex flex-col">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-6 w-6" />
+            <div className="flex items-start gap-3">
+              <CalendarDays className="h-7 w-7 mt-1" />
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
@@ -328,8 +328,8 @@ export default function DashboardPage() {
 
         <Card className="flex flex-col lg:col-span-3">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <MessagesSquare className="h-6 w-6" />
+            <div className="flex items-start gap-3">
+              <MessagesSquare className="h-7 w-7 mt-1" />
               <CardTitle>Recent Forum Discussions</CardTitle>
             </div>
             <CardDescription>
