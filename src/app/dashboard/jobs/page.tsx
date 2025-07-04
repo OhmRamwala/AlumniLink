@@ -290,7 +290,7 @@ export default function JobsPage() {
           <Skeleton className="h-10 w-1/3" />
           <Skeleton className="h-10 w-32" />
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6">
           {[...Array(2)].map((_, i) => (
             <Card key={i}>
               <CardHeader><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2 mt-2" /></CardHeader>
@@ -348,10 +348,14 @@ export default function JobsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-4 p-6">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <CardTitle>{job.title}</CardTitle>
+                         <Link href={job.url} target="_blank" rel="noopener noreferrer">
+                          <CardTitle className="hover:underline">{job.title}</CardTitle>
+                        </Link>
                         <Badge
                           variant={
                             job.type === 'Internship'
+                              ? 'destructive'
+                              : job.type === 'Full-time'
                               ? 'default'
                               : 'secondary'
                           }
@@ -382,8 +386,10 @@ export default function JobsPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 items-stretch shrink-0 w-full md:w-auto">
-                      <JobSummary job={job} />
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 items-stretch shrink-0 w-full sm:w-auto md:w-auto">
+                      <div className="flex-1">
+                        <JobSummary job={job} />
+                      </div>
                       {userProfile &&
                         (userProfile.role === 'admin' ||
                           (job.postedBy &&
