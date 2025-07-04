@@ -14,6 +14,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -75,6 +77,7 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { state } = useSidebar();
 
   useEffect(() => {
     if (!auth || !db) return;
@@ -91,20 +94,27 @@ export function AppSidebar() {
     return () => unsubscribe();
   }, []);
 
-  const visibleMenuItems = menuItems.filter(item => 
+  const visibleMenuItems = menuItems.filter((item) =>
     !item.roles || (userProfile && item.roles.includes(userProfile.role))
   );
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
-        >
-          <Link2 className="h-8 w-8 text-primary" />
-          <span className="text-xl font-semibold">AlumniLink</span>
-        </Link>
+        <div className="flex w-full items-center justify-between">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground"
+          >
+            <Link2 className="h-8 w-8 flex-shrink-0 text-primary" />
+            {state === 'expanded' && (
+              <span className="whitespace-nowrap text-xl font-semibold">
+                AlumniLink
+              </span>
+            )}
+          </Link>
+          {state === 'expanded' && <SidebarTrigger className="shrink-0" />}
+        </div>
       </SidebarHeader>
       <SidebarMenu className="flex-1">
         {visibleMenuItems.map((item) => (
