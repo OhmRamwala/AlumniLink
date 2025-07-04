@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -68,7 +69,7 @@ const eventSchema = z.object({
 });
 type EventFormValues = z.infer<typeof eventSchema>;
 
-function EventFormDialog({ event }: { event?: AppEvent }) {
+function EventFormDialog({ event, onFormSubmit }: { event?: AppEvent, onFormSubmit: () => void }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +114,8 @@ function EventFormDialog({ event }: { event?: AppEvent }) {
         await addDoc(collection(db, 'events'), dataToSave);
         toast({ title: 'Success', description: 'Event created.' });
       }
-
+      
+      onFormSubmit();
       setOpen(false);
       form.reset();
     } catch (error) {
@@ -275,13 +277,9 @@ export default function EventsPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        if (!auth || !db) {
-            setIsLoading(false);
-            return;
-        }
-
+        if (!auth) return;
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-            if (user) {
+            if (user && db) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     setUserProfile(userDoc.data() as UserProfile);
@@ -290,7 +288,14 @@ export default function EventsPage() {
                 setUserProfile(null);
             }
         });
+        return () => unsubscribeAuth();
+    }, []);
 
+    useEffect(() => {
+        if (!db) {
+            setIsLoading(false);
+            return;
+        }
         const q = query(collection(db, 'events'), orderBy('date', 'desc'));
         const unsubscribeEvents = onSnapshot(q, (querySnapshot) => {
             const eventsData: AppEvent[] = [];
@@ -306,11 +311,8 @@ export default function EventsPage() {
           }
         );
 
-        return () => {
-            unsubscribeAuth();
-            unsubscribeEvents();
-        };
-      }, []);
+        return () => unsubscribeEvents();
+    }, []);
 
     const handleDeleteEvent = async (eventId: string) => {
         if (!db) return;
@@ -362,17 +364,17 @@ export default function EventsPage() {
             Join us for our upcoming events and connect with the community.
             </p>
         </div>
-        {userProfile?.role === 'admin' && <EventFormDialog />}
+        {userProfile?.role === 'admin' && <EventFormDialog onFormSubmit={() => {}}/>}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
           <Card key={event.id} className="flex flex-col overflow-hidden">
-            <div className="relative h-48 w-full">
+            <div className="relative h-48 w-full bg-muted">
               <Image
                 src={event.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={event.title}
                 fill
-                className="object-cover"
+                className="object-contain p-2"
                 data-ai-hint="networking professional"
               />
             </div>
@@ -400,7 +402,7 @@ export default function EventsPage() {
               <EventDetailsDialog event={event} />
               {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <EventFormDialog event={event} />
+                  <EventFormDialog event={event} onFormSubmit={() => {}} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteEvent(event.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

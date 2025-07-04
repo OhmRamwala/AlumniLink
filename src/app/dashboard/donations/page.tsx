@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -62,7 +63,7 @@ const campaignSchema = z.object({
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 
-function CampaignFormDialog({ campaign }: { campaign?: DonationCampaign }) {
+function CampaignFormDialog({ campaign, onFormSubmit }: { campaign?: DonationCampaign, onFormSubmit: () => void }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,6 +99,7 @@ function CampaignFormDialog({ campaign }: { campaign?: DonationCampaign }) {
         toast({ title: 'Success', description: 'Campaign created.' });
       }
 
+      onFormSubmit();
       setOpen(false);
       form.reset();
     } catch (error) {
@@ -171,13 +173,9 @@ export default function DonationsPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        if (!auth || !db) {
-            setIsLoading(false);
-            return;
-        }
-
+        if (!auth) return;
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-            if (user) {
+            if (user && db) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     setUserProfile(userDoc.data() as UserProfile);
@@ -186,7 +184,14 @@ export default function DonationsPage() {
                 setUserProfile(null);
             }
         });
+        return () => unsubscribeAuth();
+      }, []);
 
+    useEffect(() => {
+        if (!db) {
+            setIsLoading(false);
+            return;
+        }
         const q = query(collection(db, 'donations'), orderBy('createdAt', 'desc'));
         const unsubscribeCampaigns = onSnapshot(q, (querySnapshot) => {
             const campaignsData: DonationCampaign[] = [];
@@ -202,11 +207,8 @@ export default function DonationsPage() {
           }
         );
         
-        return () => {
-            unsubscribeAuth();
-            unsubscribeCampaigns();
-        };
-      }, []);
+        return () => unsubscribeCampaigns();
+    }, []);
 
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
@@ -256,17 +258,17 @@ export default function DonationsPage() {
               Support the university by contributing to our causes.
             </p>
         </div>
-        {userProfile?.role === 'admin' && <CampaignFormDialog />}
+        {userProfile?.role === 'admin' && <CampaignFormDialog onFormSubmit={() => {}} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((campaign) => (
           <Card key={campaign.id} className="flex flex-col overflow-hidden">
-            <div className="relative h-48 w-full">
+            <div className="relative h-48 w-full bg-muted">
               <Image
                 src={campaign.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={campaign.title}
                 fill
-                className="object-cover"
+                className="object-contain p-2"
                 data-ai-hint="charity donation"
               />
             </div>
@@ -289,7 +291,7 @@ export default function DonationsPage() {
                </Button>
                {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <CampaignFormDialog campaign={campaign} />
+                  <CampaignFormDialog campaign={campaign} onFormSubmit={() => {}} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteCampaign(campaign.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

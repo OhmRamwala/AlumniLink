@@ -105,12 +105,12 @@ export default async function HomePage() {
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {events.length > 0 ? events.map((event) => (
                  <Card key={event.id} className="flex flex-col">
-                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
+                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                     <Image
                       src={event.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                       alt={event.title}
                       fill
-                      className="object-cover"
+                      className="object-contain p-2"
                       data-ai-hint="networking professional"
                     />
                   </div>
@@ -154,12 +154,12 @@ export default async function HomePage() {
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {news.length > 0 ? news.map((article) => (
                 <Card key={article.id} className="flex flex-col">
-                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
+                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                       <Image
                         src={article.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
                         alt={article.title}
                         fill
-                        className="object-cover"
+                        className="object-contain p-2"
                         data-ai-hint="community news"
                       />
                   </div>

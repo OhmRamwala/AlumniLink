@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -64,7 +65,7 @@ const newsSchema = z.object({
 });
 type NewsFormValues = z.infer<typeof newsSchema>;
 
-function NewsFormDialog({ article }: { article?: NewsArticle }) {
+function NewsFormDialog({ article, onFormSubmit }: { article?: NewsArticle, onFormSubmit: () => void; }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,6 +99,8 @@ function NewsFormDialog({ article }: { article?: NewsArticle }) {
         });
         toast({ title: 'Success', description: 'News article posted.' });
       }
+      
+      onFormSubmit();
       setOpen(false);
       form.reset();
     } catch (error) {
@@ -180,12 +183,9 @@ export default function NewsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!auth || !db) {
-        setIsLoading(false);
-        return;
-    }
+    if (!auth) return;
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-        if (user) {
+        if (user && db) {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists()) {
                 setUserProfile(userDoc.data() as UserProfile);
@@ -194,7 +194,14 @@ export default function NewsPage() {
             setUserProfile(null);
         }
     });
+    return () => unsubscribeAuth();
+  }, []);
 
+  useEffect(() => {
+    if (!db) {
+        setIsLoading(false);
+        return;
+    }
     const q = query(collection(db, 'news'), orderBy('date', 'desc'));
     const unsubscribeNews = onSnapshot(q, (querySnapshot) => {
         const newsData: NewsArticle[] = [];
@@ -209,11 +216,7 @@ export default function NewsPage() {
         setIsLoading(false);
       }
     );
-
-    return () => {
-        unsubscribeAuth();
-        unsubscribeNews();
-    };
+    return () => unsubscribeNews();
   }, []);
 
   const handleDeleteArticle = async (articleId: string) => {
@@ -270,17 +273,17 @@ export default function NewsPage() {
             The latest news and stories from the alumni community.
           </p>
         </div>
-        {userProfile?.role === 'admin' && <NewsFormDialog />}
+        {userProfile?.role === 'admin' && <NewsFormDialog onFormSubmit={() => {}} />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
           <Card key={article.id} className="flex flex-col overflow-hidden">
-            <div className="relative h-48 w-full">
+            <div className="relative h-48 w-full bg-muted">
               <Image
                 src={article.imageUrl || 'https://placehold.co/600x400.png'}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-contain p-2"
                 data-ai-hint="community event"
               />
             </div>
@@ -301,7 +304,7 @@ export default function NewsPage() {
               </Button>
                {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <NewsFormDialog article={article} />
+                  <NewsFormDialog article={article} onFormSubmit={() => {}} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
