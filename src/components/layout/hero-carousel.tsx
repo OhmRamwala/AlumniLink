@@ -9,27 +9,27 @@ import { Button } from '../ui/button';
 
 const images = [
   {
-    src: 'https://i.ibb.co/6P3mr5t/1.png',
+    src: 'https://i.ibb.co/Y4KjZLdn/main1.jpg',
     alt: 'University students collaborating',
     hint: 'university students',
   },
   {
-    src: 'https://i.ibb.co/q1zC8P4/2.png',
+    src: 'https://i.ibb.co/LhkrMW47/main2.webp',
     alt: 'University campus building',
     hint: 'university campus',
   },
   {
-    src: 'https://i.ibb.co/6PFRYxV/3.png',
+    src: 'https://i.ibb.co/FbdwyLdX/main-4.jpg',
     alt: 'Graduation ceremony',
     hint: 'graduation ceremony',
   },
   {
-    src: 'https://i.ibb.co/K7PS85S/4.png',
+    src: 'https://i.ibb.co/PsJNWDXC/main3.webp',
     alt: 'Students in a lecture hall',
     hint: 'lecture hall',
   },
   {
-    src: 'https://i.ibb.co/pdsz6G1/5.png',
+    src: 'https://i.ibb.co/Q3hjCZvg/login-background.png',
     alt: 'Alumni networking event',
     hint: 'networking event',
   },
