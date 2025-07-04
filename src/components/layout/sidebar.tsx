@@ -101,7 +101,11 @@ export function AppSidebar() {
         } catch (error) {
           console.error("Error fetching user profile. Signing out.", error);
           if (isMounted) {
-            await signOut(auth);
+            try {
+              await signOut(auth);
+            } catch (e) {
+              console.error("Nested sign out failed", e);
+            }
             router.push('/login');
           }
         }
