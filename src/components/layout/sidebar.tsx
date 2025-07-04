@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
+import { usePathname, useRouter } from 'next/navigation';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { User as UserProfile } from '@/lib/types';
@@ -80,6 +80,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { state } = useSidebar();
+  const router = useRouter();
 
   useEffect(() => {
     if (!auth || !db) return;
@@ -95,6 +96,16 @@ export function AppSidebar() {
     });
     return () => unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    if (!auth) return;
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
 
   const visibleMenuItems = menuItems.filter((item) =>
     !item.roles || (userProfile && item.roles.includes(userProfile.role))
@@ -136,9 +147,8 @@ export function AppSidebar() {
                 isActive={pathname === item.href}
                 tooltip={{
                   children: item.label,
-                  side: 'right',
-                  align: 'start',
-                  alignOffset: -8,
+                  side: 'top',
+                  align: 'center',
                 }}
               >
                 <item.icon />
@@ -150,22 +160,21 @@ export function AppSidebar() {
       </SidebarMenu>
       <SidebarFooter>
         <SidebarMenuItem>
-          <Link
-            href="/login"
-            className={cn(state === 'collapsed' && 'flex justify-center')}
+          <button
+            onClick={handleLogout}
+            className={cn('w-full', state === 'collapsed' && 'flex justify-center')}
           >
             <SidebarMenuButton
               tooltip={{
                 children: 'Logout',
-                side: 'right',
-                align: 'start',
-                alignOffset: -8,
+                side: 'top',
+                align: 'center',
               }}
             >
               <LogOut />
               <span>Logout</span>
             </SidebarMenuButton>
-          </Link>
+          </button>
         </SidebarMenuItem>
       </SidebarFooter>
     </Sidebar>
