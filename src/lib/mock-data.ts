@@ -1,5 +1,5 @@
 
-import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply } from './types';
+import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply, DonationCampaign } from './types';
 import { Timestamp } from 'firebase/firestore';
 
 export const mockUsers: User[] = [
@@ -164,6 +164,36 @@ export const mockEvents: AppEvent[] = [
     imageUrl: 'https://i.ibb.co/fHnBddR/event-3.png',
     summary: 'Exclusive recruitment drive by Wipro for final year students.',
     url: '#'
+  },
+];
+
+export const mockDonationCampaigns: DonationCampaign[] = [
+  {
+    id: 'campaign-1',
+    title: 'New Library Books',
+    description: 'Help us expand our library collection with new books and resources for students.',
+    goalAmount: 50000,
+    currentAmount: 25000,
+    imageUrl: 'https://placehold.co/600x400.png',
+    createdAt: Timestamp.fromDate(new Date('2024-07-01')),
+  },
+  {
+    id: 'campaign-2',
+    title: 'Student Scholarship Fund',
+    description: 'Support talented students from underprivileged backgrounds to pursue their dreams.',
+    goalAmount: 200000,
+    currentAmount: 150000,
+    imageUrl: 'https://placehold.co/600x400.png',
+    createdAt: Timestamp.fromDate(new Date('2024-06-15')),
+  },
+  {
+    id: 'campaign-3',
+    title: 'Campus Green Initiative',
+    description: 'Contribute to our initiative to make the campus more sustainable and eco-friendly.',
+    goalAmount: 75000,
+    currentAmount: 30000,
+    imageUrl: 'https://placehold.co/600x400.png',
+    createdAt: Timestamp.fromDate(new Date('2024-05-20')),
   },
 ];
 

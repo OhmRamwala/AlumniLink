@@ -1,10 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { Timestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
 
 import {
@@ -27,6 +26,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
+import { mockUsers, mockNews, mockEvents, mockThreads, mockJobs, mockDonationCampaigns } from '@/lib/mock-data';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -38,59 +38,13 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth || !db) {
-      setIsLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const profile = { id: currentUser.uid, ...userDoc.data() } as UserProfile;
-            setUserProfile(profile);
-
-            // Fetch data only after we have the user profile
-            const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-            const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
-            const threadsQuery = query(collection(db, 'threads'), orderBy('lastActivity', 'desc'), limit(2));
-            const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(2));
-            const donationsQuery = query(collection(db, 'donations'), orderBy('createdAt', 'desc'), limit(3));
-            
-            const [newsSnapshot, eventsSnapshot, threadsSnapshot, jobsSnapshot, donationsSnapshot] = await Promise.all([
-              getDocs(newsQuery),
-              getDocs(eventsQuery),
-              getDocs(threadsQuery),
-              getDocs(jobsQuery),
-              getDocs(donationsQuery)
-            ]);
-
-            setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle)));
-            setEvents(eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent)));
-            setThreads(threadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ForumThread)));
-            setJobs(jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job)));
-            
-            setDonationCampaigns(donationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as DonationCampaign));
-          }
-        } catch (error) {
-            console.error("Error fetching dashboard data:", error);
-            // Gracefully handle permission errors by setting data to empty arrays
-            setNews([]);
-            setEvents([]);
-            setThreads([]);
-            setJobs([]);
-            setDonationCampaigns([]);
-        } finally {
-            setIsLoading(false);
-        }
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
+    setUserProfile(mockUsers[0]);
+    setNews(mockNews.slice(0, 3));
+    setEvents(mockEvents.slice(0, 3));
+    setThreads(mockThreads.slice(0, 2));
+    setJobs(mockJobs.slice(0, 2));
+    setDonationCampaigns(mockDonationCampaigns.slice(0, 3));
+    setIsLoading(false);
   }, []);
 
   const formatDate = (date: Timestamp | Date | string | undefined, fmt = 'MMM d, yyyy') => {
