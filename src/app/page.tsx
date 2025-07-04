@@ -254,9 +254,9 @@ export default async function HomePage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">About Us</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">C.K Pithawalla College of Engineering & Technology</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">CKPCET Alumni Association</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Established in 1998, C.K Pithawalla College of Engineering and Technology has been a pioneer in technical education in South Gujarat. Our mission is to provide quality education, foster innovation, and produce highly skilled engineers who can contribute to society. With state-of-the-art facilities and a dedicated faculty, we are committed to nurturing the leaders of tomorrow.
+                  The CKPCET Alumni Association is dedicated to fostering a lifelong community among alumni. Our mission is to strengthen the bond between alumni and the institution, support current students, and provide valuable networking and career opportunities. We envision a vibrant, global network where every member feels connected, supported, and proud to be a part of the CKPCET family.
                 </p>
               </div>
             </div>

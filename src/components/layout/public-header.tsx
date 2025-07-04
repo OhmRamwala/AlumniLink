@@ -64,7 +64,7 @@ export function PublicHeader() {
                 <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Alumni Directory</AuthRedirect></DropdownMenuItem>
             </NavDropdown>
 
-            <NavLink redirectUrl="/dashboard/jobs">Jobs</NavLink>
+            <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Jobs</Link>
             
             <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">About</Link>
         </div>
