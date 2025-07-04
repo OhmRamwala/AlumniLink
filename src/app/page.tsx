@@ -60,7 +60,7 @@ export default function HomePage() {
                 </div>
               </div>
               <Image
-                src="https://media.licdn.com/dms/image/v2/C4E1BAQHLZsTU6thiyw/company-background_10000/company-background_10000/0/1619067235243/ckpcollege_cover?e=2147483647&v=beta&t=MRYbQafb4Ecl9nSB2ECgadf412PbeLbTAULwLORX4Hs"
+                src="https://old.ckpcet.ac.in/images/site/bg.jpg"
                 width="600"
                 height="400"
                 alt="Hero"
