@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const [events, setEvents] = useState<AppEvent[]>([]);
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [latestCampaign, setLatestCampaign] = useState<DonationCampaign | null>(null);
+  const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
             const threadsQuery = query(collection(db, 'threads'), orderBy('lastActivity', 'desc'), limit(2));
             const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(2));
-            const donationsQuery = query(collection(db, 'donations'), orderBy('createdAt', 'desc'), limit(1));
+            const donationsQuery = query(collection(db, 'donations'), orderBy('createdAt', 'desc'), limit(3));
             
             const [newsSnapshot, eventsSnapshot, threadsSnapshot, jobsSnapshot, donationsSnapshot] = await Promise.all([
               getDocs(newsQuery),
@@ -73,8 +73,7 @@ export default function DashboardPage() {
             setThreads(threadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ForumThread)));
             setJobs(jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job)));
             
-            const campaigns = donationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as DonationCampaign);
-            setLatestCampaign(campaigns.length > 0 ? campaigns[0] : null);
+            setDonationCampaigns(donationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as DonationCampaign));
           }
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
@@ -83,7 +82,7 @@ export default function DashboardPage() {
             setEvents([]);
             setThreads([]);
             setJobs([]);
-            setLatestCampaign(null);
+            setDonationCampaigns([]);
         } finally {
             setIsLoading(false);
         }
@@ -197,21 +196,23 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
-              {latestCampaign ? (
-                <div className="space-y-2">
-                    <div className="flex justify-between items-baseline">
-                    <h3 className="text-sm font-semibold">
-                        {latestCampaign.title}
-                    </h3>
-                    <span className="text-sm font-medium text-muted-foreground">
-                        {formatCurrency(latestCampaign.currentAmount)} / {formatCurrency(latestCampaign.goalAmount)}
-                    </span>
-                    </div>
-                    <Progress value={(latestCampaign.currentAmount / latestCampaign.goalAmount) * 100} />
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                        {latestCampaign.description}
-                    </p>
-                </div>
+              {donationCampaigns.length > 0 ? (
+                donationCampaigns.map((campaign) => (
+                  <div key={campaign.id} className="space-y-2">
+                      <div className="flex justify-between items-baseline">
+                      <h3 className="text-sm font-semibold">
+                          {campaign.title}
+                      </h3>
+                      <span className="text-sm font-medium text-muted-foreground">
+                          {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                      </span>
+                      </div>
+                      <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                          {campaign.description}
+                      </p>
+                  </div>
+                ))
               ) : (
                 <p className="text-sm text-muted-foreground">
                     There are no active campaigns at the moment. Check back soon!
