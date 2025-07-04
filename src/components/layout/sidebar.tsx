@@ -96,7 +96,7 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link
           href="/dashboard"
