@@ -128,14 +128,17 @@ export function AppSidebar() {
       <SidebarMenu className="flex-1">
         {visibleMenuItems.map((item) => (
           <SidebarMenuItem key={item.href}>
-            <Link href={item.href}>
+            <Link
+              href={item.href}
+              className={cn(state === 'collapsed' && 'flex justify-center')}
+            >
               <SidebarMenuButton
                 isActive={pathname === item.href}
                 tooltip={{
                   children: item.label,
                   side: 'right',
-                  align: 'center',
-                  alignOffset: 4,
+                  align: 'start',
+                  alignOffset: -8,
                 }}
               >
                 <item.icon />
@@ -147,13 +150,18 @@ export function AppSidebar() {
       </SidebarMenu>
       <SidebarFooter>
         <SidebarMenuItem>
-          <Link href="/login">
-            <SidebarMenuButton tooltip={{
+          <Link
+            href="/login"
+            className={cn(state === 'collapsed' && 'flex justify-center')}
+          >
+            <SidebarMenuButton
+              tooltip={{
                 children: 'Logout',
                 side: 'right',
-                align: 'center',
-                alignOffset: 4,
-            }}>
+                align: 'start',
+                alignOffset: -8,
+              }}
+            >
               <LogOut />
               <span>Logout</span>
             </SidebarMenuButton>
