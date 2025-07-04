@@ -265,69 +265,71 @@ export default async function HomePage() {
       </main>
       <footer className="bg-secondary/50 border-t">
         <div className="container py-12 px-4 md:px-6">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="space-y-4">
-              <Link href="/" className="flex items-center gap-2">
-                <Link2 className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold">AlumniLink</span>
-              </Link>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Fostering a lifelong community for CKPCET students and alumni.
-              </p>
-              <div className="flex gap-4">
-                <Link href="#" className="text-muted-foreground hover:text-foreground">
-                  <Twitter className="h-5 w-5" />
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between gap-8">
+              <div className="space-y-4">
+                <Link href="/" className="flex items-center gap-2">
+                  <Link2 className="h-8 w-8 text-primary" />
+                  <span className="text-xl font-bold">AlumniLink</span>
                 </Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">
-                  <Facebook className="h-5 w-5" />
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">
-                  <Linkedin className="h-5 w-5" />
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">
-                  <Instagram className="h-5 w-5" />
-                </Link>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  Fostering a lifelong community for CKPCET students and alumni.
+                </p>
+                <div className="flex gap-4">
+                  <Link href="#" className="text-muted-foreground hover:text-foreground">
+                    <Twitter className="h-5 w-5" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground">
+                    <Facebook className="h-5 w-5" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground">
+                    <Linkedin className="h-5 w-5" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-foreground">
+                    <Instagram className="h-5 w-5" />
+                  </Link>
+                </div>
+              </div>
+              <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Quick Links</h4>
+                  <ul className="space-y-1">
+                    <li><Link href="/#events" className="text-sm text-muted-foreground hover:text-foreground">Events</Link></li>
+                    <li><Link href="/#news" className="text-sm text-muted-foreground hover:text-foreground">News</Link></li>
+                    <li><Link href="/#jobs" className="text-sm text-muted-foreground hover:text-foreground">Jobs</Link></li>
+                    <li><Link href="/#about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Resources</h4>
+                  <ul className="space-y-1">
+                    <li><AuthRedirect redirectUrl="/dashboard/directory" className="text-sm text-muted-foreground hover:text-foreground">Alumni Directory</AuthRedirect></li>
+                    <li><AuthRedirect redirectUrl="/dashboard/forum" className="text-sm text-muted-foreground hover:text-foreground">Forum</AuthRedirect></li>
+                    <li><AuthRedirect redirectUrl="/dashboard/donations" className="text-sm text-muted-foreground hover:text-foreground">Give Back</AuthRedirect></li>
+                    <li><Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Login/Register</Link></li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Contact Us</h4>
+                  <address className="not-italic text-sm text-muted-foreground space-y-1">
+                    <p>CK Pithawalla College of Engg. & Tech.</p>
+                    <p>Surat, Gujarat, India</p>
+                    <p>Email: <a href="mailto:info@ckpcet.ac.in" className="hover:text-foreground">info@ckpcet.ac.in</a></p>
+                  </address>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col gap-8 sm:flex-row sm:gap-16 md:ml-auto">
-              <div className="space-y-2">
-                <h4 className="font-semibold">Quick Links</h4>
-                <ul className="space-y-1">
-                  <li><Link href="/#events" className="text-sm text-muted-foreground hover:text-foreground">Events</Link></li>
-                  <li><Link href="/#news" className="text-sm text-muted-foreground hover:text-foreground">News</Link></li>
-                  <li><Link href="/#jobs" className="text-sm text-muted-foreground hover:text-foreground">Jobs</Link></li>
-                  <li><Link href="/#about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Resources</h4>
-                <ul className="space-y-1">
-                  <li><AuthRedirect redirectUrl="/dashboard/directory" className="text-sm text-muted-foreground hover:text-foreground">Alumni Directory</AuthRedirect></li>
-                  <li><AuthRedirect redirectUrl="/dashboard/forum" className="text-sm text-muted-foreground hover:text-foreground">Forum</AuthRedirect></li>
-                  <li><AuthRedirect redirectUrl="/dashboard/donations" className="text-sm text-muted-foreground hover:text-foreground">Give Back</AuthRedirect></li>
-                  <li><Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Login/Register</Link></li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Contact Us</h4>
-                <address className="not-italic text-sm text-muted-foreground space-y-1">
-                  <p>CK Pithawalla College of Engg. & Tech.</p>
-                  <p>Surat, Gujarat, India</p>
-                  <p>Email: <a href="mailto:info@ckpcet.ac.in" className="hover:text-foreground">info@ckpcet.ac.in</a></p>
-                </address>
-              </div>
+            <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
+                <p className="text-xs text-muted-foreground">&copy; 2025 AlumniLink. All rights reserved.</p>
+                <nav className="flex gap-4 sm:gap-6 mt-4 sm:mt-0">
+                  <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
+                    Terms of Service
+                  </Link>
+                  <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
+                    Privacy
+                  </Link>
+                </nav>
             </div>
-          </div>
-          <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
-              <p className="text-xs text-muted-foreground">&copy; 2025 AlumniLink. All rights reserved.</p>
-              <nav className="flex gap-4 sm:gap-6 mt-4 sm:mt-0">
-                <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
-                  Terms of Service
-                </Link>
-                <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
-                  Privacy
-                </Link>
-              </nav>
           </div>
         </div>
       </footer>
