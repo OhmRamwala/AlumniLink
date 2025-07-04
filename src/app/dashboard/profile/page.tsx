@@ -1,13 +1,14 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, storage } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -78,6 +79,9 @@ export default function ProfilePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
+    const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -110,15 +114,45 @@ export default function ProfilePage() {
         return () => unsubscribe();
     }, [form, router]);
     
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                toast({
+                    variant: 'destructive',
+                    title: 'File Too Large',
+                    description: 'Please select an image smaller than 2MB.',
+                });
+                return;
+            }
+            setNewAvatarFile(file);
+            setAvatarPreview(URL.createObjectURL(file));
+        }
+    };
+
     async function onSubmit(values: ProfileFormValues) {
-        if (!user || !db) return;
+        if (!user || !db || !storage) return;
         setIsSaving(true);
         try {
+            const dataToUpdate: { [key: string]: any } = { ...values };
+
+            if (newAvatarFile) {
+                const avatarRef = ref(storage, `avatars/${user.uid}`);
+                const snapshot = await uploadBytes(avatarRef, newAvatarFile);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                dataToUpdate.avatar = downloadURL;
+            }
+
             const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, values as { [key: string]: any });
-            setProfile(prev => prev ? { ...prev, ...values } : null);
+            await updateDoc(userDocRef, dataToUpdate);
+
+            const updatedProfile = { ...(profile as UserProfileData), ...dataToUpdate };
+            setProfile(updatedProfile);
+
             toast({ title: 'Profile Updated', description: 'Your information has been saved.' });
             setIsEditing(false);
+            setNewAvatarFile(null);
+            setAvatarPreview(null);
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not save your profile changes.' });
@@ -132,6 +166,8 @@ export default function ProfilePage() {
             form.reset(profile);
         }
         setIsEditing(false);
+        setNewAvatarFile(null);
+        setAvatarPreview(null);
     };
 
     if (isLoading) {
@@ -147,10 +183,34 @@ export default function ProfilePage() {
     return (
         <Card>
             <CardHeader className="items-center text-center">
-                <Avatar className="h-32 w-32">
-                    <AvatarImage src={profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
-                    <AvatarFallback className="text-4xl">{fallback.toUpperCase()}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                    <Avatar className="h-32 w-32">
+                        <AvatarImage src={avatarPreview || profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
+                        <AvatarFallback className="text-4xl">{fallback.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                     {isEditing && (
+                        <>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleAvatarChange}
+                                className="hidden"
+                                accept="image/png, image/jpeg, image/gif"
+                            />
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="outline"
+                                className="absolute bottom-2 right-2 rounded-full h-9 w-9 bg-background hover:bg-accent"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isSaving}
+                            >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Change profile picture</span>
+                            </Button>
+                        </>
+                    )}
+                </div>
                 
                 <CardTitle className="text-3xl mt-4">
                     {profile.firstName} {profile.lastName}
