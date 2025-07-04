@@ -33,17 +33,17 @@ export function PublicHeader() {
     <header className="sticky top-0 z-50 shadow-sm">
       {/* Top bar */}
       <div className="bg-background">
-        <div className="container mx-auto flex h-20 items-center justify-between px-4 lg:px-6">
+        <div className="container flex h-20 items-center justify-between px-4 lg:px-6">
           <Link href="/" className="flex items-center gap-3 text-foreground">
             <Image
-              src="https://i.ibb.co/6P8dFv5/logo.png"
+              src="https://i.ibb.co/nMdDdh3q/logo.png"
               alt="Sarvajanik College of Engineering and Technology Logo"
               width={60}
               height={60}
               className="h-14 w-14 shrink-0"
             />
-            <span className="hidden text-xl font-bold tracking-tight sm:block">
-              Sarvajanik College of Engineering and Technology
+            <span className="hidden text-lg font-bold tracking-tight sm:block">
+            C.K Pithawalla College of Engineering & Technology
             </span>
           </Link>
           <Button asChild>
@@ -54,7 +54,7 @@ export function PublicHeader() {
 
       {/* Bottom bar */}
       <nav className="hidden w-full bg-blue-900 md:flex">
-        <div className="container mx-auto flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
+        <div className="container flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
             <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Home</Link>
             
             <NavDropdown label="Events & News">
