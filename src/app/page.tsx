@@ -265,7 +265,7 @@ export default async function HomePage() {
       </main>
       <footer className="bg-secondary/50 border-t">
         <div className="container py-12 px-4 md:px-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between gap-8">
               <div className="space-y-4">
                 <Link href="/" className="flex items-center gap-2">
