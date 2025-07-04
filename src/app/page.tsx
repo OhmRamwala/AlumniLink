@@ -265,13 +265,13 @@ export default async function HomePage() {
       </main>
       <footer className="bg-secondary/50 border-t">
         <div className="container py-12 px-4 md:px-6">
-          <div className="grid gap-8 md:grid-cols-4">
-            <div className="space-y-4 md:col-span-1">
+          <div className="flex flex-col md:flex-row gap-8 md:justify-between">
+            <div className="space-y-4">
               <Link href="/" className="flex items-center gap-2">
                 <Link2 className="h-8 w-8 text-primary" />
                 <span className="text-xl font-bold">AlumniLink</span>
               </Link>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground max-w-xs">
                 Fostering a lifelong community for CKPCET students and alumni.
               </p>
               <div className="flex gap-4">
@@ -289,31 +289,33 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Quick Links</h4>
-              <ul className="space-y-1">
-                <li><Link href="/#events" className="text-sm text-muted-foreground hover:text-foreground">Events</Link></li>
-                <li><Link href="/#news" className="text-sm text-muted-foreground hover:text-foreground">News</Link></li>
-                <li><Link href="/#jobs" className="text-sm text-muted-foreground hover:text-foreground">Jobs</Link></li>
-                <li><Link href="/#about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Resources</h4>
-              <ul className="space-y-1">
-                <li><AuthRedirect redirectUrl="/dashboard/directory" className="text-sm text-muted-foreground hover:text-foreground">Alumni Directory</AuthRedirect></li>
-                <li><AuthRedirect redirectUrl="/dashboard/forum" className="text-sm text-muted-foreground hover:text-foreground">Forum</AuthRedirect></li>
-                <li><AuthRedirect redirectUrl="/dashboard/donations" className="text-sm text-muted-foreground hover:text-foreground">Give Back</AuthRedirect></li>
-                 <li><Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Login/Register</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Contact Us</h4>
-              <address className="not-italic text-sm text-muted-foreground space-y-1">
-                <p>CK Pithawalla College of Engg. & Tech.</p>
-                <p>Surat, Gujarat, India</p>
-                <p>Email: <a href="mailto:info@ckpcet.ac.in" className="hover:text-foreground">info@ckpcet.ac.in</a></p>
-              </address>
+            <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
+              <div className="space-y-2">
+                <h4 className="font-semibold">Quick Links</h4>
+                <ul className="space-y-1">
+                  <li><Link href="/#events" className="text-sm text-muted-foreground hover:text-foreground">Events</Link></li>
+                  <li><Link href="/#news" className="text-sm text-muted-foreground hover:text-foreground">News</Link></li>
+                  <li><Link href="/#jobs" className="text-sm text-muted-foreground hover:text-foreground">Jobs</Link></li>
+                  <li><Link href="/#about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Resources</h4>
+                <ul className="space-y-1">
+                  <li><AuthRedirect redirectUrl="/dashboard/directory" className="text-sm text-muted-foreground hover:text-foreground">Alumni Directory</AuthRedirect></li>
+                  <li><AuthRedirect redirectUrl="/dashboard/forum" className="text-sm text-muted-foreground hover:text-foreground">Forum</AuthRedirect></li>
+                  <li><AuthRedirect redirectUrl="/dashboard/donations" className="text-sm text-muted-foreground hover:text-foreground">Give Back</AuthRedirect></li>
+                  <li><Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Login/Register</Link></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Contact Us</h4>
+                <address className="not-italic text-sm text-muted-foreground space-y-1">
+                  <p>CK Pithawalla College of Engg. & Tech.</p>
+                  <p>Surat, Gujarat, India</p>
+                  <p>Email: <a href="mailto:info@ckpcet.ac.in" className="hover:text-foreground">info@ckpcet.ac.in</a></p>
+                </address>
+              </div>
             </div>
           </div>
           <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
