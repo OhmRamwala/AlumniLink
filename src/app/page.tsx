@@ -149,13 +149,22 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {events.map((event) => (
-                 <Card key={event.id}>
+                 <Card key={event.id} className="flex flex-col">
+                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
+                    <Image
+                      src={event.imageUrl || 'https://placehold.co/600x400.png'}
+                      alt={event.title}
+                      fill
+                      className="object-cover"
+                      data-ai-hint="networking professional"
+                    />
+                  </div>
                   <CardHeader>
                     <CardTitle>{event.title}</CardTitle>
                     <CardDescription>{formatDate(event.date)} - {event.location}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{event.summary}</p>
+                  <CardContent className="flex-1">
+                    <p className="text-sm text-muted-foreground line-clamp-3">{event.summary}</p>
                   </CardContent>
                   <CardFooter>
                      <Button variant="outline" className="w-full" asChild>
@@ -187,13 +196,22 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {news.map((article) => (
-                <Card key={article.id}>
+                <Card key={article.id} className="flex flex-col">
+                   <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
+                      <Image
+                        src={article.imageUrl || 'https://placehold.co/600x400.png'}
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                        data-ai-hint="community news"
+                      />
+                  </div>
                   <CardHeader>
                     <CardTitle>{article.title}</CardTitle>
                     <CardDescription>{article.source} - {formatDate(article.date)}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{article.summary}</p>
+                  <CardContent className="flex-1">
+                    <p className="text-sm text-muted-foreground line-clamp-3">{article.summary}</p>
 
                   </CardContent>
                    <CardFooter>
