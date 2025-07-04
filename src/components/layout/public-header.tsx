@@ -60,9 +60,9 @@ export function PublicHeader() {
             <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Events</Link>
             <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">News</Link>
             
-            <NavDropdown label="Find Alumni">
-                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Alumni Directory</AuthRedirect></DropdownMenuItem>
-            </NavDropdown>
+            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
+                Alumni
+            </AuthRedirect>
 
             <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Jobs</Link>
             
