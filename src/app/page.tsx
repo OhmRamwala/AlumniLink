@@ -104,7 +104,7 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {events.length > 0 ? events.map((event) => (
-                 <Card key={event.id} className="flex flex-col text-center">
+                 <Card key={event.id} className="flex flex-col">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                     <Image
                       src={event.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
@@ -114,11 +114,11 @@ export default async function HomePage() {
                       data-ai-hint="networking professional"
                     />
                   </div>
-                  <CardHeader className="items-center">
+                  <CardHeader className="items-center text-center">
                     <CardTitle>{event.title}</CardTitle>
                     <CardDescription>{formatDate(event.date)} - {event.location}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1">
+                  <CardContent className="flex-1 text-center">
                     <p className="text-sm text-muted-foreground line-clamp-3">{event.summary}</p>
                   </CardContent>
                   <CardFooter className="justify-center">
@@ -153,7 +153,7 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {news.length > 0 ? news.map((article) => (
-                <Card key={article.id} className="flex flex-col text-center">
+                <Card key={article.id} className="flex flex-col">
                    <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
                       <Image
                         src={article.imageUrl || 'https://ckpcet.ac.in/img/home-page/video-section/01Entry_03.jpg'}
@@ -163,11 +163,11 @@ export default async function HomePage() {
                         data-ai-hint="community news"
                       />
                   </div>
-                  <CardHeader className="items-center">
+                  <CardHeader className="items-center text-center">
                     <CardTitle>{article.title}</CardTitle>
                     <CardDescription>{article.source} - {formatDate(article.date)}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1">
+                  <CardContent className="flex-1 text-center">
                     <p className="text-sm text-muted-foreground line-clamp-3">{article.summary}</p>
 
                   </CardContent>
@@ -204,11 +204,11 @@ export default async function HomePage() {
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {jobs.length > 0 ? jobs.map((job) => (
                 <Card key={job.id} className="text-center">
-                  <CardHeader className="items-center">
+                  <CardHeader className="items-center text-center">
                     <CardTitle>{job.title}</CardTitle>
                     <CardDescription>{job.company} - {job.location}</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="text-center">
                     <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
                   </CardContent>
                   <CardFooter className="justify-center">
@@ -229,6 +229,21 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* About Section */}
+        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">About Us</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">CKPCET Alumni Association</h2>
+                <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  The CKPCET Alumni Association is dedicated to fostering a lifelong community among alumni. Our mission is to strengthen the bond between alumni and the institution, support current students, and provide valuable networking and career opportunities. We envision a vibrant, global network where every member feels connected, supported, and proud to be a part of the CKPCET family.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 border-t">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
@@ -244,21 +259,6 @@ export default async function HomePage() {
                <Button asChild size="lg">
                 <Link href="/signup">Sign Up</Link>
               </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">About Us</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">CKPCET Alumni Association</h2>
-                <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  The CKPCET Alumni Association is dedicated to fostering a lifelong community among alumni. Our mission is to strengthen the bond between alumni and the institution, support current students, and provide valuable networking and career opportunities. We envision a vibrant, global network where every member feels connected, supported, and proud to be a part of the CKPCET family.
-                </p>
-              </div>
             </div>
           </div>
         </section>
