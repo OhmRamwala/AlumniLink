@@ -54,22 +54,6 @@ const searchAlumniTool = ai.defineTool(
   async ({ searchTerm }) => searchAlumni(searchTerm)
 );
 
-// Define the main prompt for the chatbot
-const siteQaPrompt = ai.definePrompt({
-  name: 'siteQaPrompt',
-  system: `You are a friendly and helpful assistant for the AlumniLink platform.
-Your purpose is to answer user questions about news, events, jobs, and alumni within the community.
-You MUST use the provided tools to get information. Do not answer from your general knowledge.
-If a user asks a question that cannot be answered with the available tools, or if the tools return no information, politely state that you cannot answer and explain that you can only provide information about the AlumniLink platform.
-Keep your answers concise and helpful. Format lists clearly when appropriate.`,
-  tools: [
-    getRecentNewsTool,
-    getRecentEventsTool,
-    getRecentJobsTool,
-    searchAlumniTool,
-  ],
-});
-
 const siteQaFlow = ai.defineFlow(
   {
     name: 'siteQaFlow',
@@ -77,7 +61,20 @@ const siteQaFlow = ai.defineFlow(
     outputSchema: z.string(),
   },
   async (query) => {
-    const llmResponse = await siteQaPrompt(query);
+    const llmResponse = await ai.generate({
+      prompt: query,
+      system: `You are a friendly and helpful assistant for the AlumniLink platform.
+Your purpose is to answer user questions about news, events, jobs, and alumni within the community.
+You MUST use the provided tools to get information. Do not answer from your general knowledge.
+If a user asks a question that cannot be answered with the available tools, or if the tools return no information, politely state that you cannot answer and explain that you can only provide information about the AlumniLink platform.
+Keep your answers concise and helpful. Format lists clearly when appropriate.`,
+      tools: [
+        getRecentNewsTool,
+        getRecentEventsTool,
+        getRecentJobsTool,
+        searchAlumniTool,
+      ],
+    });
     return llmResponse.text ?? "I'm sorry, I couldn't generate a response. Please try again.";
   }
 );
