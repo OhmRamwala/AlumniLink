@@ -1,14 +1,16 @@
+
 import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply } from './types';
+import { Timestamp } from 'firebase/firestore';
 
 export const mockUsers: User[] = [
-  { id: '1', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', role: 'alumni', avatar: '/avatars/01.png', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about web technologies and open source.', linkedin: '#', github: '#' },
-  { id: '2', firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com', role: 'alumni', avatar: '/avatars/02.png', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Building products that users love.', linkedin: '#', github: '#' },
-  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: '/avatars/03.png', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#' },
-  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: '/avatars/04.png', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#' },
-  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: '/avatars/05.png', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#' },
-  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: '/avatars/06.png', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#' },
-  { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: '/avatars/07.png', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#' },
-  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: '/avatars/08.png', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#' },
+  { id: '1', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', role: 'alumni', avatar: '/avatars/01.png', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about web technologies and open source.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '111' },
+  { id: '2', firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com', role: 'alumni', avatar: '/avatars/02.png', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Building products that users love.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '222' },
+  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: '/avatars/03.png', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '333' },
+  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: '/avatars/04.png', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '444' },
+  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: '/avatars/05.png', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#', department: 'MBA', enrollmentNo: '555' },
+  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: '/avatars/06.png', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
+  { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: '/avatars/07.png', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
+  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: '/avatars/08.png', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
 ];
 
 export const mockJobs: Job[] = [
@@ -43,6 +45,7 @@ Benefits:
 - Unlimited paid time off.
 - Remote-first work culture.`,
     url: '#',
+    postedAt: Timestamp.fromDate(new Date()),
   },
   {
     id: 'job-2',
@@ -68,6 +71,7 @@ Preferred Requirements:
 - Experience with data visualization tools such as Tableau or Power BI is a plus.
 - Strong analytical and problem-solving skills.`,
     url: '#',
+    postedAt: Timestamp.fromDate(new Date()),
   },
   {
     id: 'job-3',
@@ -90,10 +94,10 @@ Key Responsibilities:
 Preferred Requirements:
 - 3+ years of backend development experience.
 - Strong proficiency in Node.js and experience with frameworks like Express.
-- Experience with relational databases, preferably PostgreSQL.
 - Familiarity with cloud services (AWS, Google Cloud, or Azure).
 - Commitment to writing high-quality, tested code.`,
     url: '#',
+    postedAt: Timestamp.fromDate(new Date()),
   },
 ];
 
@@ -102,30 +106,27 @@ export const mockNews: NewsArticle[] = [
     id: 'news-1',
     title: "CKPCET Awarded 'Best Upcoming College'",
     source: 'The Times of India',
-    date: '2024-07-20',
+    date: Timestamp.fromDate(new Date('2024-07-20')),
     summary: 'Recognized for outstanding contribution to technical education and fostering innovation among students.',
-    url: '/dashboard/news/news-1',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/VvzS0n1/news-1.png',
     content: `CKP College of Engineering & Technology was recently awarded the prestigious 'Best Upcoming College' award by The Times of India. The award recognizes the institution's significant contributions to technical education, its commitment to academic excellence, and its success in fostering an environment of innovation. The college has been lauded for its state-of-the-art infrastructure, experienced faculty, and impressive placement record. The management extended its gratitude to the students, staff, and alumni for their continuous support.`
   },
   {
     id: 'news-2',
     title: 'Students Secure Top Ranks in Anna University Exams',
     source: 'University News',
-    date: '2024-07-18',
+    date: Timestamp.fromDate(new Date('2024-07-18')),
     summary: 'Our students have once again made us proud with their excellent academic performance in the recent university examinations.',
-    url: '/dashboard/news/news-2',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/L9pD4p1/news-2.png',
     content: `Students from various departments at CKPCET have secured top ranks in the latest Anna University semester examinations. This outstanding achievement is a testament to the hard work of the students and the dedication of the faculty. The college chairman congratulated the students on their success and announced scholarships for the top performers to encourage them further. This consistent academic excellence reinforces CKPCET's position as a leading institution for engineering education in the region.`
   },
   {
     id: 'news-3',
     title: 'New Robotics & AI Lab Inaugurated on Campus',
     source: 'CKPCET Press',
-    date: '2024-07-15',
+    date: Timestamp.fromDate(new Date('2024-07-15')),
     summary: 'The new lab, equipped with state-of-the-art technology, will provide students with hands-on experience in emerging fields.',
-    url: '/dashboard/news/news-3',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/yQn7w0y/news-3.png',
     content: `In a move to bolster research and practical learning in cutting-edge technologies, CKP College of Engineering & Technology has inaugurated a new Robotics and Artificial Intelligence Lab. The lab is equipped with the latest robotic arms, AI development kits, and high-performance computing resources. It will serve as a hub for students to work on innovative projects, participate in competitions, and develop skills that are highly sought after in the industry. The lab was inaugurated by a leading AI researcher and is now open for all students.`
   },
 ];
@@ -134,72 +135,70 @@ export const mockEvents: AppEvent[] = [
   {
     id: 'event-1',
     title: 'Innovate 2K24 - National Technical Symposium',
-    date: '2024-09-15',
+    date: Timestamp.fromDate(new Date('2024-09-15')),
     time: '9:00 AM - 5:00 PM',
     location: 'CKPCET Campus, Cuddalore',
     description: 'A flagship national-level technical symposium featuring paper presentations, project expos, and workshops on the latest technologies. A great platform for budding engineers to showcase their talent.',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/P9tLdFq/event-1.png',
     summary: 'Showcase your technical skills at our national-level symposium.',
     url: '#'
   },
   {
     id: 'event-2',
     title: 'Alumni Reunion 2024',
-    date: '2024-10-05',
+    date: Timestamp.fromDate(new Date('2024-10-05')),
     time: '10:00 AM - 4:00 PM',
     location: 'University Auditorium',
     description: 'Join us for a day of nostalgia, fun, and reconnection. Meet your old friends, interact with faculty, and see how the campus has grown. A day to cherish and make new memories.',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/pwnj2sC/event-2.png',
     summary: 'Reconnect with old friends and relive your college days.',
     url: '#'
   },
   {
     id: 'event-3',
     title: 'Campus Placement Drive: Wipro',
-    date: '2024-09-25',
+    date: Timestamp.fromDate(new Date('2024-09-25')),
     time: '9:30 AM onwards',
     location: 'Placement Cell, CKPCET',
     description: 'Wipro is conducting an exclusive on-campus recruitment drive for final year students of all engineering branches. Come prepared to land your dream job.',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://i.ibb.co/fHnBddR/event-3.png',
     summary: 'Exclusive recruitment drive by Wipro for final year students.',
     url: '#'
   },
 ];
 
 const mockReplies: ForumReply[] = [
-    { id: 'reply-1', author: mockUsers[1], content: 'Great question! My advice is to build a strong portfolio. Showcase your projects on GitHub and be able to talk about the design decisions you made. It matters more than your grades in many cases.', timestamp: '22 hours ago' },
-    { id: 'reply-2', author: mockUsers[3], content: 'I totally agree with John. Also, don\'t underestimate the power of networking. Reach out to alumni on this platform or LinkedIn for informational interviews. Most people are happy to help.', timestamp: '15 hours ago' },
-    { id: 'reply-3', author: mockUsers[0], content: 'Thanks, John and Michael! This is super helpful. I\'ll definitely focus on my portfolio and start reaching out to people.', timestamp: '1 hour ago' },
+    { id: 'reply-1', postedBy: { id: '2', firstName: 'John', lastName: 'Smith'}, content: 'Great question! My advice is to build a strong portfolio. Showcase your projects on GitHub and be able to talk about the design decisions you made. It matters more than your grades in many cases.', postedAt: Timestamp.fromDate(new Date()) },
+    { id: 'reply-2', postedBy: { id: '4', firstName: 'Michael', lastName: 'Brown'}, content: 'I totally agree with John. Also, don\'t underestimate the power of networking. Reach out to alumni on this platform or LinkedIn for informational interviews. Most people are happy to help.', postedAt: Timestamp.fromDate(new Date()) },
+    { id: 'reply-3', postedBy: { id: '1', firstName: 'Jane', lastName: 'Doe'}, content: 'Thanks, John and Michael! This is super helpful. I\'ll definitely focus on my portfolio and start reaching out to people.', postedAt: Timestamp.fromDate(new Date()) },
 ];
 
 export const mockThreads: ForumThread[] = [
   {
     id: '1',
     title: 'Career advice for new graduates in tech?',
-    author: mockUsers[2],
-    timestamp: '1 day ago',
+    postedBy: { id: '3', firstName: 'Emily', lastName: 'Jones' },
+    postedAt: Timestamp.fromDate(new Date()),
+    lastActivity: Timestamp.fromDate(new Date()),
     content: 'I\'m graduating soon with a degree in Computer Science and would love to hear from alumni in the tech industry. What are some key skills I should focus on in my last year? Any advice for landing that first job out of college?',
-    replies: mockReplies,
     replyCount: 3,
   },
   {
     id: '2',
     title: 'Best cities for starting a career in Business?',
-    author: mockUsers[4],
-    timestamp: '3 days ago',
+    postedBy: { id: '5', firstName: 'Sarah', lastName: 'Davis'},
+    postedAt: Timestamp.fromDate(new Date()),
+    lastActivity: Timestamp.fromDate(new Date()),
     content: 'Hi everyone, I\'m thinking about where to move after I finish my Business Administration degree. What cities do people recommend for good job opportunities and a fun social scene for young professionals? I\'m considering places in the USA and Canada.',
-    replies: [],
     replyCount: 0,
   },
   {
     id: '3',
     title: 'Organizing an alumni meetup in London - who is interested?',
-    author: mockUsers[3],
-    timestamp: '5 days ago',
+    postedBy: { id: '4', firstName: 'Michael', lastName: 'Brown' },
+    postedAt: Timestamp.fromDate(new Date()),
+    lastActivity: Timestamp.fromDate(new Date()),
     content: 'Any alumni based in or around London interested in a casual meetup next month? Thinking of a pub in the central London area. It would be great to connect and network. Let me know if you\'re interested and what dates work best!',
-    replies: [
-        { id: 'reply-4', author: mockUsers[5], content: 'I\'m in! Great idea.', timestamp: '4 days ago' },
-    ],
     replyCount: 1,
   },
 ];

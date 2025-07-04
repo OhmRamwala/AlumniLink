@@ -17,6 +17,7 @@ import type { AppEvent, NewsArticle, Job } from '@/lib/types';
 import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
+import { mockEvents, mockNews, mockJobs } from '@/lib/mock-data';
 
 export default async function HomePage() {
   let events: AppEvent[] = [];
@@ -29,8 +30,8 @@ export default async function HomePage() {
       const eventsSnapshot = await getDocs(eventsQuery);
       events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent));
     } catch (e) {
-      console.warn("Could not fetch real-time events, falling back to an empty list. This is likely due to Firestore security rules blocking public access.");
-      events = [];
+      console.warn("Could not fetch real-time events, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
+      events = mockEvents.slice(0, 3);
     }
 
     try {
@@ -38,8 +39,8 @@ export default async function HomePage() {
       const newsSnapshot = await getDocs(newsQuery);
       news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
     } catch (e) {
-      console.warn("Could not fetch real-time news, falling back to an empty list. This is likely due to Firestore security rules blocking public access.");
-      news = [];
+      console.warn("Could not fetch real-time news, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
+      news = mockNews.slice(0, 3);
     }
     
     try {
@@ -47,9 +48,25 @@ export default async function HomePage() {
       const jobsSnapshot = await getDocs(jobsQuery);
       jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
     } catch (e) {
-      console.warn("Could not fetch real-time jobs, falling back to an empty list. This is likely due to Firestore security rules blocking public access.");
-      jobs = [];
+      console.warn("Could not fetch real-time jobs, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
+      jobs = mockJobs.slice(0, 3);
     }
+  } else {
+    // If firebase is not configured at all, use mock data
+    events = mockEvents.slice(0, 3);
+    news = mockNews.slice(0, 3);
+    jobs = mockJobs.slice(0, 3);
+  }
+
+  // If fetches return fewer than 3 items, fill with mock data.
+  if (events.length < 3) {
+      events = [...events, ...mockEvents.slice(events.length, 3)];
+  }
+  if (news.length < 3) {
+      news = [...news, ...mockNews.slice(news.length, 3)];
+  }
+  if (jobs.length < 3) {
+      jobs = [...jobs, ...mockJobs.slice(jobs.length, 3)];
   }
 
   const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
