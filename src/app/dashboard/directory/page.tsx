@@ -27,15 +27,14 @@ function DirectorySkeleton() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {[...Array(8)].map((_, i) => (
-        <Card key={i} className="h-full text-center">
-          <CardHeader className="items-center">
+        <Card key={i} className="h-full flex flex-col">
+          <CardHeader className="items-center text-center">
             <Skeleton className="h-24 w-24 rounded-full mb-2" />
             <Skeleton className="h-6 w-3/4" />
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Skeleton className="h-4 w-5/6 mx-auto" />
-            <Skeleton className="h-4 w-1/2 mx-auto" />
-            <Skeleton className="h-4 w-1/3 mx-auto" />
+          <CardContent className="flex-1 space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
           </CardContent>
         </Card>
       ))}
@@ -130,8 +129,8 @@ export default function DirectoryPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredAlumni.map((user) => (
             <Link href={`/dashboard/directory/${user.id}`} key={user.id}>
-              <Card className="h-full text-center transition-all hover:shadow-lg">
-                <CardHeader className="items-center">
+              <Card className="h-full flex flex-col transition-all hover:shadow-lg">
+                <CardHeader className="items-center text-center">
                   <Avatar className="h-24 w-24 mb-2">
                     <AvatarImage
                       src={user.avatar || `https://placehold.co/100x100.png`}
@@ -147,15 +146,15 @@ export default function DirectoryPage() {
                     {user.firstName} {user.lastName}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center justify-center gap-2">
-                    <Briefcase className="h-4 w-4" />
+                <CardContent className="flex-1 space-y-2 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-2 text-left">
+                    <Briefcase className="h-4 w-4 shrink-0 mt-1" />
                     <span>
                       {user.position} at {user.company}
                     </span>
                   </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <MapPin className="h-4 w-4" />
+                  <div className="flex items-start gap-2 text-left">
+                    <MapPin className="h-4 w-4 shrink-0 mt-1" />
                     <span>{user.country}</span>
                   </div>
                 </CardContent>
