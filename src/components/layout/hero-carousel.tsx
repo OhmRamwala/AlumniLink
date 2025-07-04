@@ -1,0 +1,99 @@
+
+'use client';
+
+import * as React from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
+import { Button } from '../ui/button';
+
+const images = [
+  {
+    src: 'https://i.ibb.co/6P3mr5t/1.png',
+    alt: 'University students collaborating',
+    hint: 'university students',
+  },
+  {
+    src: 'https://i.ibb.co/q1zC8P4/2.png',
+    alt: 'University campus building',
+    hint: 'university campus',
+  },
+  {
+    src: 'https://i.ibb.co/6PFRYxV/3.png',
+    alt: 'Graduation ceremony',
+    hint: 'graduation ceremony',
+  },
+  {
+    src: 'https://i.ibb.co/K7PS85S/4.png',
+    alt: 'Students in a lecture hall',
+    hint: 'lecture hall',
+  },
+  {
+    src: 'https://i.ibb.co/pdsz6G1/5.png',
+    alt: 'Alumni networking event',
+    hint: 'networking event',
+  },
+];
+
+export function HeroCarousel() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
+
+  return (
+    <section className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
+      <Carousel
+        plugins={[plugin.current]}
+        className="w-full h-full"
+        onMouseEnter={plugin.current.stop}
+        onMouseLeave={plugin.current.reset}
+      >
+        <CarouselContent className="h-full">
+          {images.map((image, index) => (
+            <CarouselItem key={index} className="h-full">
+              <div className="relative w-full h-full">
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={image.hint}
+                  priority={index === 0}
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 flex flex-col items-center justify-center container px-4 md:px-6">
+        <div className="flex flex-col items-center space-y-6 text-center text-primary-foreground">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              Connect, Grow, and Succeed with AlumniLink
+            </h1>
+            <p className="mx-auto max-w-[700px] text-primary-foreground/90 md:text-xl">
+              Your exclusive platform to network with fellow alumni, discover
+              career opportunities, and stay connected with the university
+              community.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 min-[400px]:flex-row">
+            <Button asChild size="lg">
+              <Link href="/signup">Join Now</Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/login">Login</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
