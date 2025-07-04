@@ -342,59 +342,71 @@ export default function JobsPage() {
 
         <main>
           {filteredJobs.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-                {filteredJobs.map((job) => (
-                    <Card key={job.id} className="flex flex-col">
-                        <CardHeader>
-                        <div className="flex justify-between items-start">
-                            <div>
-                            <CardTitle>{job.title}</CardTitle>
-                            <CardDescription>{job.company}</CardDescription>
-                            </div>
-                            <Badge
-                            variant={
-                                job.type === 'Internship' ? 'default' : 'secondary'
-                            }
+            <div className="space-y-4">
+              {filteredJobs.map((job) => (
+                <Card key={job.id}>
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-4 p-6">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <CardTitle>{job.title}</CardTitle>
+                        <Badge
+                          variant={
+                            job.type === 'Internship'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {job.type}
+                        </Badge>
+                      </div>
+                      <CardDescription className="flex flex-wrap items-center gap-x-2">
+                        <span>{job.company}</span>
+                        <span className="text-muted-foreground/50">|</span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-4 w-4" />
+                          {job.location}
+                        </span>
+                      </CardDescription>
+                      <p className="text-sm text-muted-foreground pt-2 line-clamp-2">
+                        {job.shortDescription}
+                      </p>
+                      {job.postedBy && (
+                        <div className="text-xs text-muted-foreground pt-2">
+                          Posted by{' '}
+                          <Link
+                            href={`/dashboard/directory/${job.postedBy.id}`}
+                            className="font-semibold text-primary hover:underline"
+                          >
+                            {job.postedBy.firstName} {job.postedBy.lastName}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 items-stretch shrink-0 w-full md:w-auto">
+                      <JobSummary job={job} />
+                      {userProfile &&
+                        (userProfile.role === 'admin' ||
+                          (job.postedBy &&
+                            userProfile.id === job.postedBy.id)) && (
+                          <div className="flex items-center justify-end gap-1">
+                            <JobFormDialog
+                              job={job}
+                              userProfile={userProfile}
+                              onSave={fetchJobs}
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteJob(job.id)}
                             >
-                            {job.type}
-                            </Badge>
-                        </div>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                        <p className="text-sm text-muted-foreground">
-                            {job.shortDescription}
-                        </p>
-                        <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
-                            <div className="flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4" />
-                            {job.location}
-                            </div>
-                            {job.postedBy && (
-                            <div className="text-xs">
-                                Posted by{' '}
-                                <Link
-                                href={`/dashboard/directory/${job.postedBy.id}`}
-                                className="font-semibold text-primary hover:underline"
-                                >
-                                {job.postedBy.firstName} {job.postedBy.lastName}
-                                </Link>
-                            </div>
-                            )}
-                        </div>
-                        </CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                        <JobSummary job={job} />
-                        {userProfile && (userProfile.role === 'admin' || (job.postedBy && userProfile.id === job.postedBy.id)) && (
-                            <div className="flex items-center ml-2">
-                            <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteJob(job.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
-                            </div>
+                          </div>
                         )}
-                        </CardFooter>
-                    </Card>
-                ))}
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           ) : (
             <Card className="flex flex-col items-center justify-center py-20 text-center">
