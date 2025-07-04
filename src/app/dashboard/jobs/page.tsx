@@ -57,6 +57,7 @@ import {
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { MapPin, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { JobSummary } from '@/components/jobs/job-summary';
 import type { Job, User as UserProfile } from '@/lib/types';
@@ -209,7 +210,10 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const jobTypes: Job['type'][] = ['Full-time', 'Part-time', 'Internship'];
 
   const fetchJobs = () => {
     if (!db) return;
@@ -264,6 +268,21 @@ export default function JobsPage() {
     }
   };
 
+  const handleFilterChange = (type: string) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type)
+        ? prev.filter((t) => t !== type)
+        : [...prev, type]
+    );
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    if (selectedTypes.length === 0) {
+      return true;
+    }
+    return selectedTypes.includes(job.type);
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -295,59 +314,99 @@ export default function JobsPage() {
         </div>
         {(userProfile?.role === 'admin' || userProfile?.role === 'alumni') && <JobFormDialog userProfile={userProfile} onSave={fetchJobs} />}
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
-        {jobs.map((job) => (
-          <Card key={job.id} className="flex flex-col">
+      <div className="grid md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-8 items-start">
+        <aside className="sticky top-20">
+          <Card>
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>{job.title}</CardTitle>
-                  <CardDescription>{job.company}</CardDescription>
-                </div>
-                <Badge
-                  variant={
-                    job.type === 'Internship' ? 'default' : 'secondary'
-                  }
-                >
-                  {job.type}
-                </Badge>
-              </div>
+              <CardTitle>Filter by Type</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1">
-              <p className="text-sm text-muted-foreground">
-                {job.shortDescription}
-              </p>
-              <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" />
-                  {job.location}
+            <CardContent className="space-y-3">
+              {jobTypes.map((type) => (
+                <div key={type} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={type}
+                    checked={selectedTypes.includes(type)}
+                    onCheckedChange={() => handleFilterChange(type)}
+                  />
+                  <label
+                    htmlFor={type}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {type}
+                  </label>
                 </div>
-                {job.postedBy && (
-                  <div className="text-xs">
-                    Posted by{' '}
-                    <Link
-                      href={`/dashboard/directory/${job.postedBy.id}`}
-                      className="font-semibold text-primary hover:underline"
-                    >
-                      {job.postedBy.firstName} {job.postedBy.lastName}
-                    </Link>
-                  </div>
-                )}
-              </div>
+              ))}
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <JobSummary job={job} />
-              {userProfile && (userProfile.role === 'admin' || (job.postedBy && userProfile.id === job.postedBy.id)) && (
-                <div className="flex items-center ml-2">
-                  <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteJob(job.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              )}
-            </CardFooter>
           </Card>
-        ))}
+        </aside>
+
+        <main>
+          {filteredJobs.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                {filteredJobs.map((job) => (
+                    <Card key={job.id} className="flex flex-col">
+                        <CardHeader>
+                        <div className="flex justify-between items-start">
+                            <div>
+                            <CardTitle>{job.title}</CardTitle>
+                            <CardDescription>{job.company}</CardDescription>
+                            </div>
+                            <Badge
+                            variant={
+                                job.type === 'Internship' ? 'default' : 'secondary'
+                            }
+                            >
+                            {job.type}
+                            </Badge>
+                        </div>
+                        </CardHeader>
+                        <CardContent className="flex-1">
+                        <p className="text-sm text-muted-foreground">
+                            {job.shortDescription}
+                        </p>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
+                            <div className="flex items-center gap-1.5">
+                            <MapPin className="h-4 w-4" />
+                            {job.location}
+                            </div>
+                            {job.postedBy && (
+                            <div className="text-xs">
+                                Posted by{' '}
+                                <Link
+                                href={`/dashboard/directory/${job.postedBy.id}`}
+                                className="font-semibold text-primary hover:underline"
+                                >
+                                {job.postedBy.firstName} {job.postedBy.lastName}
+                                </Link>
+                            </div>
+                            )}
+                        </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-between items-center">
+                        <JobSummary job={job} />
+                        {userProfile && (userProfile.role === 'admin' || (job.postedBy && userProfile.id === job.postedBy.id)) && (
+                            <div className="flex items-center ml-2">
+                            <JobFormDialog job={job} userProfile={userProfile} onSave={fetchJobs} />
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteJob(job.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                            </div>
+                        )}
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
+          ) : (
+            <Card className="flex flex-col items-center justify-center py-20 text-center">
+              <CardContent>
+                  <h3 className="text-xl font-semibold">No Jobs Found</h3>
+                  <p className="text-muted-foreground mt-2">
+                    There are no job postings matching your current filters.
+                  </p>
+              </CardContent>
+            </Card>
+          )}
+        </main>
       </div>
     </div>
   );
