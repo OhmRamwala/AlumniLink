@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
+import { Chatbot } from '@/components/chatbot/chatbot';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
             <main className="flex-1 p-4 sm:p-6 bg-background max-w-7xl mx-auto w-full">{children}</main>
           </SidebarInset>
         </div>
+        <Chatbot />
       </div>
     </SidebarProvider>
   );
