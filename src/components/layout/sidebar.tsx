@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -85,17 +86,19 @@ export function AppSidebar() {
     if (!auth || !db) return;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
         } else {
-          // User authenticated but no profile in Firestore.
-          // This is an invalid state, so we'll log them out.
-          setUserProfile(null);
+          // If user exists in Auth but not in Firestore, sign them out.
+          await signOut(auth);
           router.push('/login');
         }
       } else {
+        // If no user, redirect to login as this is a protected layout
         setUserProfile(null);
+        router.push('/login');
       }
     });
     return () => unsubscribe();
@@ -111,25 +114,23 @@ export function AppSidebar() {
     }
   };
 
-  const visibleMenuItems = menuItems.filter((item) =>
-    !item.roles || (userProfile && item.roles.includes(userProfile.role))
+  const visibleMenuItems = menuItems.filter(
+    (item) => !item.roles || (userProfile && item.roles.includes(userProfile.role))
   );
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-14 justify-center">
+      <SidebarHeader className="h-14">
         <div className="flex h-full w-full items-center">
           <Link
             href="/dashboard"
             className={cn(
               'flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full',
-              state === 'collapsed' ? 'justify-center' : 'justify-start pl-2'
+              state === 'expanded' ? 'justify-start pl-2' : 'justify-end'
             )}
           >
             <Link2
-              className={cn(
-                'h-5 w-5 flex-shrink-0 text-primary transition-all'
-              )}
+              className={cn('h-4 w-4 flex-shrink-0 text-primary transition-all')}
             />
             {state === 'expanded' && (
               <span className="whitespace-nowrap font-semibold text-base">
@@ -146,7 +147,7 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className={cn('w-full', state === 'collapsed' ? 'justify-center' : 'justify-start')}
+                className="w-full"
                 tooltip={{
                   children: item.label,
                   side: 'top',
@@ -164,7 +165,7 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
-            className={cn('w-full', state === 'collapsed' ? 'justify-center' : 'justify-start')}
+            className="w-full"
             tooltip={{
               children: 'Logout',
               side: 'top',
