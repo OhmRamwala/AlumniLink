@@ -60,7 +60,7 @@ export default function HomePage() {
                 </div>
               </div>
               <Image
-                src="https://i.ibb.co/d6r7z0J/diverse-professionals-networking.png"
+                src="https://media.licdn.com/dms/image/v2/C4E1BAQHLZsTU6thiyw/company-background_10000/company-background_10000/0/1619067235243/ckpcollege_cover?e=2147483647&v=beta&t=MRYbQafb4Ecl9nSB2ECgadf412PbeLbTAULwLORX4Hs"
                 width="600"
                 height="400"
                 alt="Hero"
