@@ -122,8 +122,6 @@ function SignupForm() {
       about: '',
       linkedin: '',
       github: '',
-      company: '',
-      position: '',
     },
   });
 
@@ -410,12 +408,12 @@ function SignupForm() {
                       <RadioGroup
                         onValueChange={(value) => {
                           field.onChange(value);
-                          form.reset({
-                            ...form.getValues(),
-                            role: value as 'student' | 'alumni',
-                            company: '',
-                            position: '',
-                          });
+                          // When switching to student, unregister alumni-specific fields
+                          // to ensure the form state is valid against the schema.
+                          if (value === 'student') {
+                            form.unregister('company');
+                            form.unregister('position');
+                          }
                         }}
                         defaultValue={field.value}
                         className="flex gap-4"
