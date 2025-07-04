@@ -76,20 +76,20 @@ const baseSchema = z.object({
 
 // Using discriminatedUnion to handle different fields based on role
 const formSchema = z.discriminatedUnion('role', [
-  baseSchema.extend({
+  z.object({
     role: z.literal('student'),
     about: z.string().min(1, { message: 'This field is required.' }),
     linkedin: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
     github: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
-  }),
-  baseSchema.extend({
+  }).merge(baseSchema),
+  z.object({
     role: z.literal('alumni'),
     position: z.string().min(1, { message: 'Position is required.' }),
     company: z.string().min(1, { message: 'Company is required.' }),
     about: z.string().min(1, { message: 'This field is required.' }),
     linkedin: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
     github: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
-  }),
+  }).merge(baseSchema),
 ]);
 type FormValues = z.infer<typeof formSchema>;
 
@@ -116,19 +116,24 @@ function SignupForm() {
       about: '',
       linkedin: '',
       github: '',
+      position: '',
+      company: '',
     },
+    mode: 'onTouched'
   });
 
   const role = form.watch('role');
   const passwordValue = form.watch('password');
-
-  const passwordChecks = [
+  
+  const passwordChecks = useMemo(() => [
       { rule: (pwd: string) => pwd.length >= 8, label: 'At least 8 characters' },
       { rule: (pwd: string) => /[A-Z]/.test(pwd), label: 'An uppercase letter' },
       { rule: (pwd: string) => /[a-z]/.test(pwd), label: 'A lowercase letter' },
       { rule: (pwd: string) => /[0-9]/.test(pwd), label: 'A number' },
       { rule: (pwd: string) => /[^A-Za-z0-9]/.test(pwd), label: 'A special character' },
-  ];
+  ], []);
+
+  const allPasswordChecksPassed = useMemo(() => passwordChecks.every(({ rule }) => rule(passwordValue || "")), [passwordValue, passwordChecks]);
 
   const handleNextStep = async () => {
     const fieldsToValidate: (keyof FormValues)[] = [
@@ -162,11 +167,16 @@ function SignupForm() {
         };
 
         if (values.role === 'student') {
-            const { company, position, ...studentData } = dataToSave;
-            dataToSave = studentData;
+          const { company, position, ...studentData } = dataToSave;
+          dataToSave = studentData;
         } else if (values.role === 'alumni') {
             const alumniData = dataToSave;
             dataToSave = alumniData;
+        }
+        
+        if (dataToSave.role === 'student') {
+            delete dataToSave.company;
+            delete dataToSave.position;
         }
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
@@ -265,39 +275,37 @@ function SignupForm() {
                                 )} />
                             </div>
                             
-                            <FormField control={form.control} name="password" render={({ field }) => (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 pt-2">
-                                    <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="password" render={({ field }) => (
+                                        <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
                                             <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
                                             <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(p => !p)}>
                                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                                 <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
                                             </Button>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                    <div className="text-xs space-y-1 pt-2 md:pt-8">
-                                    {passwordChecks.map(({ rule, label }) => (
-                                        <div key={label} className={cn("flex items-center gap-1.5 transition-colors", rule(passwordValue || "") ? 'text-foreground' : 'text-muted-foreground')}>
-                                            <Check className="h-3.5 w-3.5" />
-                                            <span>{label}</span>
-                                        </div>
-                                    ))}
-                                    </div>
+                                            </div></FormControl><FormMessage />
+                                        </FormItem>
+                                    )} />
+                                     <FormField control={form.control} name="role" render={({ field }) => (
+                                        <FormItem><FormLabel>I am a...</FormLabel><FormControl>
+                                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
+                                            </RadioGroup></FormControl><FormMessage /></FormItem>
+                                    )} />
                                 </div>
-                            )} />
-
-                            <FormField control={form.control} name="role" render={({ field }) => (
-                                <FormItem className="space-y-2"><FormLabel>I am a...</FormLabel><FormControl>
-                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4" disabled={isLoading}>
-                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
-                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
-                                    </RadioGroup></FormControl><FormMessage /></FormItem>
-                            )} />
+                                {passwordValue && !allPasswordChecksPassed && (
+                                    <div className="text-xs space-y-1 pt-2">
+                                        {passwordChecks.map(({ rule, label }) => (
+                                            <div key={label} className={cn("flex items-center gap-1.5 transition-colors", rule(passwordValue) ? 'text-foreground' : 'text-muted-foreground')}>
+                                                <Check className="h-3.5 w-3.5" />
+                                                <span>{label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                     {step === 2 && (
@@ -374,3 +382,5 @@ export default function SignupPage() {
     </Suspense>
   )
 }
+
+    
