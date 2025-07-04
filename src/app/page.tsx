@@ -93,7 +93,7 @@ export default async function HomePage() {
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-24 lg:py-32 bg-secondary/50">
           <div className="container px-4 md:px-6">
-             <div className="flex flex-col items-center justify-center space-y-4">
+             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2 text-center">
                  <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">Upcoming Events</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Connect and Network</h2>
@@ -142,7 +142,7 @@ export default async function HomePage() {
         {/* News Section */}
         <section id="news" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2 text-center">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Community News</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Stay Informed</h2>
@@ -192,7 +192,7 @@ export default async function HomePage() {
         {/* Jobs Section */}
         <section id="jobs" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2 text-center">
                  <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Latest Job Postings</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Find Your Next Opportunity</h2>
