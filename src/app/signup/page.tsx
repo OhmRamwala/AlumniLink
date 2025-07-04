@@ -67,11 +67,7 @@ const baseSchema = z.object({
     .string()
     .min(8, { message: 'Password must be at least 8 characters long.' })
     .regex(/[A-Z]/, { message: 'Must contain at least one uppercase letter.' })
-    .regex(/[a-z]/, { message: 'Must contain at least one lowercase letter.' })
-    .regex(/[0-9]/, { message: 'Must contain at least one number.' })
-    .regex(/[^A-Za-z0-9]/, {
-      message: 'Must contain at least one special character.',
-    }),
+    .regex(/[0-9]/, { message: 'Must contain at least one number.' }),
 });
 
 // Using discriminatedUnion to handle different fields based on role
@@ -116,8 +112,6 @@ function SignupForm() {
       about: '',
       linkedin: '',
       github: '',
-      position: '',
-      company: '',
     },
     mode: 'onTouched'
   });
@@ -128,9 +122,7 @@ function SignupForm() {
   const passwordChecks = useMemo(() => [
       { rule: (pwd: string) => pwd.length >= 8, label: 'At least 8 characters' },
       { rule: (pwd: string) => /[A-Z]/.test(pwd), label: 'An uppercase letter' },
-      { rule: (pwd: string) => /[a-z]/.test(pwd), label: 'A lowercase letter' },
       { rule: (pwd: string) => /[0-9]/.test(pwd), label: 'A number' },
-      { rule: (pwd: string) => /[^A-Za-z0-9]/.test(pwd), label: 'A special character' },
   ], []);
 
   const allPasswordChecksPassed = useMemo(() => passwordChecks.every(({ rule }) => rule(passwordValue || "")), [passwordValue, passwordChecks]);
@@ -288,7 +280,7 @@ function SignupForm() {
                                         </FormItem>
                                     )} />
                                      <FormField control={form.control} name="role" render={({ field }) => (
-                                        <FormItem><FormLabel>I am a...</FormLabel><FormControl>
+                                        <FormItem className="pt-2"><FormLabel>I am a...</FormLabel><FormControl>
                                             <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
                                                 <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
                                                 <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
