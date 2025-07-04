@@ -52,7 +52,7 @@ export function JobSummary({ job }: { job: Job }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm">
+        <Button variant="default" size="sm">
           Apply Now
         </Button>
       </DialogTrigger>
@@ -116,7 +116,7 @@ export function JobSummary({ job }: { job: Job }) {
             )}
             {summary ? 'Regenerate' : 'Generate'} AI Summary
           </Button>
-          <Button asChild className="bg-accent hover:bg-accent/90">
+          <Button asChild>
             <a href={job.url} target="_blank" rel="noopener noreferrer">
               Apply on Company Site
             </a>
