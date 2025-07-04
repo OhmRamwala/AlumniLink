@@ -1,44 +1,83 @@
 import Link from 'next/link';
-import { Link2 } from 'lucide-react';
+import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
+import { AuthRedirect } from '@/components/auth/auth-redirect';
+
+const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
+    <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
+        {children}
+    </AuthRedirect>
+);
+
+const NavDropdown = ({ label, children }: { label: string, children: React.ReactNode }) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80 focus:outline-none">
+      {label}
+      <ChevronDown className="h-4 w-4" />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      {children}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
 
 export function PublicHeader() {
   return (
-    <header className="px-4 lg:px-6 h-14 flex items-center bg-background border-b sticky top-0 z-50">
-      <Link
-        href="#"
-        className="flex items-center justify-center"
-        prefetch={false}
-      >
-        <Link2 className="h-6 w-6 text-primary" />
-        <span className="sr-only">AlumniLink</span>
-      </Link>
-       <h1 className="ml-2 text-lg font-bold">AlumniLink</h1>
-      <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-        <Link
-          href="#events"
-          className="text-sm font-medium hover:underline underline-offset-4"
-          prefetch={false}
-        >
-          Events
-        </Link>
-        <Link
-          href="#news"
-          className="text-sm font-medium hover:underline underline-offset-4"
-          prefetch={false}
-        >
-          News
-        </Link>
-        <Link
-          href="#jobs"
-          className="text-sm font-medium hover:underline underline-offset-4"
-          prefetch={false}
-        >
-          Jobs
-        </Link>
-         <Button asChild size="sm">
-            <Link href="/login">Login/Signup</Link>
-        </Button>
+    <header className="sticky top-0 z-50 shadow-sm">
+      {/* Top bar */}
+      <div className="bg-background">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 lg:px-6">
+          <Link href="/" className="flex items-center gap-3 text-foreground">
+            <Image
+              src="https://i.ibb.co/6P8dFv5/logo.png"
+              alt="Sarvajanik College of Engineering and Technology Logo"
+              width={60}
+              height={60}
+              className="h-14 w-14 shrink-0"
+            />
+            <span className="hidden text-xl font-bold tracking-tight sm:block">
+              Sarvajanik College of Engineering and Technology
+            </span>
+          </Link>
+          <Button asChild>
+            <Link href="/login">SIGN UP / LOGIN</Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <nav className="hidden w-full bg-blue-900 md:flex">
+        <div className="container mx-auto flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
+            <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Home</Link>
+            
+            <NavDropdown label="Events & News">
+                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/events">Events</AuthRedirect></DropdownMenuItem>
+                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/news">News</AuthRedirect></DropdownMenuItem>
+            </NavDropdown>
+             
+            <NavDropdown label="Batchmates">
+                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Search Alumni</AuthRedirect></DropdownMenuItem>
+            </NavDropdown>
+
+            <NavDropdown label="Find Alumni">
+                <DropdownMenuItem asChild><AuthRedirect redirectUrl="/dashboard/directory">Alumni Directory</AuthRedirect></DropdownMenuItem>
+            </NavDropdown>
+
+            <NavLink redirectUrl="/dashboard/jobs">Jobs</NavLink>
+            <NavLink redirectUrl="/dashboard/donations">Lend a Hand</NavLink>
+
+             <NavDropdown label="About">
+                <DropdownMenuItem asChild><Link href="#">About the College</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="#">About Alumni Association</Link></DropdownMenuItem>
+            </NavDropdown>
+        </div>
       </nav>
     </header>
   );

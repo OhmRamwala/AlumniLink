@@ -9,7 +9,7 @@ import { Button } from '../ui/button';
 
 const images = [
   {
-    src: 'https://i.ibb.co/Y4KjZLdn/main1.jpg',
+    src: 'https://i.ibb.co/Y4CQjWyD/main1.jpg',
     alt: 'University students collaborating',
     hint: 'university students',
   },
