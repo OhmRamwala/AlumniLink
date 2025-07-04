@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,8 +14,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  useSidebar,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -79,7 +76,6 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { state } = useSidebar();
   const router = useRouter();
 
   useEffect(() => {
@@ -91,12 +87,10 @@ export function AppSidebar() {
         if (userDoc.exists()) {
           setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
         } else {
-          // If user exists in Auth but not in Firestore, sign them out.
           await signOut(auth);
           router.push('/login');
         }
       } else {
-        // If no user, redirect to login as this is a protected layout
         setUserProfile(null);
         router.push('/login');
       }
@@ -119,26 +113,20 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar>
       <SidebarHeader className="h-14">
         <div className="flex h-full w-full items-center">
           <Link
             href="/dashboard"
-            className={cn(
-              'flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full',
-              state === 'expanded' ? 'justify-start pl-2' : 'justify-end'
-            )}
+            className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full justify-start pl-2"
           >
             <Link2
-              className={cn('h-4 w-4 flex-shrink-0 text-primary transition-all')}
+              className="h-5 w-5 flex-shrink-0 text-primary transition-all"
             />
-            {state === 'expanded' && (
-              <span className="whitespace-nowrap font-semibold text-base">
-                AlumniLink
-              </span>
-            )}
+            <span className="whitespace-nowrap font-semibold text-base">
+              AlumniLink
+            </span>
           </Link>
-          {state === 'expanded' && <SidebarTrigger className="shrink-0" />}
         </div>
       </SidebarHeader>
       <SidebarMenu className="flex-1">
@@ -147,12 +135,7 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className="w-full"
-                tooltip={{
-                  children: item.label,
-                  side: 'top',
-                  align: 'center',
-                }}
+                className="w-full justify-start"
               >
                 <item.icon />
                 <span>{item.label}</span>
@@ -165,12 +148,7 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
-            className="w-full"
-            tooltip={{
-              children: 'Logout',
-              side: 'top',
-              align: 'center',
-            }}
+            className="w-full justify-start"
           >
             <LogOut />
             <span>Logout</span>
