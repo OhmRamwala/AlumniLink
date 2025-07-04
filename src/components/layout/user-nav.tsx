@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -33,7 +34,7 @@ export function UserNav() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth || !db) {
+    if (!auth) {
       setIsLoading(false);
       return;
     }
@@ -41,6 +42,11 @@ export function UserNav() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        if (!db) {
+          setUserProfile(null);
+          setIsLoading(false);
+          return;
+        }
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {

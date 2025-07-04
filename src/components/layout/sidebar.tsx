@@ -80,7 +80,7 @@ export function AppSidebar() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!auth || !db) return;
+    if (!auth) return;
 
     let isMounted = true;
 
@@ -89,6 +89,9 @@ export function AppSidebar() {
 
       if (user) {
         try {
+          if (!db) {
+            throw new Error("Firestore is not initialized.");
+          }
           const userDocRef = doc(db, 'users', user.uid);
           const userDoc = await getDoc(userDocRef);
           if (isMounted) {
