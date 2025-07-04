@@ -141,7 +141,7 @@ export function AppSidebar() {
             <Link href={item.href}>
               <SidebarMenuButton
                 isActive={pathname === item.href}
-                className="justify-start"
+                className="w-full"
                 tooltip={{
                   children: item.label,
                   side: 'top',
@@ -159,7 +159,7 @@ export function AppSidebar() {
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={handleLogout}
-            className="w-full justify-start"
+            className="w-full"
             tooltip={{
               children: 'Logout',
               side: 'top',
