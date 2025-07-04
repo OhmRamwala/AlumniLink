@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -63,7 +62,7 @@ const campaignSchema = z.object({
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 
-function CampaignFormDialog({ campaign, onSave }: { campaign?: DonationCampaign, onSave: () => void }) {
+function CampaignFormDialog({ campaign }: { campaign?: DonationCampaign }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,7 +100,6 @@ function CampaignFormDialog({ campaign, onSave }: { campaign?: DonationCampaign,
 
       setOpen(false);
       form.reset();
-      onSave();
     } catch (error) {
       console.error('Error saving campaign:', error);
       let description = 'Failed to save campaign.';
@@ -172,10 +170,25 @@ export default function DonationsPage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const { toast } = useToast();
 
-    const fetchCampaigns = () => {
-        if (!db) return;
+    useEffect(() => {
+        if (!auth || !db) {
+            setIsLoading(false);
+            return;
+        }
+
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    setUserProfile(userDoc.data() as UserProfile);
+                }
+            } else {
+                setUserProfile(null);
+            }
+        });
+
         const q = query(collection(db, 'donations'), orderBy('createdAt', 'desc'));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribeCampaigns = onSnapshot(q, (querySnapshot) => {
             const campaignsData: DonationCampaign[] = [];
             querySnapshot.forEach((doc) => {
               campaignsData.push({ id: doc.id, ...doc.data() } as DonationCampaign);
@@ -188,28 +201,11 @@ export default function DonationsPage() {
             setIsLoading(false);
           }
         );
-        return unsubscribe;
-    };
-
-    useEffect(() => {
-        if (!auth || !db) {
-            setIsLoading(false);
-            return;
-        }
-        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    setUserProfile(userDoc.data() as UserProfile);
-                }
-            }
-            const unsubscribeFirestore = fetchCampaigns();
-            return () => {
-              if (unsubscribeFirestore) unsubscribeFirestore();
-            };
-        });
-    
-        return () => unsubscribeAuth();
+        
+        return () => {
+            unsubscribeAuth();
+            unsubscribeCampaigns();
+        };
       }, []);
 
     const formatCurrency = (amount: number) => {
@@ -260,7 +256,7 @@ export default function DonationsPage() {
               Support the university by contributing to our causes.
             </p>
         </div>
-        {userProfile?.role === 'admin' && <CampaignFormDialog onSave={fetchCampaigns} />}
+        {userProfile?.role === 'admin' && <CampaignFormDialog />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((campaign) => (
@@ -293,7 +289,7 @@ export default function DonationsPage() {
                </Button>
                {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <CampaignFormDialog campaign={campaign} onSave={fetchCampaigns} />
+                  <CampaignFormDialog campaign={campaign} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteCampaign(campaign.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

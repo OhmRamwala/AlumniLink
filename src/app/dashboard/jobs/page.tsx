@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -73,7 +72,7 @@ const jobSchema = z.object({
 });
 type JobFormValues = z.infer<typeof jobSchema>;
 
-function JobFormDialog({ job, userProfile, onSave }: { job?: Job, userProfile: UserProfile | null, onSave: () => void }) {
+function JobFormDialog({ job, userProfile }: { job?: Job, userProfile: UserProfile | null }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,7 +119,6 @@ function JobFormDialog({ job, userProfile, onSave }: { job?: Job, userProfile: U
       }
       setOpen(false);
       form.reset();
-      onSave();
     } catch (error) {
       console.error('Error saving job:', error);
       let description = 'Failed to save job.';
@@ -215,23 +213,6 @@ export default function JobsPage() {
 
   const jobTypes: Job['type'][] = ['Full-time', 'Part-time', 'Internship'];
 
-  const fetchJobs = () => {
-    if (!db) return;
-    const q = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const jobsData: Job[] = [];
-      querySnapshot.forEach((doc) => {
-        jobsData.push({ id: doc.id, ...doc.data() } as Job);
-      });
-      setJobs(jobsData);
-      setIsLoading(false);
-    }, (error) => {
-      console.error('Error fetching jobs:', error);
-      setIsLoading(false);
-    });
-    return unsubscribe;
-  };
-
   useEffect(() => {
     if (!auth || !db) {
       setIsLoading(false);
@@ -244,14 +225,28 @@ export default function JobsPage() {
         if (userDoc.exists()) {
           setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
         }
+      } else {
+        setUserProfile(null);
       }
-      const unsubscribeFirestore = fetchJobs();
-      return () => {
-        if (unsubscribeFirestore) unsubscribeFirestore();
-      };
     });
 
-    return () => unsubscribeAuth();
+    const q = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'));
+    const unsubscribeJobs = onSnapshot(q, (querySnapshot) => {
+      const jobsData: Job[] = [];
+      querySnapshot.forEach((doc) => {
+        jobsData.push({ id: doc.id, ...doc.data() } as Job);
+      });
+      setJobs(jobsData);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching jobs:', error);
+      setIsLoading(false);
+    });
+
+    return () => {
+        unsubscribeAuth();
+        unsubscribeJobs();
+    };
   }, []);
 
   const handleDeleteJob = async (jobId: string) => {
@@ -312,7 +307,7 @@ export default function JobsPage() {
             Find your next opportunity from companies in our network.
           </p>
         </div>
-        {(userProfile?.role === 'admin' || userProfile?.role === 'alumni') && <JobFormDialog userProfile={userProfile} onSave={fetchJobs} />}
+        {(userProfile?.role === 'admin' || userProfile?.role === 'alumni') && <JobFormDialog userProfile={userProfile} />}
       </div>
       <div className="grid md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-8 items-start">
         <aside className="sticky top-20">
@@ -398,7 +393,6 @@ export default function JobsPage() {
                             <JobFormDialog
                               job={job}
                               userProfile={userProfile}
-                              onSave={fetchJobs}
                             />
                             <Button
                               variant="ghost"

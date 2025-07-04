@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -65,7 +64,7 @@ const newsSchema = z.object({
 });
 type NewsFormValues = z.infer<typeof newsSchema>;
 
-function NewsFormDialog({ article, onSave }: { article?: NewsArticle, onSave: () => void }) {
+function NewsFormDialog({ article }: { article?: NewsArticle }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,7 +100,6 @@ function NewsFormDialog({ article, onSave }: { article?: NewsArticle, onSave: ()
       }
       setOpen(false);
       form.reset();
-      onSave();
     } catch (error) {
       console.error('Error saving news:', error);
       let description = 'Failed to save news article.';
@@ -181,10 +179,24 @@ export default function NewsPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
 
-  const fetchNews = () => {
-    if (!db) return;
+  useEffect(() => {
+    if (!auth || !db) {
+        setIsLoading(false);
+        return;
+    }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                setUserProfile(userDoc.data() as UserProfile);
+            }
+        } else {
+            setUserProfile(null);
+        }
+    });
+
     const q = query(collection(db, 'news'), orderBy('date', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribeNews = onSnapshot(q, (querySnapshot) => {
         const newsData: NewsArticle[] = [];
         querySnapshot.forEach((doc) => {
           newsData.push({ id: doc.id, ...doc.data() } as NewsArticle);
@@ -197,28 +209,11 @@ export default function NewsPage() {
         setIsLoading(false);
       }
     );
-    return unsubscribe;
-  };
-  
-  useEffect(() => {
-    if (!auth || !db) {
-        setIsLoading(false);
-        return;
-    }
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                setUserProfile(userDoc.data() as UserProfile);
-            }
-        }
-        const unsubscribeFirestore = fetchNews();
-        return () => {
-          if (unsubscribeFirestore) unsubscribeFirestore();
-        };
-    });
 
-    return () => unsubscribeAuth();
+    return () => {
+        unsubscribeAuth();
+        unsubscribeNews();
+    };
   }, []);
 
   const handleDeleteArticle = async (articleId: string) => {
@@ -275,7 +270,7 @@ export default function NewsPage() {
             The latest news and stories from the alumni community.
           </p>
         </div>
-        {userProfile?.role === 'admin' && <NewsFormDialog onSave={fetchNews} />}
+        {userProfile?.role === 'admin' && <NewsFormDialog />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
@@ -306,7 +301,7 @@ export default function NewsPage() {
               </Button>
                {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <NewsFormDialog article={article} onSave={fetchNews} />
+                  <NewsFormDialog article={article} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

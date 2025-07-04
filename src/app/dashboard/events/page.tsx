@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -69,7 +68,7 @@ const eventSchema = z.object({
 });
 type EventFormValues = z.infer<typeof eventSchema>;
 
-function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => void }) {
+function EventFormDialog({ event }: { event?: AppEvent }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,7 +116,6 @@ function EventFormDialog({ event, onSave }: { event?: AppEvent, onSave: () => vo
 
       setOpen(false);
       form.reset();
-      onSave();
     } catch (error) {
       console.error('Error saving event:', error);
       let description = 'Failed to save event.';
@@ -276,10 +274,25 @@ export default function EventsPage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const { toast } = useToast();
 
-    const fetchEvents = () => {
-        if (!db) return;
+    useEffect(() => {
+        if (!auth || !db) {
+            setIsLoading(false);
+            return;
+        }
+
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    setUserProfile(userDoc.data() as UserProfile);
+                }
+            } else {
+                setUserProfile(null);
+            }
+        });
+
         const q = query(collection(db, 'events'), orderBy('date', 'desc'));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribeEvents = onSnapshot(q, (querySnapshot) => {
             const eventsData: AppEvent[] = [];
             querySnapshot.forEach((doc) => {
               eventsData.push({ id: doc.id, ...doc.data() } as AppEvent);
@@ -292,28 +305,11 @@ export default function EventsPage() {
             setIsLoading(false);
           }
         );
-        return unsubscribe;
-    };
 
-    useEffect(() => {
-        if (!auth || !db) {
-            setIsLoading(false);
-            return;
-        }
-        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    setUserProfile(userDoc.data() as UserProfile);
-                }
-            }
-            const unsubscribeFirestore = fetchEvents();
-            return () => {
-              if (unsubscribeFirestore) unsubscribeFirestore();
-            };
-        });
-    
-        return () => unsubscribeAuth();
+        return () => {
+            unsubscribeAuth();
+            unsubscribeEvents();
+        };
       }, []);
 
     const handleDeleteEvent = async (eventId: string) => {
@@ -366,7 +362,7 @@ export default function EventsPage() {
             Join us for our upcoming events and connect with the community.
             </p>
         </div>
-        {userProfile?.role === 'admin' && <EventFormDialog onSave={fetchEvents} />}
+        {userProfile?.role === 'admin' && <EventFormDialog />}
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
@@ -404,7 +400,7 @@ export default function EventsPage() {
               <EventDetailsDialog event={event} />
               {userProfile?.role === 'admin' && (
                 <div className="flex items-center ml-2">
-                  <EventFormDialog event={event} onSave={fetchEvents} />
+                  <EventFormDialog event={event} />
                   <Button variant="ghost" size="icon" onClick={() => handleDeleteEvent(event.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
