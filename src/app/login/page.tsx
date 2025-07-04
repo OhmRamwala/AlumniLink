@@ -115,7 +115,7 @@ function LoginForm() {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
         <Image
-          src="https://placehold.co/1920x1080.png"
+          src="https://i.ibb.co/Q3hjCZvg/login-background.png"
           alt="University campus background"
           fill
           className="object-cover -z-10 brightness-50"
@@ -153,7 +153,7 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
        <Image
-          src="https://placehold.co/1920x1080.png"
+          src="https://i.ibb.co/Q3hjCZvg/login-background.png"
           alt="University campus background"
           fill
           className="object-cover -z-10 brightness-50"

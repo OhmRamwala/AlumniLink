@@ -32,7 +32,7 @@ import { useState, useMemo, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword, sendEmailVerification, type User } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db, storage, isFirebaseConfigured } from '@/lib/firebase';
+import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Image from 'next/image';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -86,8 +86,8 @@ function SignupForm() {
       baseSchema.extend({
         role: z.literal('student'),
         about: z.string().min(1, { message: 'This field is required.' }),
-        linkedin: z.string().url({ message: 'Please enter a valid URL.' }),
-        github: z.string().url({ message: 'Please enter a valid URL.' }),
+        linkedin: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
+        github: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
       }),
       baseSchema.extend({
         role: z.literal('alumni'),
@@ -183,7 +183,7 @@ function SignupForm() {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
         <Image
-          src="https://placehold.co/1920x1080.png"
+          src="https://i.ibb.co/Q3hjCZvg/login-background.png"
           alt="University campus background"
           fill
           className="object-cover -z-10 brightness-50"
@@ -221,7 +221,7 @@ function SignupForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
       <Image
-        src="https://placehold.co/1920x1080.png"
+        src="https://i.ibb.co/Q3hjCZvg/login-background.png"
         alt="University campus background"
         fill
         className="object-cover -z-10 brightness-50"
@@ -442,8 +442,7 @@ function SignupForm() {
 
               {/* Student-specific fields */}
               {role === 'student' && (
-                <>
-                  <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-6 pt-4 border-t">
                     <h3 className="text-lg font-medium">Student Profile</h3>
                      <FormField
                       control={form.control}
@@ -462,63 +461,61 @@ function SignupForm() {
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="space-y-4 pt-4 border-t">
-                    <h3 className="text-lg font-medium">Social Profiles</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="linkedin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>LinkedIn Profile</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                  type="url"
-                                  placeholder="https://linkedin.com/in/..."
-                                  className="pl-10"
-                                  {...field}
-                                  disabled={isLoading}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="github"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>GitHub Profile</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                  type="url"
-                                  placeholder="https://github.com/..."
-                                  className="pl-10"
-                                  {...field}
-                                  disabled={isLoading}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="space-y-4">
+                      <h4 className="text-md font-medium">Social Profiles (Optional)</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="linkedin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>LinkedIn Profile</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                  <Input
+                                    type="url"
+                                    placeholder="https://linkedin.com/in/..."
+                                    className="pl-10"
+                                    {...field}
+                                    disabled={isLoading}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="github"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>GitHub Profile</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                  <Input
+                                    type="url"
+                                    placeholder="https://github.com/..."
+                                    className="pl-10"
+                                    {...field}
+                                    disabled={isLoading}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </>
+                </div>
               )}
 
               {/* Alumni-specific fields */}
               {role === 'alumni' && (
-                <>
-                  <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-6 pt-4 border-t">
                     <h3 className="text-lg font-medium">Alumni Profile</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
@@ -569,59 +566,58 @@ function SignupForm() {
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="space-y-4 pt-4 border-t">
-                    <h3 className="text-lg font-medium">
-                      Social Profiles (Optional)
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="linkedin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>LinkedIn Profile</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                  type="url"
-                                  placeholder="https://linkedin.com/in/..."
-                                  className="pl-10"
-                                  {...field}
-                                  disabled={isLoading}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="github"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>GitHub Profile</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                  type="url"
-                                  placeholder="https://github.com/..."
-                                  className="pl-10"
-                                  {...field}
-                                  disabled={isLoading}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="space-y-4">
+                      <h4 className="text-md font-medium">
+                        Social Profiles (Optional)
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="linkedin"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>LinkedIn Profile</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                  <Input
+                                    type="url"
+                                    placeholder="https://linkedin.com/in/..."
+                                    className="pl-10"
+                                    {...field}
+                                    disabled={isLoading}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="github"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>GitHub Profile</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                  <Input
+                                    type="url"
+                                    placeholder="https://github.com/..."
+                                    className="pl-10"
+                                    {...field}
+                                    disabled={isLoading}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </>
+                </div>
               )}
 
               <Button type="submit" className="w-full" disabled={isLoading}>
