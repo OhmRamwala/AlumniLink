@@ -185,7 +185,7 @@ function SignupForm() {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
         <Image
-          src="https://i.ibb.co/Q3hjCZvg/login-background.png" alt="University campus background"
+          src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
           fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
         <Card className="w-full max-w-lg mx-auto"><CardHeader><CardTitle className="text-2xl">Configuration Needed</CardTitle>
             <CardDescription>Your application is not connected to Firebase.</CardDescription></CardHeader>
@@ -202,7 +202,7 @@ function SignupForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
       <Image
-        src="https://i.ibb.co/Q3hjCZvg/login-background.png" alt="University campus background"
+        src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
         fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>

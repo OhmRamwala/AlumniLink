@@ -203,13 +203,13 @@ export default async function HomePage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-3">
               {jobs.length > 0 ? jobs.map((job) => (
-                <Card key={job.id}>
+                <Card key={job.id} className="flex flex-col">
                   <CardHeader>
                     <CardTitle>{job.title}</CardTitle>
                     <CardDescription>{job.company} - {job.location}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{job.shortDescription}</p>
+                  <CardContent className="flex-1">
+                    <p className="text-sm text-muted-foreground line-clamp-3">{job.shortDescription}</p>
                   </CardContent>
                   <CardFooter>
                      <Button variant="outline" className="w-full" asChild>
@@ -230,11 +230,11 @@ export default async function HomePage() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">
+        <section id="about" className="w-full py-12 md:py-16 lg:py-20">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">About Us</div>
+                <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">About Us</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">CKPCET Alumni Association</h2>
                 <p className="mx-auto max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   The CKPCET Alumni Association is dedicated to fostering a lifelong community among alumni. Our mission is to strengthen the bond between alumni and the institution, support current students, and provide valuable networking and career opportunities. We envision a vibrant, global network where every member feels connected, supported, and proud to be a part of the CKPCET family.
