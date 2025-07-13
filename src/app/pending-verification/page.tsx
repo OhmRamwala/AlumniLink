@@ -21,15 +21,8 @@ function VerificationContent() {
     const email = searchParams.get('email');
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center p-4">
-            <Image
-                src="https://placehold.co/1920x1080.png"
-                alt="University campus background"
-                fill
-                className="object-cover -z-10 brightness-50"
-                data-ai-hint="university campus"
-            />
-            <Card className="w-full max-w-md mx-auto text-center">
+        <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+            <Card className="w-full max-w-md mx-auto text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-primary rounded-full h-16 w-16 flex items-center justify-center">
                         <MailCheck className="h-8 w-8 text-primary-foreground" />
