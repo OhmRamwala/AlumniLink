@@ -24,7 +24,7 @@ function VerificationContent() {
         <div className="relative flex min-h-screen items-center justify-center p-4 bg-white">
             <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
                 <Link2 className="h-6 w-6 text-primary" />
-                <span className="font-semibold">AlumniLink Home</span>
+                <span className="font-semibold">AlumniLink</span>
             </Link>
             <Card className="w-full max-w-md mx-auto text-center shadow-lg">
                 <CardHeader>
