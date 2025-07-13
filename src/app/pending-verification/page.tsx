@@ -21,7 +21,8 @@ function VerificationContent() {
     const email = searchParams.get('email');
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+        <div className="relative flex min-h-screen items-center justify-center p-4 bg-background">
+            <Link href="/" className="absolute top-4 right-4 text-sm text-primary hover:underline z-10">AlumniLink Home</Link>
             <Card className="w-full max-w-md mx-auto text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-primary rounded-full h-16 w-16 flex items-center justify-center">

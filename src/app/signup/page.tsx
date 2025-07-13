@@ -184,6 +184,7 @@ function SignupForm() {
   if (!isFirebaseConfigured) {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Link href="/" className="absolute top-4 right-4 text-sm text-primary-foreground hover:underline z-10">AlumniLink Home</Link>
         <Image
           src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
           fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
@@ -201,6 +202,7 @@ function SignupForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
+      <Link href="/" className="absolute top-4 right-4 text-sm text-primary-foreground hover:underline z-10">AlumniLink Home</Link>
       <Image
         src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
         fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
