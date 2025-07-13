@@ -14,15 +14,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MailCheck } from 'lucide-react';
+import { MailCheck, Link2 } from 'lucide-react';
 
 function VerificationContent() {
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center p-4 bg-background">
-            <Link href="/" className="absolute top-4 right-4 text-sm text-primary hover:underline z-10">AlumniLink Home</Link>
+        <div className="relative flex min-h-screen items-center justify-center p-4 bg-white">
+            <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+                <Link2 className="h-6 w-6 text-primary" />
+                <span className="font-semibold">AlumniLink Home</span>
+            </Link>
             <Card className="w-full max-w-md mx-auto text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-primary rounded-full h-16 w-16 flex items-center justify-center">

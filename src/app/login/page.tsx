@@ -114,7 +114,10 @@ function LoginForm() {
   if (!isFirebaseConfigured) {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Link href="/" className="absolute top-4 right-4 text-sm text-primary-foreground hover:underline z-10">AlumniLink Home</Link>
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-primary-foreground hover:text-primary-foreground/90">
+          <Link2 className="h-6 w-6" />
+          <span className="font-semibold">AlumniLink Home</span>
+        </Link>
         <Image
           src="https://i.ibb.co/Q3hjCZvg/login-background.png"
           alt="University campus background"
@@ -153,7 +156,10 @@ function LoginForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
-       <Link href="/" className="absolute top-4 right-4 text-sm text-primary-foreground hover:underline z-10">AlumniLink Home</Link>
+       <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-primary-foreground hover:text-primary-foreground/90">
+          <Link2 className="h-6 w-6" />
+          <span className="font-semibold">AlumniLink Home</span>
+        </Link>
        <Image
           src="https://i.ibb.co/d07NBdZV/bglogin.jpg"
           alt="University campus background"
