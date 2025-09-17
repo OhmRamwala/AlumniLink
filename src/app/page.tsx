@@ -252,7 +252,7 @@ export default async function HomePage() {
                 Ready to Reconnect?
               </h2>
               <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Join AlumniLink today and unlock a world of opportunities. Your network is waiting.
+                Join AlumniConnect today and unlock a world of opportunities. Your network is waiting.
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-x-2">
@@ -270,7 +270,7 @@ export default async function HomePage() {
               <div className="space-y-4">
                 <Link href="/" className="flex items-center gap-2">
                   <Link2 className="h-8 w-8 text-primary" />
-                  <span className="text-xl font-bold">AlumniLink</span>
+                  <span className="text-xl font-bold">AlumniConnect</span>
                 </Link>
                 <p className="text-sm text-muted-foreground max-w-xs">
                   Fostering a lifelong community for CKPCET students and alumni.
@@ -320,7 +320,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
-                <p className="text-xs text-muted-foreground">&copy; 2025 AlumniLink. All rights reserved.</p>
+                <p className="text-xs text-muted-foreground">&copy; 2025 AlumniConnect. All rights reserved.</p>
                 <nav className="flex gap-4 sm:gap-6 mt-4 sm:mt-0">
                   <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
                     Terms of Service

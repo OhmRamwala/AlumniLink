@@ -184,9 +184,9 @@ function SignupForm() {
   if (!isFirebaseConfigured) {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-primary-foreground hover:text-primary-foreground/90">
-            <Link2 className="h-6 w-6" />
-            <span className="font-semibold">AlumniLink</span>
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+            <Link2 className="h-6 w-6 text-primary" />
+            <span className="font-semibold">AlumniConnect</span>
         </Link>
         <Image
           src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
@@ -205,9 +205,9 @@ function SignupForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
-        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-primary-foreground hover:text-primary-foreground/90">
-            <Link2 className="h-6 w-6" />
-            <span className="font-semibold">AlumniLink</span>
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+            <Link2 className="h-6 w-6 text-primary" />
+            <span className="font-semibold">AlumniConnect</span>
         </Link>
       <Image
         src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
@@ -216,7 +216,7 @@ function SignupForm() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <Card className="w-full max-w-2xl mx-auto my-8">
                     <CardHeader className="space-y-1 text-center"><div className="flex items-center justify-center gap-2">
-                        <Link2 className="h-8 w-8 text-primary" /><CardTitle className="text-3xl font-bold">AlumniLink</CardTitle></div>
+                        <Link2 className="h-8 w-8 text-primary" /><CardTitle className="text-3xl font-bold">AlumniConnect</CardTitle></div>
                         <CardDescription>
                             {step === 1 ? 'Create an account to connect with peers' : `Tell us more about your ${role} profile`}
                         </CardDescription>

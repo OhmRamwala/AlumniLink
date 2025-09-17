@@ -23,7 +23,7 @@ export function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'initial',
-      text: "Hello! I'm the AlumniLink assistant. How can I help you today? You can ask me about recent news, events, or jobs.",
+      text: "Hello! I'm the AlumniConnect assistant. How can I help you today? You can ask me about recent news, events, or jobs.",
       role: 'bot',
     },
   ]);
@@ -83,7 +83,7 @@ export function Chatbot() {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="p-4 bg-primary text-primary-foreground rounded-t-lg">
-            <h3 className="font-semibold">AlumniLink Assistant</h3>
+            <h3 className="font-semibold">AlumniConnect Assistant</h3>
         </div>
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
