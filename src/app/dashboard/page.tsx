@@ -46,6 +46,9 @@ export default function DashboardPage() {
   const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnHover: true })
+  );
 
   useEffect(() => {
     if (!auth || !db) {
@@ -209,7 +212,7 @@ export default function DashboardPage() {
                 Help fund the next generation of innovators.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 min-h-0">
               <ScrollArea className="h-full pr-3">
                 {donationCampaigns.length > 0 ? (
                     <div className="space-y-4">
@@ -257,7 +260,7 @@ export default function DashboardPage() {
                 Find your next career move from opportunities in the network.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 min-h-0">
               <ScrollArea className="h-full pr-3">
                 <div className="space-y-4">
                   {jobs.map((job) => (
@@ -315,31 +318,39 @@ export default function DashboardPage() {
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1">
-             <ScrollArea className="h-full pr-3">
-                {eventItems.length > 0 ? (
-                    <div className="space-y-4">
-                        {eventItems.map((item) => (
-                          <Link
-                            href={item.href}
-                            key={item.id}
-                            className="flex h-16 items-center rounded-md p-2 transition-colors hover:bg-accent"
-                          >
-                            <div className="flex-1 space-y-1">
-                              <p className="truncate text-sm font-medium leading-snug">
-                                {item.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground">{item.date}</p>
-                            </div>
-                          </Link>
-                        ))}
-                    </div>
-                ) : (
+           <CardContent className="flex-1 min-h-0 h-[190px] p-0">
+            {eventItems.length > 0 ? (
+              <Carousel
+                plugins={[autoplayPlugin.current]}
+                opts={{ loop: true }}
+                orientation="vertical"
+                className="h-full w-full"
+              >
+                <CarouselContent className="h-full -mt-4">
+                  {eventItems.map((item) => (
+                    <CarouselItem key={item.id} className="pt-4">
+                      <Link
+                        href={item.href}
+                        className="flex h-full items-center rounded-md p-2 transition-colors hover:bg-accent"
+                      >
+                        <div className="flex-1 space-y-1 pl-4">
+                          <p className="truncate text-sm font-medium leading-snug">
+                            {item.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{item.date}</p>
+                        </div>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            ) : (
+                <div className="p-6 pt-0">
                     <p className="text-sm text-muted-foreground">
                         No upcoming events to display.
                     </p>
-                )}
-            </ScrollArea>
+                </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -360,7 +371,7 @@ export default function DashboardPage() {
               Join the conversation and share your insights.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1">
+          <CardContent className="flex-1 min-h-0">
              <ScrollArea className="h-full pr-3">
                 <div className="space-y-4">
                 {threads.map((thread) => (
