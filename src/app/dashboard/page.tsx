@@ -273,13 +273,14 @@ export default function DashboardPage() {
           <CardContent className="flex-1">
             {news.length > 0 ? (
                  <Carousel
+                    orientation="vertical"
                     opts={{ align: 'start', loop: true }}
                     plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-                    className="w-full"
+                    className="w-full h-40"
                  >
-                    <CarouselContent>
+                    <CarouselContent className="h-full">
                     {news.map((article) => (
-                        <CarouselItem key={article.id}>
+                        <CarouselItem key={article.id} className="pt-2 md:basis-1/2">
                             <div className="flex items-start gap-4">
                                 <div className="space-y-1">
                                     <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
