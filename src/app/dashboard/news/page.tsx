@@ -55,6 +55,7 @@ import {
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { getSafeImageUrl } from '@/lib/utils';
 
 const allowedImageHosts = ['i.ibb.co', 'ibb.co', 'placehold.co', 'firebasestorage.googleapis.com'];
 
@@ -260,13 +261,6 @@ export default function NewsPage() {
     }
     return date;
   };
-  
-  const getSafeImageUrl = (url: string) => {
-    if (url === 'https://miro.medium.com/v2/1*hTwG2qndsVCvAP60pEnIrQ.jpeg') {
-        return 'https://i.ibb.co/C501cZJ/1-h-Tw-G2qnds-VCv-AP60p-En-Ir-Q.jpg';
-    }
-    return url;
-  }
 
   if (isLoading) {
     return (
@@ -305,7 +299,7 @@ export default function NewsPage() {
           <Card key={article.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full bg-muted">
               <Image
-                src={getSafeImageUrl(article.imageUrl) || 'https://placehold.co/600x400.png'}
+                src={getSafeImageUrl(article.imageUrl)}
                 alt={article.title}
                 fill
                 className="object-cover"
@@ -342,3 +336,5 @@ export default function NewsPage() {
     </div>
   );
 }
+
+    
