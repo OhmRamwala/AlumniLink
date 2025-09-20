@@ -318,32 +318,26 @@ export default function DashboardPage() {
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-           <CardContent className="flex-1 min-h-0 h-[190px] p-0">
+           <CardContent className="flex-1 min-h-0">
             {eventItems.length > 0 ? (
-              <Carousel
-                plugins={[autoplayPlugin.current]}
-                opts={{ loop: true }}
-                orientation="vertical"
-                className="h-full w-full"
-              >
-                <CarouselContent className="h-full -mt-4">
+              <ScrollArea className="h-full pr-3">
+                <div className="space-y-4">
                   {eventItems.map((item) => (
-                    <CarouselItem key={item.id} className="pt-4">
-                      <Link
-                        href={item.href}
-                        className="flex h-full items-center rounded-md p-2 transition-colors hover:bg-accent"
-                      >
-                        <div className="flex-1 space-y-1 pl-4">
-                          <p className="truncate text-sm font-medium leading-snug">
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{item.date}</p>
-                        </div>
-                      </Link>
-                    </CarouselItem>
+                    <Link
+                      href={item.href}
+                      key={item.id}
+                      className="flex rounded-md p-2 transition-colors hover:bg-accent"
+                    >
+                      <div className="flex-1 space-y-1">
+                        <p className="truncate text-sm font-medium leading-snug">
+                          {item.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{item.date}</p>
+                      </div>
+                    </Link>
                   ))}
-                </CarouselContent>
-              </Carousel>
+                </div>
+              </ScrollArea>
             ) : (
                 <div className="p-6 pt-0">
                     <p className="text-sm text-muted-foreground">
