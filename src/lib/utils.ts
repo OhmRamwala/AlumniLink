@@ -10,14 +10,13 @@ const ALLOWED_IMAGE_HOSTS = [
   'firebasestorage.googleapis.com',
   'i.ibb.co',
   'ibb.co',
+  'ibbc.co',
   'static.vecteezy.com',
   'miro.medium.com',
   'old.ckpcet.ac.in',
   'ckpcet.ac.in',
   'media.licdn.com',
   'encrypted-tbn0.gstatic.com',
-  'i.ibb.co',
-  'ibbc.co', // This seems to be the problematic one from testing. Even if invalid, checking it is safe.
 ];
 
 export function getSafeImageUrl(url: string | null | undefined): string {
@@ -27,7 +26,8 @@ export function getSafeImageUrl(url: string | null | undefined): string {
   }
   try {
     const { hostname } = new URL(url);
-    if (ALLOWED_IMAGE_HOSTS.some(allowedHost => hostname.endsWith(allowedHost))) {
+    // Stricter check: hostname must exactly match one of the allowed hosts.
+    if (ALLOWED_IMAGE_HOSTS.includes(hostname)) {
       return url;
     }
   } catch (error) {
@@ -37,5 +37,3 @@ export function getSafeImageUrl(url: string | null | undefined): string {
   // Hostname not in allowlist
   return fallbackUrl;
 }
-
-    

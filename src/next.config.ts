@@ -72,6 +72,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'ibbc.co',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
