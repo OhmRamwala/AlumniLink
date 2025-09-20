@@ -190,7 +190,7 @@ function EventFormDialog({ event, onFormSubmit }: { event?: AppEvent, onFormSubm
                   </FormItem>
               )} />
               <FormField control={form.control} name="time" render={({ field }) => (
-                  <FormItem><FormLabel>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className='pt-2'>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
              <FormField control={form.control} name="location" render={({ field }) => (
