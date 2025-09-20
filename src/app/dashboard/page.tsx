@@ -280,7 +280,7 @@ export default function DashboardPage() {
                     orientation="vertical"
                     opts={{ align: 'start', loop: true }}
                     plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-                    className="w-full h-40"
+                    className="w-full h-48"
                  >
                     <CarouselContent className="-mt-1 h-full">
                     {news.map((article) => (
