@@ -7,7 +7,6 @@ import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp }
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Carousel,
   CarouselContent,
@@ -35,6 +34,8 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
+import { AutoScrollList } from '@/components/layout/auto-scroll-list';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -170,6 +171,13 @@ export default function DashboardPage() {
     );
   }
 
+  const newsItems = news.map((article) => ({
+    id: article.id,
+    href: `/dashboard/news/${article.id}`,
+    title: article.title,
+    date: formatDate(article.date),
+  }));
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -194,7 +202,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
-              <div className="h-full pr-3">
+              <ScrollArea className="h-full pr-3">
                 {donationCampaigns.length > 0 ? (
                     <div className="space-y-4">
                         {donationCampaigns.map((campaign) => (
@@ -216,7 +224,7 @@ export default function DashboardPage() {
                         There are no active campaigns at the moment. Check back soon!
                     </p>
                 )}
-              </div>
+              </ScrollArea>
             </CardContent>
             <CardFooter>
                 <Button
@@ -275,26 +283,13 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-            <div className="h-full pr-3">
-                {news.length > 0 ? (
-                    <div className="space-y-4">
-                    {news.map((article) => (
-                        <div key={article.id}>
-                        <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
-                            {article.title}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                            {formatDate(article.date)}
-                        </p>
-                        </div>
-                    ))}
-                    </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        No recent news to display.
-                    </p>
-                )}
-            </div>
+            {newsItems.length > 0 ? (
+                <AutoScrollList items={newsItems} />
+            ) : (
+                <p className="text-sm text-muted-foreground">
+                    No recent news to display.
+                </p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -396,6 +391,8 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
 
