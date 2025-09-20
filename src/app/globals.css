@@ -84,3 +84,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes scroll-up {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      /* Move the container up by exactly half its height to create a seamless loop */
+      transform: translateY(-50%);
+    }
+  }
+  .animate-scroll-up {
+    animation: scroll-up linear infinite;
+  }
+  .animate-pause {
+    animation-play-state: paused;
+  }
+}

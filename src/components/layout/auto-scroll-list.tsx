@@ -25,12 +25,12 @@ export function AutoScrollList({ items }: AutoScrollListProps) {
     return null;
   }
 
-  // Duplicate the first item and add it to the end for a seamless loop effect
-  const extendedItems = [...items, items[0]];
+  // Duplicate the list of items to create a seamless loop effect.
+  const extendedItems = [...items, ...items];
 
   return (
     <div
-      className="relative h-48 w-full overflow-hidden"
+      className="relative h-full w-full overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -40,16 +40,16 @@ export function AutoScrollList({ items }: AutoScrollListProps) {
           isHovered ? 'animate-pause' : 'animate-scroll-up'
         )}
         style={{
-          // Controls the speed of the scroll. This should be a multiple of the
-          // number of items plus one (for the duplicated item).
-          animationDuration: `${extendedItems.length * 3}s`,
+          // Controls the speed of the scroll.
+          // This is calculated as 5 seconds per item in the original list.
+          animationDuration: `${items.length * 5}s`,
         }}
       >
         {extendedItems.map((item, index) => (
           <Link
             href={item.href}
             key={`${item.id}-${index}`}
-            className="flex h-12 items-center rounded-md p-2 transition-colors hover:bg-accent"
+            className="flex h-16 items-center rounded-md p-2 transition-colors hover:bg-accent"
           >
             <div className="flex-1 space-y-1">
               <p className="truncate text-sm font-medium leading-snug">
@@ -60,25 +60,6 @@ export function AutoScrollList({ items }: AutoScrollListProps) {
           </Link>
         ))}
       </div>
-      <style jsx global>{`
-        @keyframes scroll-up {
-          0% {
-            transform: translateY(0);
-          }
-          100% {
-            // Move the container up by the height of all but one item
-            transform: translateY(-${100 - 100 / extendedItems.length}%);
-          }
-        }
-        .animate-scroll-up {
-          animation: scroll-up linear infinite;
-        }
-        .animate-pause {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   );
 }
-
-    
