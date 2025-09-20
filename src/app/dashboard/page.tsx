@@ -194,7 +194,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
-              <ScrollArea className="h-full pr-3">
+              <div className="h-full pr-3">
                 {donationCampaigns.length > 0 ? (
                     <div className="space-y-4">
                         {donationCampaigns.map((campaign) => (
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                         There are no active campaigns at the moment. Check back soon!
                     </p>
                 )}
-              </ScrollArea>
+              </div>
             </CardContent>
             <CardFooter>
                 <Button
@@ -275,7 +275,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-            <ScrollArea className="h-full pr-3">
+            <div className="h-full pr-3">
                 {news.length > 0 ? (
                     <div className="space-y-4">
                     {news.map((article) => (
@@ -294,7 +294,7 @@ export default function DashboardPage() {
                         No recent news to display.
                     </p>
                 )}
-            </ScrollArea>
+            </div>
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -396,5 +396,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
