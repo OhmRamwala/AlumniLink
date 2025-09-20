@@ -194,7 +194,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
-              <ScrollArea className="h-48 pr-3">
+              <ScrollArea className="h-full pr-3">
                 {donationCampaigns.length > 0 ? (
                     <div className="space-y-4">
                         {donationCampaigns.map((campaign) => (
@@ -275,35 +275,26 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-            {news.length > 0 ? (
-                 <Carousel
-                    orientation="vertical"
-                    opts={{ align: 'start', loop: true }}
-                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-                    className="w-full h-48"
-                 >
-                    <CarouselContent className="-mt-1 h-full">
+            <ScrollArea className="h-full pr-3">
+                {news.length > 0 ? (
+                    <div className="space-y-4">
                     {news.map((article) => (
-                        <CarouselItem key={article.id} className="pt-1 md:basis-1/2">
-                           <div className="flex items-start gap-4">
-                                <div className="space-y-1">
-                                <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
-                                    {article.title}
-                                </Link>
-                                <p className="text-xs text-muted-foreground">
-                                    {formatDate(article.date)}
-                                </p>
-                                </div>
-                            </div>
-                        </CarouselItem>
+                        <div key={article.id}>
+                        <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
+                            {article.title}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">
+                            {formatDate(article.date)}
+                        </p>
+                        </div>
                     ))}
-                    </CarouselContent>
-                 </Carousel>
-            ) : (
-                <p className="text-sm text-muted-foreground">
-                    No recent news to display.
-                </p>
-            )}
+                    </div>
+                ) : (
+                    <p className="text-sm text-muted-foreground">
+                        No recent news to display.
+                    </p>
+                )}
+            </ScrollArea>
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
