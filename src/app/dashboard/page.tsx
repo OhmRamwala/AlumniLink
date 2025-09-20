@@ -8,6 +8,12 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 import {
   Card,
@@ -63,7 +69,7 @@ export default function DashboardPage() {
     unsubscribers.push(authUnsubscribe);
 
     const collectionsToFetch = [
-        { name: 'news', setter: setNews, limit: 3, orderByField: 'date' },
+        { name: 'news', setter: setNews, limit: 5, orderByField: 'date' },
         { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
         { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
         { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
@@ -264,22 +270,35 @@ export default function DashboardPage() {
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            {news.map((article) => (
-              <div key={article.id} className="flex items-start gap-4">
-                <div className="space-y-1">
-                  <Link
-                    href={`/dashboard/news/${article.id}`}
-                    className="font-semibold text-sm leading-snug hover:underline"
-                  >
-                    {article.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(article.date)}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <CardContent className="flex-1">
+            {news.length > 0 ? (
+                 <Carousel
+                    opts={{ align: 'start', loop: true }}
+                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
+                    className="w-full"
+                 >
+                    <CarouselContent>
+                    {news.map((article) => (
+                        <CarouselItem key={article.id}>
+                            <div className="flex items-start gap-4">
+                                <div className="space-y-1">
+                                    <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
+                                        {article.title}
+                                    </Link>
+                                    <p className="text-xs text-muted-foreground">
+                                        {formatDate(article.date)}
+                                    </p>
+                                </div>
+                            </div>
+                        </CarouselItem>
+                    ))}
+                    </CarouselContent>
+                 </Carousel>
+            ) : (
+                 <p className="text-sm text-muted-foreground">
+                    No recent news to display.
+                 </p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
