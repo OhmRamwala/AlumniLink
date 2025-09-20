@@ -287,7 +287,7 @@ export default function DashboardPage() {
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0 h-48">
+          <CardContent className="flex-1 min-h-0">
             {newsItems.length > 0 ? (
                 <AutoScrollList items={newsItems} />
             ) : (
@@ -314,24 +314,7 @@ export default function DashboardPage() {
           </CardHeader>
            <CardContent className="flex-1 min-h-0">
             {eventItems.length > 0 ? (
-              <ScrollArea className="h-full pr-3">
-                <div className="space-y-4">
-                  {eventItems.map((item) => (
-                    <Link
-                      href={item.href}
-                      key={item.id}
-                      className="flex rounded-md p-2 transition-colors hover:bg-accent"
-                    >
-                      <div className="flex-1 space-y-1">
-                        <p className="truncate text-sm font-medium leading-snug">
-                          {item.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{item.date}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </ScrollArea>
+                <AutoScrollList items={eventItems} />
             ) : (
                 <div className="p-6 pt-0">
                     <p className="text-sm text-muted-foreground">
