@@ -290,7 +290,7 @@ export default function DashboardPage() {
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0">
+          <CardContent className="flex-1 min-h-0 h-[190px]">
             {newsItems.length > 0 ? (
                 <AutoScrollList items={newsItems} />
             ) : (
@@ -315,7 +315,7 @@ export default function DashboardPage() {
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0">
+          <CardContent className="flex-1 min-h-0 h-[190px]">
              {eventItems.length > 0 ? (
                  <AutoScrollList items={eventItems} />
             ) : (
