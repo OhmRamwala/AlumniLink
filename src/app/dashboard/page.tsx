@@ -7,7 +7,7 @@ import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp }
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
-import Autoplay from "embla-carousel-autoplay"
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import {
   Card,
@@ -17,11 +17,6 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel"
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
@@ -44,9 +39,6 @@ export default function DashboardPage() {
   const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const autoplayPlugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
-  );
 
   useEffect(() => {
     if (!auth || !db) {
@@ -196,40 +188,29 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
-              {donationCampaigns.length > 0 ? (
-                 <Carousel
-                    plugins={[autoplayPlugin.current]}
-                    className="w-full"
-                    opts={{
-                      loop: true,
-                    }}
-                  >
-                    <CarouselContent>
-                        {donationCampaigns.map((campaign) => (
-                        <CarouselItem key={campaign.id}>
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-baseline">
-                                <h3 className="text-sm font-semibold">
-                                    {campaign.title}
-                                </h3>
-                                <span className="text-sm font-medium text-muted-foreground">
-                                    {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                                </span>
+                {donationCampaigns.length > 0 ? (
+                    <ScrollArea className="h-48 pr-3">
+                        <div className="space-y-4">
+                            {donationCampaigns.map((campaign) => (
+                                <div key={campaign.id} className="space-y-2">
+                                    <div className="flex justify-between items-baseline">
+                                        <h3 className="text-sm font-semibold truncate" title={campaign.title}>
+                                            {campaign.title}
+                                        </h3>
+                                        <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                                            {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                                        </span>
+                                    </div>
+                                    <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
                                 </div>
-                                <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
-                                <p className="text-xs text-muted-foreground h-16 line-clamp-4">
-                                    {campaign.description}
-                                </p>
-                            </div>
-                        </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                 </Carousel>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                    There are no active campaigns at the moment. Check back soon!
-                </p>
-              )}
+                            ))}
+                        </div>
+                    </ScrollArea>
+                ) : (
+                    <p className="text-sm text-muted-foreground">
+                        There are no active campaigns at the moment. Check back soon!
+                    </p>
+                )}
             </CardContent>
             <CardFooter>
                 <Button
