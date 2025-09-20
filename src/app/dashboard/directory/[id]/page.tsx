@@ -65,6 +65,7 @@ export default function UserProfilePage() {
   const id = params.id as string;
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
   useEffect(() => {
     if (!db || !id) {
@@ -115,7 +116,7 @@ export default function UserProfilePage() {
         <CardHeader className="items-center text-center">
           <Avatar className="h-32 w-32 mb-4">
             <AvatarImage
-              src={user.avatar}
+              src={user.avatar || defaultAvatar}
               alt={`${user.firstName} ${user.lastName}`}
               data-ai-hint="professional headshot"
             />
