@@ -64,7 +64,13 @@ const nextConfig: NextConfig = {
         hostname: 'static.vecteezy.com',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'miro.medium.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
