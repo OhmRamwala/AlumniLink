@@ -1,12 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
+import Autoplay from "embla-carousel-autoplay"
 
 import {
   Card,
@@ -16,6 +17,11 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
@@ -37,6 +43,10 @@ export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })
+  );
 
   useEffect(() => {
     if (!auth || !db) {
@@ -185,24 +195,36 @@ export default function DashboardPage() {
                 Help fund the next generation of innovators.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 space-y-4">
+            <CardContent className="flex-1">
               {donationCampaigns.length > 0 ? (
-                donationCampaigns.map((campaign) => (
-                  <div key={campaign.id} className="space-y-2">
-                      <div className="flex justify-between items-baseline">
-                      <h3 className="text-sm font-semibold">
-                          {campaign.title}
-                      </h3>
-                      <span className="text-sm font-medium text-muted-foreground">
-                          {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                      </span>
-                      </div>
-                      <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                          {campaign.description}
-                      </p>
-                  </div>
-                ))
+                 <Carousel
+                    plugins={[autoplayPlugin.current]}
+                    className="w-full"
+                    opts={{
+                      loop: true,
+                    }}
+                  >
+                    <CarouselContent>
+                        {donationCampaigns.map((campaign) => (
+                        <CarouselItem key={campaign.id}>
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-baseline">
+                                <h3 className="text-sm font-semibold">
+                                    {campaign.title}
+                                </h3>
+                                <span className="text-sm font-medium text-muted-foreground">
+                                    {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                                </span>
+                                </div>
+                                <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                                <p className="text-xs text-muted-foreground h-16 line-clamp-4">
+                                    {campaign.description}
+                                </p>
+                            </div>
+                        </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                 </Carousel>
               ) : (
                 <p className="text-sm text-muted-foreground">
                     There are no active campaigns at the moment. Check back soon!
@@ -364,3 +386,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
