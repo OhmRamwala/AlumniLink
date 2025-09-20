@@ -270,36 +270,19 @@ export default function DashboardPage() {
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1">
-            {news.length > 0 ? (
-                 <Carousel
-                    orientation="vertical"
-                    opts={{ align: 'start', loop: true }}
-                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-                    className="w-full h-40"
-                 >
-                    <CarouselContent className="h-full">
-                    {news.map((article) => (
-                        <CarouselItem key={article.id} className="pt-2 md:basis-1/2">
-                            <div className="flex items-start gap-4">
-                                <div className="space-y-1">
-                                    <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
-                                        {article.title}
-                                    </Link>
-                                    <p className="text-xs text-muted-foreground">
-                                        {formatDate(article.date)}
-                                    </p>
-                                </div>
-                            </div>
-                        </CarouselItem>
-                    ))}
-                    </CarouselContent>
-                 </Carousel>
-            ) : (
-                 <p className="text-sm text-muted-foreground">
-                    No recent news to display.
-                 </p>
-            )}
+          <CardContent className="flex-1 space-y-4">
+            {news.map((article) => (
+              <div key={article.id} className="flex items-start gap-4">
+                <div className="space-y-1">
+                  <Link href={`/dashboard/news/${article.id}`} className="font-semibold text-sm leading-snug hover:underline">
+                    {article.title}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(article.date)}
+                  </p>
+                </div>
+              </div>
+            ))}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -317,19 +300,36 @@ export default function DashboardPage() {
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            {events.map((event) => (
-              <div key={event.id} className="flex items-start gap-4">
-                <div className="space-y-1">
-                  <p className="font-semibold text-sm leading-snug">
-                    {event.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(event.date)} at {event.time}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <CardContent className="flex-1">
+             {events.length > 0 ? (
+                 <Carousel
+                    orientation="vertical"
+                    opts={{ align: 'start', loop: true }}
+                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
+                    className="w-full h-40"
+                 >
+                    <CarouselContent className="h-full">
+                    {events.map((event) => (
+                        <CarouselItem key={event.id} className="pt-2 md:basis-1/2">
+                           <div className="flex items-start gap-4">
+                                <div className="space-y-1">
+                                <p className="font-semibold text-sm leading-snug">
+                                    {event.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {formatDate(event.date)} at {event.time}
+                                </p>
+                                </div>
+                            </div>
+                        </CarouselItem>
+                    ))}
+                    </CarouselContent>
+                 </Carousel>
+            ) : (
+                 <p className="text-sm text-muted-foreground">
+                    No upcoming events to display.
+                 </p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -387,5 +387,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
