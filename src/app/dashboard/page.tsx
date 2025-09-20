@@ -194,29 +194,29 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
+              <ScrollArea className="h-48 pr-3">
                 {donationCampaigns.length > 0 ? (
-                    <ScrollArea className="h-48 pr-3">
-                        <div className="space-y-4">
-                            {donationCampaigns.map((campaign) => (
-                                <div key={campaign.id} className="space-y-2">
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="text-sm font-semibold truncate" title={campaign.title}>
-                                            {campaign.title}
-                                        </h3>
-                                        <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                                            {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                                        </span>
-                                    </div>
-                                    <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                    <div className="space-y-4">
+                        {donationCampaigns.map((campaign) => (
+                            <div key={campaign.id} className="space-y-2">
+                                <div className="flex justify-between items-baseline">
+                                    <h3 className="text-sm font-semibold truncate" title={campaign.title}>
+                                        {campaign.title}
+                                    </h3>
+                                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                                        {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
-                    </ScrollArea>
+                                <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                            </div>
+                        ))}
+                    </div>
                 ) : (
                     <p className="text-sm text-muted-foreground">
                         There are no active campaigns at the moment. Check back soon!
                     </p>
                 )}
+              </ScrollArea>
             </CardContent>
             <CardFooter>
                 <Button
@@ -241,17 +241,21 @@ export default function DashboardPage() {
                 Find your next career move from opportunities in the network.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 space-y-4">
-              {jobs.map((job) => (
-                <div key={job.id}>
-                  <p className="font-semibold text-sm leading-snug">
-                    {job.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {job.company}
-                  </p>
+            <CardContent className="flex-1">
+              <ScrollArea className="h-full pr-3">
+                <div className="space-y-4">
+                  {jobs.map((job) => (
+                    <div key={job.id}>
+                      <p className="font-semibold text-sm leading-snug">
+                        {job.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {job.company}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </ScrollArea>
             </CardContent>
             <CardFooter>
               <Button variant="outline" className="w-full" asChild>
@@ -317,27 +321,29 @@ export default function DashboardPage() {
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-             {events.length > 0 ? (
-                 <div className="space-y-4">
-                    {events.map((event) => (
-                       <div key={event.id} className="flex items-start gap-4">
-                            <div className="space-y-1">
-                            <p className="font-semibold text-sm leading-snug">
-                                {event.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {formatDate(event.date)} at {event.time}
-                            </p>
+          <CardContent className="flex-1">
+             <ScrollArea className="h-full pr-3">
+                {events.length > 0 ? (
+                    <div className="space-y-4">
+                        {events.map((event) => (
+                        <div key={event.id} className="flex items-start gap-4">
+                                <div className="space-y-1">
+                                <p className="font-semibold text-sm leading-snug">
+                                    {event.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {formatDate(event.date)} at {event.time}
+                                </p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                 </div>
-            ) : (
-                 <p className="text-sm text-muted-foreground">
-                    No upcoming events to display.
-                 </p>
-            )}
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-muted-foreground">
+                        No upcoming events to display.
+                    </p>
+                )}
+            </ScrollArea>
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -358,30 +364,34 @@ export default function DashboardPage() {
               Join the conversation and share your insights.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            {threads.map((thread) => (
-              <div
-                key={thread.id}
-                className="flex justify-between items-center"
-              >
-                <div>
-                  <Link
-                    href={`/dashboard/forum/${thread.id}`}
-                    className="font-semibold text-sm hover:underline"
-                  >
-                    {thread.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    Started by {thread.postedBy.firstName}{' '}
-                    {thread.postedBy.lastName}
-                  </p>
+          <CardContent className="flex-1">
+             <ScrollArea className="h-full pr-3">
+                <div className="space-y-4">
+                {threads.map((thread) => (
+                <div
+                    key={thread.id}
+                    className="flex justify-between items-center"
+                >
+                    <div>
+                    <Link
+                        href={`/dashboard/forum/${thread.id}`}
+                        className="font-semibold text-sm hover:underline"
+                    >
+                        {thread.title}
+                    </Link>
+                    <p className="text-xs text-muted-foreground">
+                        Started by {thread.postedBy.firstName}{' '}
+                        {thread.postedBy.lastName}
+                    </p>
+                    </div>
+                    <div className="text-right text-sm">
+                    <p>{thread.replyCount} replies</p>
+                    <p className="text-muted-foreground">{formatDate(thread.lastActivity, 'MMM d')}</p>
+                    </div>
                 </div>
-                <div className="text-right text-sm">
-                  <p>{thread.replyCount} replies</p>
-                  <p className="text-muted-foreground">{formatDate(thread.lastActivity, 'MMM d')}</p>
+                ))}
                 </div>
-              </div>
-            ))}
+            </ScrollArea>
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -395,3 +405,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
