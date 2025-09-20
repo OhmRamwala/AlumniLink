@@ -12,7 +12,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 
 import {
   Card,
@@ -46,9 +45,6 @@ export default function DashboardPage() {
   const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const autoplayPlugin = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnHover: true })
-  );
 
   useEffect(() => {
     if (!auth || !db) {
@@ -212,30 +208,28 @@ export default function DashboardPage() {
                 Help fund the next generation of innovators.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0">
-              <ScrollArea className="h-full pr-3">
-                {donationCampaigns.length > 0 ? (
-                    <div className="space-y-4">
-                        {donationCampaigns.map((campaign) => (
-                            <div key={campaign.id} className="space-y-2">
-                                <div className="flex justify-between items-baseline">
-                                    <h3 className="text-sm font-semibold truncate" title={campaign.title}>
-                                        {campaign.title}
-                                    </h3>
-                                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                                        {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                                    </span>
-                                </div>
-                                <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        There are no active campaigns at the moment. Check back soon!
-                    </p>
-                )}
-              </ScrollArea>
+            <CardContent>
+              {donationCampaigns.length > 0 ? (
+                  <div className="space-y-4">
+                      {donationCampaigns.map((campaign) => (
+                          <div key={campaign.id} className="space-y-2">
+                              <div className="flex justify-between items-baseline">
+                                  <h3 className="text-sm font-semibold truncate" title={campaign.title}>
+                                      {campaign.title}
+                                  </h3>
+                                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                                      {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                                  </span>
+                              </div>
+                              <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                          </div>
+                      ))}
+                  </div>
+              ) : (
+                  <p className="text-sm text-muted-foreground">
+                      There are no active campaigns at the moment. Check back soon!
+                  </p>
+              )}
             </CardContent>
             <CardFooter>
                 <Button
@@ -293,7 +287,7 @@ export default function DashboardPage() {
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0 h-[190px]">
+          <CardContent className="flex-1 min-h-0 h-48">
             {newsItems.length > 0 ? (
                 <AutoScrollList items={newsItems} />
             ) : (
@@ -406,3 +400,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
+    
