@@ -115,7 +115,7 @@ export default function UserProfilePage() {
         <CardHeader className="items-center text-center">
           <Avatar className="h-32 w-32 mb-4">
             <AvatarImage
-              src={user.avatar || `https://placehold.co/128x128.png`}
+              src={user.avatar}
               alt={`${user.firstName} ${user.lastName}`}
               data-ai-hint="professional headshot"
             />

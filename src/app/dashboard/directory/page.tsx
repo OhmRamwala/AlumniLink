@@ -133,7 +133,7 @@ export default function DirectoryPage() {
                 <CardHeader className="items-center text-center">
                   <Avatar className="h-24 w-24 mb-2">
                     <AvatarImage
-                      src={user.avatar || `https://placehold.co/100x100.png`}
+                      src={user.avatar}
                       alt={`${user.firstName} ${user.lastName}`}
                       data-ai-hint="professional headshot"
                     />
