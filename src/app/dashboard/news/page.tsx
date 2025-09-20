@@ -262,6 +262,14 @@ export default function NewsPage() {
     return date;
   };
 
+  const getSafeImageUrlForPage = (url: string) => {
+    // This is a targeted, temporary fix for the news page only.
+    if (url && url.includes('ibbc.co')) {
+      return 'https://placehold.co/600x400.png'; // Replace with a known safe URL.
+    }
+    return getSafeImageUrl(url);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -299,7 +307,7 @@ export default function NewsPage() {
           <Card key={article.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full bg-muted">
               <Image
-                src={getSafeImageUrl(article.imageUrl)}
+                src={getSafeImageUrlForPage(article.imageUrl)}
                 alt={article.title}
                 fill
                 className="object-cover"
@@ -336,5 +344,3 @@ export default function NewsPage() {
     </div>
   );
 }
-
-    
