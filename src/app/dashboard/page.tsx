@@ -317,24 +317,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="flex-1">
              {eventItems.length > 0 ? (
-                 <ScrollArea className="h-full pr-3">
-                    <div className="space-y-4">
-                    {eventItems.map((item) => (
-                        <Link
-                            href={item.href}
-                            key={item.id}
-                            className="flex h-16 items-center rounded-md p-2 transition-colors hover:bg-accent"
-                        >
-                            <div className="flex-1 space-y-1">
-                            <p className="truncate text-sm font-medium leading-snug">
-                                {item.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{item.date}</p>
-                            </div>
-                        </Link>
-                    ))}
-                    </div>
-                </ScrollArea>
+                 <AutoScrollList items={eventItems} />
             ) : (
                 <p className="text-sm text-muted-foreground">
                     No upcoming events to display.
