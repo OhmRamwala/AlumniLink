@@ -178,6 +178,14 @@ export default function DashboardPage() {
     date: formatDate(article.date),
   }));
 
+  const eventItems = events.map((event) => ({
+    id: event.id,
+    href: `/dashboard/events`, // Or individual event page if available
+    title: event.title,
+    date: `${formatDate(event.date)} at ${event.time}`,
+  }));
+
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -308,28 +316,13 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-             <ScrollArea className="h-full pr-3">
-                {events.length > 0 ? (
-                    <div className="space-y-4">
-                        {events.map((event) => (
-                        <div key={event.id} className="flex items-start gap-4">
-                                <div className="space-y-1">
-                                <p className="font-semibold text-sm leading-snug">
-                                    {event.title}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {formatDate(event.date)} at {event.time}
-                                </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        No upcoming events to display.
-                    </p>
-                )}
-            </ScrollArea>
+             {eventItems.length > 0 ? (
+                <AutoScrollList items={eventItems} />
+            ) : (
+                <p className="text-sm text-muted-foreground">
+                    No upcoming events to display.
+                </p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -391,6 +384,8 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
 
