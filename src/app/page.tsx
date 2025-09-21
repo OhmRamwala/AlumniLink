@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -18,7 +19,8 @@ import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { mockEvents, mockNews, mockJobs } from '@/lib/mock-data';
-import { HeroCarousel } from '@/components/layout/hero-carousel';
+import { AuroraBackground } from "@/components/ui/aurora-background";
+
 
 export default async function HomePage() {
   let events: AppEvent[] = [];
@@ -49,7 +51,33 @@ export default async function HomePage() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <HeroCarousel />
+        <AuroraBackground>
+          <motion.div
+            initial={{ opacity: 0.0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: 0.3,
+              duration: 0.8,
+              ease: "easeInOut",
+            }}
+            className="relative flex flex-col gap-4 items-center justify-center px-4"
+          >
+            <div className="text-3xl md:text-7xl font-bold dark:text-white text-center">
+              Connect, Grow, and Succeed with AlumniConnect
+            </div>
+            <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
+              Your exclusive platform to network with fellow alumni, discover career opportunities, and stay connected.
+            </div>
+            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <Button asChild size="lg">
+                  <Link href="/signup">Join Now</Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link href="/login">Login</Link>
+                </Button>
+            </div>
+          </motion.div>
+        </AuroraBackground>
         
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">
