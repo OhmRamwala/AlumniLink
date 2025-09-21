@@ -1,8 +1,5 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -13,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PublicHeader } from '@/components/layout/public-header';
+import { HeroCarousel } from '@/components/layout/hero-carousel';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { ArrowRight, Users, BookUser, MapPin, User, Facebook, Twitter, Instagram, Linkedin, Link2 } from 'lucide-react';
 import type { AppEvent, NewsArticle, Job } from '@/lib/types';
@@ -20,22 +18,41 @@ import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { mockEvents, mockNews, mockJobs } from '@/lib/mock-data';
-import { AuroraBackground } from "@/components/ui/aurora-background";
-import { useEffect, useState } from 'react';
 
+export default async function HomePage() {
 
-export default function HomePage() {
-  const [events, setEvents] = useState<AppEvent[]>([]);
-  const [news, setNews] = useState<NewsArticle[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
+  let events: AppEvent[] = [];
+  let news: NewsArticle[] = [];
+  let jobs: Job[] = [];
 
-  useEffect(() => {
-    // Always use mock data for the public landing page to avoid Firestore permission issues.
-    // The dashboard will show live data.
-    setEvents(mockEvents.slice(0, 3));
-    setNews(mockNews.slice(0, 3));
-    setJobs(mockJobs.slice(0, 3));
-  }, []);
+  if (isFirebaseConfigured && db) {
+    try {
+      const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
+      const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
+      const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(3));
+
+      const [eventsSnapshot, newsSnapshot, jobsSnapshot] = await Promise.all([
+        getDocs(eventsQuery),
+        getDocs(newsQuery),
+        getDocs(jobsQuery),
+      ]);
+
+      events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as AppEvent);
+      news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as NewsArticle);
+      jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Job);
+    } catch (error) {
+      console.error("Error fetching data from Firestore, falling back to mock data:", error);
+      // Fallback to mock data if Firestore fails
+      events = mockEvents.slice(0, 3);
+      news = mockNews.slice(0, 3);
+      jobs = mockJobs.slice(0, 3);
+    }
+  } else {
+    // Use mock data if Firebase is not configured
+    events = mockEvents.slice(0, 3);
+    news = mockNews.slice(0, 3);
+    jobs = mockJobs.slice(0, 3);
+  }
 
   const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
     if (!date) return ''; // Handle cases where date might be undefined
@@ -55,33 +72,7 @@ export default function HomePage() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <AuroraBackground>
-          <motion.div
-            initial={{ opacity: 0.0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.3,
-              duration: 0.8,
-              ease: "easeInOut",
-            }}
-            className="relative flex flex-col gap-4 items-center justify-center px-4"
-          >
-            <div className="text-3xl md:text-7xl font-bold dark:text-white text-center">
-              Connect, Grow, and Succeed with AlumniConnect
-            </div>
-            <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
-              Your exclusive platform to network with fellow alumni, discover career opportunities, and stay connected.
-            </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button asChild size="lg">
-                  <Link href="/signup">Join Now</Link>
-                </Button>
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/login">Login</Link>
-                </Button>
-            </div>
-          </motion.div>
-        </AuroraBackground>
+        <HeroCarousel />
         
         {/* Events Section */}
         <section id="events" className="w-full py-12 md:py-16 lg:py-20 bg-secondary/50">

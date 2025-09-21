@@ -1,22 +1,4 @@
-
-import type {Config} from 'tailwindcss';
-
-const {
-  default: flattenColorPalette,
-} = require("tailwindcss/lib/util/flattenColorPalette");
-
-// This plugin adds each Tailwind color as a global CSS variable, e.g. var(--gray-200).
-function addVariablesForColors({ addBase, theme }: any) {
-  let allColors = flattenColorPalette(theme("colors"));
-  let newVars = Object.fromEntries(
-    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
-  );
-
-  addBase({
-    ":root": newVars,
-  });
-}
-
+import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: ['class'],
@@ -28,17 +10,11 @@ export default {
   theme: {
     extend: {
       animation: {
-        aurora: "aurora 60s linear infinite",
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'scroll-up': 'scroll-up linear infinite',
       },
       keyframes: {
-        aurora: {
-          from: {
-            backgroundPosition: "50% 50%, 50% 50%",
-          },
-          to: {
-            backgroundPosition: "350% 50%, 350% 50%",
-          },
-        },
         'accordion-down': {
           from: {
             height: '0',
@@ -53,6 +29,14 @@ export default {
           },
           to: {
             height: '0',
+          },
+        },
+        'scroll-up': {
+          from: {
+            transform: 'translateY(0)',
+          },
+          to: {
+            transform: 'translateY(-50%)',
           },
         },
       },
@@ -122,8 +106,7 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      
     },
   },
-  plugins: [require('tailwindcss-animate'), addVariablesForColors],
+  plugins: [require('tailwindcss-animate')],
 } satisfies Config;
