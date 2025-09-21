@@ -7,7 +7,7 @@ import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp }
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
+
 import {
   Carousel,
   CarouselContent,
@@ -106,19 +106,6 @@ export default function DashboardPage() {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
   }
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    }),
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -214,51 +201,48 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {(userProfile.role === 'alumni' || userProfile.role === 'admin') ? (
-          <motion.div custom={0} initial="hidden" animate="visible" variants={cardVariants}>
-            <Card className="flex flex-col lg:col-span-1 h-full">
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <HeartHandshake className="h-7 w-7 mt-1 text-primary" />
-                  <CardTitle>Support the University</CardTitle>
-                </div>
-                <CardDescription>
-                  Help fund the next generation of innovators.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 min-h-0">
-                {donationCampaigns.length > 0 ? (
-                    <div className="space-y-4">
-                        {donationCampaigns.slice(0,3).map((campaign) => (
-                            <div key={campaign.id} className="space-y-2">
-                                <div className="flex justify-between items-baseline">
-                                    <h3 className="text-sm font-semibold truncate" title={campaign.title}>
-                                        {campaign.title}
-                                    </h3>
-                                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                                        {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                                    </span>
-                                </div>
-                                <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-sm text-muted-foreground">
-                        There are no active campaigns at the moment. Check back soon!
-                    </p>
-                )}
-              </CardContent>
-              <CardFooter>
-                  <Button asChild className="w-full">
-                      <Link href="/dashboard/donations">
-                        Donate Now
-                      </Link>
-                  </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
+          <Card className="flex flex-col lg:col-span-1 h-full">
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <HeartHandshake className="h-7 w-7 mt-1 text-primary" />
+                <CardTitle>Support the University</CardTitle>
+              </div>
+              <CardDescription>
+                Help fund the next generation of innovators.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0">
+              {donationCampaigns.length > 0 ? (
+                  <div className="space-y-4">
+                      {donationCampaigns.slice(0,3).map((campaign) => (
+                          <div key={campaign.id} className="space-y-2">
+                              <div className="flex justify-between items-baseline">
+                                  <h3 className="text-sm font-semibold truncate" title={campaign.title}>
+                                      {campaign.title}
+                                  </h3>
+                                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                                      {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                                  </span>
+                              </div>
+                              <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
+                          </div>
+                      ))}
+                  </div>
+              ) : (
+                  <p className="text-sm text-muted-foreground">
+                      There are no active campaigns at the moment. Check back soon!
+                  </p>
+              )}
+            </CardContent>
+            <CardFooter>
+                <Button asChild className="w-full">
+                    <Link href="/dashboard/donations">
+                      Donate Now
+                    </Link>
+                </Button>
+            </CardFooter>
+          </Card>
         ) : (
-          <motion.div custom={0} initial="hidden" animate="visible" variants={cardVariants}>
           <Card className="flex flex-col lg:col-span-1 h-full">
             <CardHeader>
               <div className="flex items-start gap-3">
@@ -293,66 +277,61 @@ export default function DashboardPage() {
               </Button>
             </CardFooter>
           </Card>
-          </motion.div>
         )}
 
-        <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
-          <Card className="flex flex-col h-full">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <Newspaper className="h-7 w-7 mt-1 text-primary" />
-                <CardTitle>Latest News</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 min-h-0">
-              {newsItems.length > 0 ? (
-                  <AutoScrollList items={newsItems} />
-              ) : (
-                  <p className="text-sm text-muted-foreground">
-                      No recent news to display.
-                  </p>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/news">
-                  View All News <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        </motion.div>
+        <Card className="flex flex-col h-full">
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <Newspaper className="h-7 w-7 mt-1 text-primary" />
+              <CardTitle>Latest News</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            {newsItems.length > 0 ? (
+                <AutoScrollList items={newsItems} />
+            ) : (
+                <p className="text-sm text-muted-foreground">
+                    No recent news to display.
+                </p>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/news">
+                View All News <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
 
-        <motion.div custom={2} initial="hidden" animate="visible" variants={cardVariants}>
-          <Card className="flex flex-col h-full">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <CalendarDays className="h-7 w-7 mt-1 text-primary" />
-                <CardTitle>Upcoming Events</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 min-h-0">
-              {eventItems.length > 0 ? (
-                  <AutoScrollList items={eventItems} />
-              ) : (
-                  <div className="p-6 pt-0">
-                      <p className="text-sm text-muted-foreground">
-                          No upcoming events to display.
-                      </p>
-                  </div>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/events">
-                  View All Events <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        </motion.div>
+        <Card className="flex flex-col h-full">
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <CalendarDays className="h-7 w-7 mt-1 text-primary" />
+              <CardTitle>Upcoming Events</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            {eventItems.length > 0 ? (
+                <AutoScrollList items={eventItems} />
+            ) : (
+                <div className="p-6 pt-0">
+                    <p className="text-sm text-muted-foreground">
+                        No upcoming events to display.
+                    </p>
+                </div>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/events">
+                View All Events <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
         
-        <motion.div custom={3} initial="hidden" animate="visible" variants={cardVariants} className="lg:col-span-3">
+        <div className="lg:col-span-3">
           <Card className="flex flex-col h-full">
             <CardHeader>
               <div className="flex items-start gap-3">
@@ -387,7 +366,7 @@ export default function DashboardPage() {
               </Button>
             </CardFooter>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
