@@ -37,97 +37,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
 import { AutoScrollList } from '@/components/layout/auto-scroll-list';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { GlowingEffect } from '@/components/ui/glowing-effect';
-import { cn } from '@/lib/utils';
-
-function GlowingEffectDemo() {
-  return (
-    <Card className="flex flex-col lg:col-span-3">
-        <CardHeader>
-            <div className="flex items-start gap-3">
-              <MessagesSquare className="h-7 w-7 mt-1" />
-              <CardTitle>What's Happening?</CardTitle>
-            </div>
-            <CardDescription>
-              Engage with the community and explore opportunities.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 min-h-0">
-             <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2 h-full">
-              <GridItem
-                area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-                icon={<Briefcase className="h-4 w-4" />}
-                title="Explore Job Opportunities"
-                description="Find your next career move from postings within the alumni network."
-              />
-              <GridItem
-                area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-                icon={<Users className="h-4 w-4" />}
-                title="Connect with Peers"
-                description="Expand your professional network by connecting with fellow alumni."
-              />
-              <GridItem
-                area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-                icon={<HeartHandshake className="h-4 w-4" />}
-                title="Support the University"
-                description="Give back and help fund the next generation of innovators."
-              />
-              <GridItem
-                area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
-                icon={<Sparkles className="h-4 w-4" />}
-                title="Join Forum Discussions"
-                description="Share your insights and engage in meaningful conversations."
-              />
-              <GridItem
-                area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
-                icon={<CalendarDays className="h-4 w-4" />}
-                title="Attend Upcoming Events"
-                description="Participate in webinars, workshops, and networking nights."
-              />
-            </ul>
-          </CardContent>
-    </Card>
-  );
-}
-
-interface GridItemProps {
-  area: string;
-  icon: React.ReactNode;
-  title: string;
-  description: React.ReactNode;
-}
-
-const GridItem = ({ area, icon, title, description }: GridItemProps) => {
-  return (
-    <li className={cn("min-h-[14rem] list-none", area)}>
-      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
-        <GlowingEffect
-          spread={40}
-          glow={true}
-          disabled={false}
-          proximity={64}
-          inactiveZone={0.01}
-          borderWidth={3}
-        />
-        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
-          <div className="relative flex flex-1 flex-col justify-between gap-3">
-            <div className="w-fit rounded-lg border-[0.75px] border-border bg-muted p-2">
-              {icon}
-            </div>
-            <div className="space-y-3">
-              <h3 className="pt-0.5 text-xl leading-[1.375rem] font-semibold font-sans tracking-[-0.04em] md:text-2xl md:leading-[1.875rem] text-balance text-foreground">
-                {title}
-              </h3>
-              <h2 className="[&_b]:md:font-semibold [&_strong]:md:font-semibold font-sans text-sm leading-[1.125rem] md:text-base md:leading-[1.375rem] text-muted-foreground">
-                {description}
-              </h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-};
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -424,13 +333,42 @@ export default function DashboardPage() {
             </Button>
           </CardFooter>
         </Card>
-        <GlowingEffectDemo />
+        
+        <Card className="flex flex-col lg:col-span-3">
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <MessagesSquare className="h-7 w-7 mt-1" />
+              <CardTitle>Recent Forum Discussions</CardTitle>
+            </div>
+            <CardDescription>
+              Engage with the latest topics and share your insights.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            <ScrollArea className="h-full pr-3">
+                <div className="space-y-4">
+                {threads.map((thread) => (
+                    <div key={thread.id}>
+                    <Link href={`/dashboard/forum/${thread.id}`} className="font-semibold text-sm leading-snug hover:underline">
+                        {thread.title}
+                    </Link>
+                    <p className="text-xs text-muted-foreground">
+                        by {thread.postedBy.firstName} {thread.postedBy.lastName}
+                    </p>
+                    </div>
+                ))}
+                </div>
+            </ScrollArea>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/forum">
+                Go to Forum <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
 }
-
-
-    
-
-    
