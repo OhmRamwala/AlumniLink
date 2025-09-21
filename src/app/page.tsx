@@ -1,4 +1,6 @@
 
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from "framer-motion";
@@ -20,18 +22,21 @@ import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { mockEvents, mockNews, mockJobs } from '@/lib/mock-data';
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { useEffect, useState } from 'react';
 
 
-export default async function HomePage() {
-  let events: AppEvent[] = [];
-  let news: NewsArticle[] = [];
-  let jobs: Job[] = [];
+export default function HomePage() {
+  const [events, setEvents] = useState<AppEvent[]>([]);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
-  // Always use mock data for the public landing page to avoid Firestore permission issues.
-  // The dashboard will show live data.
-  events = mockEvents.slice(0, 3);
-  news = mockNews.slice(0, 3);
-  jobs = mockJobs.slice(0, 3);
+  useEffect(() => {
+    // Always use mock data for the public landing page to avoid Firestore permission issues.
+    // The dashboard will show live data.
+    setEvents(mockEvents.slice(0, 3));
+    setNews(mockNews.slice(0, 3));
+    setJobs(mockJobs.slice(0, 3));
+  }, []);
 
   const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
     if (!date) return ''; // Handle cases where date might be undefined
