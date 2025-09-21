@@ -9,7 +9,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
-import { ThemeToggle } from '../theme-toggle';
 
 const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
     <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
@@ -48,7 +47,6 @@ export function PublicHeader() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Button asChild>
               <Link href="/login">SIGN UP / LOGIN</Link>
             </Button>
@@ -57,20 +55,20 @@ export function PublicHeader() {
       </div>
 
       {/* Bottom bar */}
-      <nav className="hidden w-full bg-blue-900 md:flex">
+      <nav className="hidden w-full bg-secondary md:flex">
         <div className="container flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
-            <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Home</Link>
+            <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Home</Link>
             
-            <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Events</Link>
-            <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">News</Link>
+            <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Events</Link>
+            <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">News</Link>
             
-            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
+            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">
                 Alumni
             </AuthRedirect>
 
-            <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">Jobs</Link>
+            <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Jobs</Link>
             
-            <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">About</Link>
+            <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">About</Link>
         </div>
       </nav>
     </header>
