@@ -29,10 +29,7 @@ import {
   HeartHandshake,
   MessagesSquare,
   Briefcase,
-  Box,
-  Lock,
-  Search,
-  Settings,
+  Users,
   Sparkles,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
