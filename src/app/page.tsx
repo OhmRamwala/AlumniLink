@@ -40,8 +40,12 @@ export default async function HomePage() {
       events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as AppEvent);
       news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as NewsArticle);
       jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Job);
-    } catch (error) {
-      console.error("Error fetching data from Firestore, falling back to mock data:", error);
+    } catch (error: any) {
+        if (error.code === 'permission-denied') {
+            console.warn("Firestore permission denied for public homepage. Falling back to mock data. Please check your Firestore security rules to allow unauthenticated reads on 'events', 'news', and 'jobs' collections.");
+        } else {
+            console.error("Error fetching data from Firestore, falling back to mock data:", error);
+        }
       // Fallback to mock data if Firestore fails
       events = mockEvents.slice(0, 3);
       news = mockNews.slice(0, 3);
