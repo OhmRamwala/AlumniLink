@@ -30,6 +30,7 @@ import {
   MessagesSquare,
   Briefcase,
   Sparkles,
+  Users,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
