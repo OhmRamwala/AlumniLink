@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
+import { ThemeToggle } from '../theme-toggle';
 
 const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
     <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
@@ -46,9 +47,12 @@ export function PublicHeader() {
             C.K Pithawalla College of Engineering & Technology
             </span>
           </Link>
-          <Button asChild>
-            <Link href="/login">SIGN UP / LOGIN</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button asChild>
+              <Link href="/login">SIGN UP / LOGIN</Link>
+            </Button>
+          </div>
         </div>
       </div>
 
