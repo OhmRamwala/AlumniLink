@@ -208,10 +208,10 @@ export default function DashboardPage() {
                 Help fund the next generation of innovators.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 min-h-0">
               {donationCampaigns.length > 0 ? (
                   <div className="space-y-4">
-                      {donationCampaigns.map((campaign) => (
+                      {donationCampaigns.slice(0,3).map((campaign) => (
                           <div key={campaign.id} className="space-y-2">
                               <div className="flex justify-between items-baseline">
                                   <h3 className="text-sm font-semibold truncate" title={campaign.title}>
