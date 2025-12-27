@@ -58,20 +58,20 @@ export function PublicHeader() {
       </div>
 
       {/* Bottom bar */}
-      <nav className="hidden w-full bg-secondary md:flex">
+      <nav className="hidden w-full bg-blue-900 md:flex">
         <div className="container flex h-12 items-center justify-center gap-6 px-4 lg:px-8">
-            <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Home</Link>
+            <Link href="/" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">Home</Link>
             
-            <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Events</Link>
-            <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">News</Link>
+            <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">Events</Link>
+            <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">News</Link>
             
-            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">
+            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">
                 Alumni
             </AuthRedirect>
 
-            <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">Jobs</Link>
+            <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">Jobs</Link>
             
-            <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">About</Link>
+            <Link href="/#about" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">About</Link>
         </div>
       </nav>
     </header>
