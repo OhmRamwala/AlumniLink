@@ -49,7 +49,7 @@ export function PublicHeader() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            
             <Button asChild>
               <Link href="/login">SIGN UP / LOGIN</Link>
             </Button>
