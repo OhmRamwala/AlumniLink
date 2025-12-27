@@ -223,28 +223,28 @@ function SignupForm() {
                     </CardHeader>
                     <CardContent>
                     {step === 1 && (
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="firstName" render={({ field }) => (
-                                    <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-[76px]"><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="lastName" render={({ field }) => (
-                                    <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-[76px]"><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="enrollmentNo" render={({ field }) => (
-                                    <FormItem><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-[76px]"><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="department" render={({ field }) => (
-                                    <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-[76px]"><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="country" render={({ field }) => (
-                                    <FormItem><FormLabel>Country</FormLabel>
+                                    <FormItem className="h-[76px] flex flex-col"><FormLabel>Country</FormLabel>
                                     <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}><PopoverTrigger asChild><FormControl>
                                             <Button variant="outline" role="combobox" className={cn("w-full justify-between",!field.value && "text-muted-foreground")} disabled={isLoading}>
                                             {field.value ? countries.find((c) => c.label === field.value)?.label : "Select country"}
@@ -262,13 +262,13 @@ function SignupForm() {
                                     <FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-[76px]"><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                             
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="password" render={({ field }) => (
-                                    <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
+                                    <FormItem className="h-[76px]"><FormLabel>Password</FormLabel><FormControl><div className="relative">
                                         <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
                                         <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(p => !p)}>
                                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -302,21 +302,21 @@ function SignupForm() {
                         </div>
                     )}
                     {step === 2 && (
-                         <div className="space-y-6">
+                         <div className="space-y-4">
                             <h3 className="text-lg font-medium text-center">{role === 'student' ? 'Student' : 'Alumni'} Profile</h3>
                             {role === 'alumni' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField control={form.control} name="position" render={({ field }) => (
-                                        <FormItem><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem className="h-[76px]"><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="company" render={({ field }) => (
-                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem className="h-[76px]"><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                             )}
                             <FormField control={form.control} name="about" render={({ field }) => (
-                                <FormItem><FormLabel>About</FormLabel>
-                                <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} /></FormControl>
+                                <FormItem className={role === 'alumni' ? 'h-[108px]' : 'h-[172px]'}><FormLabel>About</FormLabel>
+                                <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} rows={role === 'alumni' ? 2 : 5} /></FormControl>
                                 <FormMessage /></FormItem>
                             )} />
                            
@@ -324,13 +324,13 @@ function SignupForm() {
                                 <h4 className="text-md font-medium">{role === 'alumni' ? 'Social Profiles (Optional)' : 'Social Profiles'}</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField control={form.control} name="linkedin" render={({ field }) => (
-                                        <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
+                                        <FormItem className="h-[76px]"><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
                                                 <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://linkedin.com/in/..." className="pl-10" {...field} disabled={isLoading} />
                                                 </div></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="github" render={({ field }) => (
-                                        <FormItem><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
+                                        <FormItem className="h-[76px]"><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
                                                 <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://github.com/..." className="pl-10" {...field} disabled={isLoading} />
                                                 </div></FormControl><FormMessage /></FormItem>
