@@ -117,7 +117,7 @@ export const mockNews: NewsArticle[] = [
     source: 'NewsClub',
     date: Timestamp.fromDate(new Date('2024-07-18')),
     summary: 'Priya Desai, CKPCET alumna, joins NASA’s Artemis AI division as a Senior AI Engineer, contributing to the future of space technology.',
-    imageUrl: 'https://i.ibb.co/C501cZJ/1-h-Tw-G2qnds-VCv-AP60p-En-Ir-Q.jpg',
+    imageUrl: 'https://i.ibb.co/Q7nft3BQ/s75-31690.webp',
     content: `Students from various departments at CKPCET have secured top ranks in the latest Anna University semester examinations. This outstanding achievement is a testament to the hard work of the students and the dedication of the faculty. The college chairman congratulated the students on their success and announced scholarships for the top performers to encourage them further. This consistent academic excellence reinforces CKPCET's position as a leading institution for engineering education in the region.`
   },
   {
