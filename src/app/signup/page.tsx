@@ -214,7 +214,7 @@ function SignupForm() {
         fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <Card className="w-full max-w-3xl mx-auto my-8">
+                <Card className="w-full max-w-4xl mx-auto my-8">
                     <CardHeader className="space-y-1 text-center"><div className="flex items-center justify-center gap-2">
                         <Link2 className="h-8 w-8 text-primary" /><CardTitle className="text-3xl font-bold">AlumniConnect</CardTitle></div>
                         <CardDescription>
@@ -226,19 +226,19 @@ function SignupForm() {
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="firstName" render={({ field }) => (
-                                    <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="lastName" render={({ field }) => (
-                                    <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="enrollmentNo" render={({ field }) => (
-                                    <FormItem><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="department" render={({ field }) => (
-                                    <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                             </div>
 
@@ -259,10 +259,10 @@ function SignupForm() {
                                                 </ScrollArea></CommandGroup></Command>
                                         </PopoverContent>
                                     </Popover>
-                                    <FormMessage /></FormItem>
+                                    <FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                             </div>
                             
@@ -274,7 +274,7 @@ function SignupForm() {
                                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                             <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
                                         </Button>
-                                        </div></FormControl><FormMessage />
+                                        </div></FormControl><FormMessage className="min-h-[1rem]" />
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="role" render={({ field }) => (
@@ -282,7 +282,7 @@ function SignupForm() {
                                         <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
-                                        </RadioGroup></FormControl><FormMessage /></FormItem>
+                                        </RadioGroup></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                 )} />
                             </div>
 
@@ -307,17 +307,17 @@ function SignupForm() {
                             {role === 'alumni' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField control={form.control} name="position" render={({ field }) => (
-                                        <FormItem><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="company" render={({ field }) => (
-                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                     )} />
                                 </div>
                             )}
                             <FormField control={form.control} name="about" render={({ field }) => (
                                 <FormItem><FormLabel>About</FormLabel>
                                 <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} rows={role === 'alumni' ? 2 : 5} /></FormControl>
-                                <FormMessage /></FormItem>
+                                <FormMessage className="min-h-[1rem]" /></FormItem>
                             )} />
                            
                             <div className="space-y-4 pt-4 border-t">
@@ -327,13 +327,13 @@ function SignupForm() {
                                         <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
                                                 <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://linkedin.com/in/..." className="pl-10" {...field} disabled={isLoading} />
-                                                </div></FormControl><FormMessage /></FormItem>
+                                                </div></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="github" render={({ field }) => (
                                         <FormItem><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
                                                 <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://github.com/..." className="pl-10" {...field} disabled={isLoading} />
-                                                </div></FormControl><FormMessage /></FormItem>
+                                                </div></FormControl><FormMessage className="min-h-[1rem]" /></FormItem>
                                     )} />
                                 </div>
                             </div>
@@ -370,5 +370,3 @@ export default function SignupPage() {
     </Suspense>
   )
 }
-
-    
