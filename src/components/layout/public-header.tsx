@@ -13,14 +13,14 @@ import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { ThemeToggle } from '../theme-toggle';
 
 const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
-    <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
+    <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">
         {children}
     </AuthRedirect>
 );
 
 const NavDropdown = ({ label, children }: { label: string, children: React.ReactNode }) => (
   <DropdownMenu>
-    <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80 focus:outline-none">
+    <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80 focus:outline-none">
       {label}
       <ChevronDown className="h-4 w-4" />
     </DropdownMenuTrigger>
