@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -9,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
+import { ThemeToggle } from '../theme-toggle';
 
 const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
     <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:text-primary-foreground/80">
@@ -47,6 +49,7 @@ export function PublicHeader() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button asChild>
               <Link href="/login">SIGN UP / LOGIN</Link>
             </Button>
