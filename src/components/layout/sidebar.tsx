@@ -27,8 +27,8 @@ import {
   Link2,
   HeartHandshake,
   Share2,
+  MessageCircle,
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const menuItems = [
   {
@@ -41,6 +41,12 @@ const menuItems = [
     href: '/dashboard/posts',
     icon: Share2,
     label: 'Posts',
+    roles: ['student', 'alumni', 'admin'],
+  },
+  {
+    href: '/dashboard/chat',
+    icon: MessageCircle,
+    label: 'Chat',
     roles: ['student', 'alumni', 'admin'],
   },
   {

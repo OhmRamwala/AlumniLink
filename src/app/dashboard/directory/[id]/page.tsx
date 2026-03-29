@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -21,9 +21,11 @@ import {
   Linkedin,
   Github,
   ArrowLeft,
+  MessageCircle,
 } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
 
 function UserProfileSkeleton() {
@@ -62,10 +64,26 @@ function UserProfileSkeleton() {
 
 export default function UserProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [user, setUser] = useState<UserProfileData | null>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStartingChat, setIsStartingChat] = useState(false);
   const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+
+  useEffect(() => {
+    if (!auth || !db) return;
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        const userDoc = await getDoc(doc(db!, 'users', u.uid));
+        if (userDoc.exists()) {
+          setCurrentUserProfile({ id: u.uid, ...userDoc.data() } as UserProfileData);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!db || !id) {
@@ -94,6 +112,58 @@ export default function UserProfilePage() {
     fetchUser();
   }, [id]);
 
+  const handleStartChat = async () => {
+    if (!db || !currentUserProfile || !user || isStartingChat) return;
+    setIsStartingChat(true);
+
+    try {
+      // Check if chat already exists
+      const chatsRef = collection(db, 'chats');
+      const q = query(
+        chatsRef,
+        where('participants', 'array-contains', currentUserProfile.id)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      let existingChatId = null;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.participants.includes(user.id)) {
+          existingChatId = doc.id;
+        }
+      });
+
+      if (existingChatId) {
+        router.push(`/dashboard/chat?id=${existingChatId}`);
+      } else {
+        // Create new chat
+        const newChat = {
+          participants: [currentUserProfile.id, user.id],
+          participantDetails: {
+            [currentUserProfile.id]: {
+              firstName: currentUserProfile.firstName,
+              lastName: currentUserProfile.lastName,
+              avatar: currentUserProfile.avatar || defaultAvatar,
+            },
+            [user.id]: {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              avatar: user.avatar || defaultAvatar,
+            },
+          },
+          lastActivity: serverTimestamp(),
+          lastMessage: '',
+        };
+        const docRef = await addDoc(collection(db, 'chats'), newChat);
+        router.push(`/dashboard/chat?id=${docRef.id}`);
+      }
+    } catch (error) {
+      console.error("Error starting chat:", error);
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
+
   if (isLoading) {
     return <UserProfileSkeleton />;
   }
@@ -104,13 +174,19 @@ export default function UserProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex justify-between items-center">
         <Button variant="ghost" asChild>
           <Link href="/dashboard/directory">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Directory
           </Link>
         </Button>
+        {currentUserProfile && currentUserProfile.id !== user.id && (
+          <Button onClick={handleStartChat} disabled={isStartingChat}>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Message
+          </Button>
+        )}
       </div>
       <Card>
         <CardHeader className="items-center text-center">

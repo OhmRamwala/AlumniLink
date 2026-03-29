@@ -21,8 +21,8 @@ export const mockLinkedInPosts: LinkedInPost[] = [
       headline: 'Software Engineer at Google | CKPCET Batch of 2018'
     },
     content: "Thrilled to share that I've started a new position as a Senior Software Engineer at Google! 🚀 It's been an incredible journey since my days at CKPCET. To the current students: consistency is key. Keep building and keep learning! #NewJob #GoogleLife #AlumniSuccess",
-    likes: 342,
-    comments: 45,
+    likes: 67,
+    comments: 4,
     timeAgo: '2h',
     imageUrl: 'https://media.licdn.com/dms/image/v2/D4D22AQEA3XRlzrzxHw/feedshare-shrink_800/B4DZimvKEXHwAo-/0/1755144037293?e=2147483647&v=beta&t=2hgXF5mPFSRaIJ_nEc6Shfu1jdZIxCZ4cTkS3uGhetA'
   },
@@ -34,8 +34,8 @@ export const mockLinkedInPosts: LinkedInPost[] = [
       headline: 'Product Manager at Microsoft'
     },
     content: "We just wrapped up our annual Hackathon at Microsoft! 💻 The level of innovation was truly inspiring. It reminded me of the technical fests we used to organize back at college. If any students are interested in Product Management roles, feel free to reach out for a chat! #Mentorship #TechLife #Microsoft",
-    likes: 189,
-    comments: 28,
+    likes: 89,
+    comments: 5,
     timeAgo: '5h',
     imageUrl: 'https://media.licdn.com/dms/image/v2/C5622AQEphStajSp2wg/feedshare-shrink_800/feedshare-shrink_800/0/1664429621894?e=2147483647&v=beta&t=Y2au61No5ibd138mhCQpwJS7z6ocGsguja5pPfqd4TM'
   },
@@ -47,10 +47,10 @@ export const mockLinkedInPosts: LinkedInPost[] = [
       headline: 'Senior AI Engineer at NASA'
     },
     content: "Really excited to share a glimpse into what our team has been working on lately — AI-driven autonomous navigation for the upcoming Artemis lunar mission! 🌑\n\nApplying machine learning to real challenges in deep space exploration has been both intense and incredibly rewarding. There’s something surreal about seeing algorithms you’ve built contribute to systems that will operate millions of kilometers away from Earth.\n\nStill learning every day, still solving problems that don’t have clean answers — and that’s honestly the best part of it.\n\nLooking forward to what’s ahead 🚀\n#SpaceTech #AI #Artemis #MachineLearning",
-    likes: 512,
-    comments: 67,
+    likes: 32,
+    comments: 7,
     timeAgo: '1d',
-    imageUrl: 'https://picsum.photos/seed/space1/600/400'
+    imageUrl: ''
   }
 ];
 

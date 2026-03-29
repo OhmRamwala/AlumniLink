@@ -1,3 +1,4 @@
+
 import { Timestamp } from 'firebase/firestore';
 
 export interface User {
@@ -99,4 +100,25 @@ export interface LinkedInPost {
   comments: number;
   timeAgo: string;
   imageUrl?: string;
+}
+
+export interface Chat {
+  id: string;
+  participants: string[];
+  participantDetails: {
+    [userId: string]: {
+      firstName: string;
+      lastName: string;
+      avatar?: string;
+    }
+  };
+  lastMessage?: string;
+  lastActivity: Timestamp;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  text: string;
+  timestamp: Timestamp;
 }
