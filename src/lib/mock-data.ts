@@ -2,23 +2,23 @@ import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply, LinkedI
 import { Timestamp } from 'firebase/firestore';
 
 export const mockUsers: User[] = [
-  { id: '1', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', role: 'alumni', avatar: '/avatars/01.png', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about web technologies and open source.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '111' },
-  { id: '2', firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com', role: 'alumni', avatar: '/avatars/02.png', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Building products that users love.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '222' },
-  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: '/avatars/03.png', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '333' },
-  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: '/avatars/04.png', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '444' },
-  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: '/avatars/05.png', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#', department: 'MBA', enrollmentNo: '555' },
-  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: '/avatars/06.png', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
-  { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: '/avatars/07.png', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
-  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: '/avatars/08.png', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
+  { id: '1', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user1/200', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about web technologies and open source.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '111' },
+  { id: '2', firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user2/200', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Building products that users love.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '222' },
+  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: 'https://picsum.photos/seed/user3/200', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '333' },
+  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user4/200', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '444' },
+  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: 'https://picsum.photos/seed/user5/200', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#', department: 'MBA', enrollmentNo: '555' },
+  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user6/200', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
+  { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user7/200', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
+  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user8/200', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
 ];
 
 export const mockLinkedInPosts: LinkedInPost[] = [
   {
     id: 'post-1',
     author: {
-      name: 'Aditya Verma',
+      name: 'Jane Doe',
       avatar: 'https://picsum.photos/seed/user1/200',
-      headline: 'Software Engineer at Google | CKPCET Alumnus'
+      headline: 'Software Engineer at Google | CKPCET Alumna'
     },
     content: "Thrilled to share that I've started a new position as a Software Engineer at Google! Grateful for the foundation laid at CKPCET. To the current students: keep grinding, the hard work pays off! #NewJob #AlumniSuccess #Google",
     likes: 154,
@@ -29,7 +29,7 @@ export const mockLinkedInPosts: LinkedInPost[] = [
   {
     id: 'post-2',
     author: {
-      name: 'Sneha Kapadia',
+      name: 'John Smith',
       avatar: 'https://picsum.photos/seed/user2/200',
       headline: 'Product Manager at Microsoft'
     },
@@ -42,11 +42,11 @@ export const mockLinkedInPosts: LinkedInPost[] = [
   {
     id: 'post-3',
     author: {
-      name: 'Rajesh Mehta',
-      avatar: 'https://picsum.photos/seed/user3/200',
-      headline: 'Senior Data Scientist'
+      name: 'David Miller',
+      avatar: 'https://picsum.photos/seed/user6/200',
+      headline: 'Data Scientist at Amazon'
     },
-    content: "Data Science isn't just about algorithms; it's about telling a story with data. Check out my latest article on medium about predictive analytics in manufacturing. #DataScience #MachineLearning #TechTips",
+    content: "Data Science isn't just about algorithms; it's about telling a story with data. Check out my latest article about predictive analytics in manufacturing. #DataScience #MachineLearning #TechTips",
     likes: 210,
     comments: 45,
     timeAgo: '1d'
