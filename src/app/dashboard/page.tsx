@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -26,7 +25,6 @@ import {
   HeartHandshake,
   MessagesSquare,
   Briefcase,
-  Sparkles,
   Users,
   Share2,
 } from 'lucide-react';
@@ -269,12 +267,12 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        {/* Professional Posts Highlights */}
+        {/* Posts Highlights */}
         <Card className="lg:col-span-1 flex flex-col h-full">
           <CardHeader>
             <div className="flex items-start gap-3">
               <Share2 className="h-7 w-7 mt-1 text-primary" />
-              <CardTitle>Professional Feed</CardTitle>
+              <CardTitle>Posts</CardTitle>
             </div>
             <CardDescription>Social highlights from our alumni.</CardDescription>
           </CardHeader>
@@ -298,7 +296,7 @@ export default function DashboardPage() {
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
               <Link href="/dashboard/posts">
-                See Professional Feed <ArrowRight className="ml-2 h-4 w-4" />
+                See All Posts <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </CardFooter>

@@ -13,7 +13,7 @@ export default function PostsPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="space-y-2 text-center md:text-left">
-        <h1 className="text-3xl font-bold tracking-tight">Professional Feed</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Posts</h1>
         <p className="text-muted-foreground">
           See what our alumni community is sharing on professional networks.
         </p>
