@@ -86,3 +86,17 @@ export interface DonationCampaign {
     imageUrl: string;
     createdAt: Timestamp;
 }
+
+export interface LinkedInPost {
+  id: string;
+  author: {
+    name: string;
+    avatar: string;
+    headline: string;
+  };
+  content: string;
+  likes: number;
+  comments: number;
+  timeAgo: string;
+  imageUrl?: string;
+}

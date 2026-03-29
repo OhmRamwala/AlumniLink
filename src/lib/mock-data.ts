@@ -1,5 +1,4 @@
-
-import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply } from './types';
+import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply, LinkedInPost } from './types';
 import { Timestamp } from 'firebase/firestore';
 
 export const mockUsers: User[] = [
@@ -11,6 +10,47 @@ export const mockUsers: User[] = [
   { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: '/avatars/06.png', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
   { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: '/avatars/07.png', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
   { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: '/avatars/08.png', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
+];
+
+export const mockLinkedInPosts: LinkedInPost[] = [
+  {
+    id: 'post-1',
+    author: {
+      name: 'Aditya Verma',
+      avatar: 'https://picsum.photos/seed/user1/200',
+      headline: 'Software Engineer at Google | CKPCET Alumnus'
+    },
+    content: "Thrilled to share that I've started a new position as a Software Engineer at Google! Grateful for the foundation laid at CKPCET. To the current students: keep grinding, the hard work pays off! #NewJob #AlumniSuccess #Google",
+    likes: 154,
+    comments: 23,
+    timeAgo: '2h',
+    imageUrl: 'https://picsum.photos/seed/office1/600/400'
+  },
+  {
+    id: 'post-2',
+    author: {
+      name: 'Sneha Kapadia',
+      avatar: 'https://picsum.photos/seed/user2/200',
+      headline: 'Product Manager at Microsoft'
+    },
+    content: "Had a great time mentoring students at the CKPCET Hackathon last weekend. The level of innovation was truly inspiring. Looking forward to seeing where these projects go! #Mentorship #Hackathon #CKPCET",
+    likes: 89,
+    comments: 12,
+    timeAgo: '5h',
+    imageUrl: 'https://picsum.photos/seed/hackathon1/600/400'
+  },
+  {
+    id: 'post-3',
+    author: {
+      name: 'Rajesh Mehta',
+      avatar: 'https://picsum.photos/seed/user3/200',
+      headline: 'Senior Data Scientist'
+    },
+    content: "Data Science isn't just about algorithms; it's about telling a story with data. Check out my latest article on medium about predictive analytics in manufacturing. #DataScience #MachineLearning #TechTips",
+    likes: 210,
+    comments: 45,
+    timeAgo: '1d'
+  }
 ];
 
 export const mockJobs: Job[] = [
@@ -202,5 +242,3 @@ export const mockThreads: ForumThread[] = [
     replyCount: 1,
   },
 ];
-
-    

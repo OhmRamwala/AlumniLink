@@ -26,6 +26,7 @@ import {
   LogOut,
   Link2,
   HeartHandshake,
+  Share2,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -34,6 +35,12 @@ const menuItems = [
     href: '/dashboard',
     icon: LayoutDashboard,
     label: 'Dashboard',
+    roles: ['student', 'alumni', 'admin'],
+  },
+  {
+    href: '/dashboard/posts',
+    icon: Share2,
+    label: 'Posts',
     roles: ['student', 'alumni', 'admin'],
   },
   {
