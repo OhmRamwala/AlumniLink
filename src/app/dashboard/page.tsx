@@ -8,6 +8,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { mockLinkedInPosts } from '@/lib/mock-data';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 import {
   Card,
@@ -61,7 +63,6 @@ export default function DashboardPage() {
             if (userDoc.exists()) {
                 setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
                 
-                // Initiate listeners ONLY after authentication is confirmed
                 const collectionsToFetch = [
                     { name: 'news', setter: setNews, limit: 4, orderByField: 'date' },
                     { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
@@ -71,12 +72,17 @@ export default function DashboardPage() {
                 ];
 
                 collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
-                    const q = query(collection(db!, name), orderBy(orderByField, 'desc'), limit(l));
+                    const colRef = collection(db!, name);
+                    const q = query(colRef, orderBy(orderByField, 'desc'), limit(l));
                     const unsubscribe = onSnapshot(q, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         setter(data as any);
-                    }, (error) => {
-                        console.error(`Error fetching ${name}:`, error);
+                    }, async (serverError) => {
+                        const permissionError = new FirestorePermissionError({
+                            path: colRef.path,
+                            operation: 'list',
+                        });
+                        errorEmitter.emit('permission-error', permissionError);
                     });
                     unsubscribers.push(unsubscribe);
                 });
