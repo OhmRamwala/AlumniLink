@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { ThumbsUp, MessageSquare, Share2, ExternalLink } from 'lucide-react';
 import { mockLinkedInPosts } from '@/lib/mock-data';
 import Image from 'next/image';
+import { getSafeImageUrl } from '@/lib/utils';
 
 export default function PostsPage() {
   return (
@@ -40,7 +40,7 @@ export default function PostsPage() {
               {post.imageUrl && (
                 <div className="mt-4 relative aspect-video w-full overflow-hidden rounded-md border bg-muted">
                   <Image
-                    src={post.imageUrl}
+                    src={getSafeImageUrl(post.imageUrl)}
                     alt="Post content"
                     fill
                     className="object-cover"

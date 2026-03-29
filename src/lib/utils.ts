@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -28,14 +27,11 @@ export function getSafeImageUrl(url: string | null | undefined): string {
   }
   try {
     const { hostname } = new URL(url);
-    // Stricter check: hostname must exactly match one of the allowed hosts.
     if (ALLOWED_IMAGE_HOSTS.includes(hostname)) {
       return url;
     }
   } catch (error) {
-    // Invalid URL format
     return fallbackUrl;
   }
-  // Hostname not in allowlist
   return fallbackUrl;
 }
