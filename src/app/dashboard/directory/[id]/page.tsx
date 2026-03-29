@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -21,9 +20,8 @@ import {
   Linkedin,
   Github,
   ArrowLeft,
-  MessageCircle,
 } from 'lucide-react';
-import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
@@ -69,7 +67,6 @@ export default function UserProfilePage() {
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isStartingChat, setIsStartingChat] = useState(false);
   const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
   useEffect(() => {
@@ -112,58 +109,6 @@ export default function UserProfilePage() {
     fetchUser();
   }, [id]);
 
-  const handleStartChat = async () => {
-    if (!db || !currentUserProfile || !user || isStartingChat) return;
-    setIsStartingChat(true);
-
-    try {
-      // Check if chat already exists
-      const chatsRef = collection(db, 'chats');
-      const q = query(
-        chatsRef,
-        where('participants', 'array-contains', currentUserProfile.id)
-      );
-      const querySnapshot = await getDocs(q);
-      
-      let existingChatId = null;
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.participants.includes(user.id)) {
-          existingChatId = doc.id;
-        }
-      });
-
-      if (existingChatId) {
-        router.push(`/dashboard/chat?id=${existingChatId}`);
-      } else {
-        // Create new chat
-        const newChat = {
-          participants: [currentUserProfile.id, user.id],
-          participantDetails: {
-            [currentUserProfile.id]: {
-              firstName: currentUserProfile.firstName,
-              lastName: currentUserProfile.lastName,
-              avatar: currentUserProfile.avatar || defaultAvatar,
-            },
-            [user.id]: {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              avatar: user.avatar || defaultAvatar,
-            },
-          },
-          lastActivity: serverTimestamp(),
-          lastMessage: '',
-        };
-        const docRef = await addDoc(collection(db, 'chats'), newChat);
-        router.push(`/dashboard/chat?id=${docRef.id}`);
-      }
-    } catch (error) {
-      console.error("Error starting chat:", error);
-    } finally {
-      setIsStartingChat(false);
-    }
-  };
-
   if (isLoading) {
     return <UserProfileSkeleton />;
   }
@@ -181,12 +126,6 @@ export default function UserProfilePage() {
             Back to Directory
           </Link>
         </Button>
-        {currentUserProfile && currentUserProfile.id !== user.id && (
-          <Button onClick={handleStartChat} disabled={isStartingChat}>
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Message
-          </Button>
-        )}
       </div>
       <Card>
         <CardHeader className="items-center text-center">
@@ -226,6 +165,10 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <span>{user.country}</span>
+              </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <span>{user.country}</span>
