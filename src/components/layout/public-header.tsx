@@ -1,3 +1,4 @@
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,21 +14,9 @@ import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { ThemeToggle } from '../theme-toggle';
 
 const NavLink = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => (
-    <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80">
+    <AuthRedirect redirectUrl={redirectUrl} className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">
         {children}
     </AuthRedirect>
-);
-
-const NavDropdown = ({ label, children }: { label: string, children: React.ReactNode }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-secondary-foreground transition-colors hover:text-secondary-foreground/80 focus:outline-none">
-      {label}
-      <ChevronDown className="h-4 w-4" />
-    </DropdownMenuTrigger>
-    <DropdownMenuContent>
-      {children}
-    </DropdownMenuContent>
-  </DropdownMenu>
 );
 
 export function PublicHeader() {
@@ -39,7 +28,7 @@ export function PublicHeader() {
           <Link href="/" className="flex items-center gap-3 text-foreground">
             <Image
               src="https://i.ibb.co/nMdDdh3q/logo.png"
-              alt="Sarvajanik College of Engineering and Technology Logo"
+              alt="C.K Pithawalla College Logo"
               width={60}
               height={60}
               className="h-14 w-14 shrink-0"
@@ -49,7 +38,6 @@ export function PublicHeader() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            
             <Button asChild>
               <Link href="/login">SIGN UP / LOGIN</Link>
             </Button>
@@ -65,9 +53,7 @@ export function PublicHeader() {
             <Link href="/#events" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">Events</Link>
             <Link href="/#news" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">News</Link>
             
-            <AuthRedirect redirectUrl="/dashboard/directory" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">
-                Alumni
-            </AuthRedirect>
+            <NavLink redirectUrl="/dashboard/directory">Alumni</NavLink>
 
             <Link href="/#jobs" className="text-sm font-semibold uppercase tracking-wider text-blue-50 transition-colors hover:text-white/80">Jobs</Link>
             

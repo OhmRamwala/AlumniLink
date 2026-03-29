@@ -1,3 +1,4 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -17,6 +18,7 @@ const ALLOWED_IMAGE_HOSTS = [
   'ckpcet.ac.in',
   'media.licdn.com',
   'encrypted-tbn0.gstatic.com',
+  'picsum.photos',
 ];
 
 export function getSafeImageUrl(url: string | null | undefined): string {

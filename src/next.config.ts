@@ -77,6 +77,12 @@ const nextConfig: NextConfig = {
         hostname: 'ibbc.co',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
