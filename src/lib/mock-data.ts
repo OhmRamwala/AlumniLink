@@ -24,7 +24,7 @@ export const mockLinkedInPosts: LinkedInPost[] = [
     likes: 342,
     comments: 45,
     timeAgo: '2h',
-    imageUrl: 'https://picsum.photos/seed/office1/600/400'
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D4D22AQEA3XRlzrzxHw/feedshare-shrink_800/B4DZimvKEXHwAo-/0/1755144037293?e=2147483647&v=beta&t=2hgXF5mPFSRaIJ_nEc6Shfu1jdZIxCZ4cTkS3uGhetA'
   },
   {
     id: 'post-2',
@@ -37,7 +37,7 @@ export const mockLinkedInPosts: LinkedInPost[] = [
     likes: 189,
     comments: 28,
     timeAgo: '5h',
-    imageUrl: 'https://picsum.photos/seed/hackathon1/600/400'
+    imageUrl: 'https://media.licdn.com/dms/image/v2/C5622AQEphStajSp2wg/feedshare-shrink_800/feedshare-shrink_800/0/1664429621894?e=2147483647&v=beta&t=Y2au61No5ibd138mhCQpwJS7z6ocGsguja5pPfqd4TM'
   },
   {
     id: 'post-3',
@@ -46,7 +46,7 @@ export const mockLinkedInPosts: LinkedInPost[] = [
       avatar: 'https://picsum.photos/seed/priya/200',
       headline: 'Senior AI Engineer at NASA'
     },
-    content: "Extremely excited to share our team's progress on AI-driven autonomous navigation for the upcoming Artemis lunar mission! 🌑 Harnessing machine learning to solve challenges in deep space exploration is a dream come true. Engineering fundamentals I learned at CKPCET are still my strongest assets. #NASAAI #SpaceTech #Artemis",
+    content: "Really excited to share a glimpse into what our team has been working on lately — AI-driven autonomous navigation for the upcoming Artemis lunar mission! 🌑\n\nApplying machine learning to real challenges in deep space exploration has been both intense and incredibly rewarding. There’s something surreal about seeing algorithms you’ve built contribute to systems that will operate millions of kilometers away from Earth.\n\nStill learning every day, still solving problems that don’t have clean answers — and that’s honestly the best part of it.\n\nLooking forward to what’s ahead 🚀\n#SpaceTech #AI #Artemis #MachineLearning",
     likes: 512,
     comments: 67,
     timeAgo: '1d',
