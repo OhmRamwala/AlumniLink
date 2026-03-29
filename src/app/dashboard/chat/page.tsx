@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   doc,
   getDoc,
+  getDocs,
   updateDoc,
   Timestamp,
 } from 'firebase/firestore';
@@ -24,11 +25,142 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Send, Loader2, MessageSquare, Search } from 'lucide-react';
+import { Send, Loader2, MessageSquare, Plus, Search, User as UserIcon } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import type { Chat, ChatMessage, User as UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
+function NewMessageDialog({ currentUser, onChatCreated }: { currentUser: UserProfile, onChatCreated: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+
+  useEffect(() => {
+    if (open) {
+      fetchUsers();
+    }
+  }, [open]);
+
+  const fetchUsers = async () => {
+    if (!db) return;
+    setIsLoading(true);
+    try {
+      const q = query(collection(db, 'users'), where('id', '!=', currentUser.id));
+      const snapshot = await getDocs(q);
+      const userData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
+      setUsers(userData);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartChat = async (targetUser: UserProfile) => {
+    if (!db) return;
+    setOpen(false);
+
+    try {
+      // Check for existing chat
+      const chatsRef = collection(db, 'chats');
+      const q = query(chatsRef, where('participants', 'array-contains', currentUser.id));
+      const snapshot = await getDocs(q);
+      
+      let existingChatId = null;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.participants.includes(targetUser.id)) {
+          existingChatId = doc.id;
+        }
+      });
+
+      if (existingChatId) {
+        onChatCreated(existingChatId);
+      } else {
+        const newChat = {
+          participants: [currentUser.id, targetUser.id],
+          participantDetails: {
+            [currentUser.id]: {
+              firstName: currentUser.firstName,
+              lastName: currentUser.lastName,
+              avatar: currentUser.avatar || defaultAvatar,
+            },
+            [targetUser.id]: {
+              firstName: targetUser.firstName,
+              lastName: targetUser.lastName,
+              avatar: targetUser.avatar || defaultAvatar,
+            },
+          },
+          lastActivity: serverTimestamp(),
+          lastMessage: '',
+        };
+        const docRef = await addDoc(collection(db, 'chats'), newChat);
+        onChatCreated(docRef.id);
+      }
+    } catch (error) {
+      console.error("Error creating chat:", error);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="ghost" className="h-8 w-8">
+          <Plus className="h-5 w-5" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="p-0 gap-0 overflow-hidden sm:max-w-[450px]">
+        <DialogHeader className="p-4 border-b">
+          <DialogTitle>New Message</DialogTitle>
+          <DialogDescription>Search for anyone in the community to start a chat.</DialogDescription>
+        </DialogHeader>
+        <Command className="rounded-none border-none">
+          <CommandInput placeholder="Search people..." />
+          <CommandList>
+            <CommandEmpty>No users found.</CommandEmpty>
+            <CommandGroup heading="People">
+              {users.map((user) => (
+                <CommandItem
+                  key={user.id}
+                  onSelect={() => handleStartChat(user)}
+                  className="flex items-center gap-3 p-2 cursor-pointer"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar || defaultAvatar} />
+                    <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{user.role}</p>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function ChatContent() {
   const searchParams = useSearchParams();
@@ -74,8 +206,12 @@ function ChatContent() {
       const chatData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
       setChats(chatData);
       setIsLoadingChats(false);
-    }, (error) => {
-      console.error("Error listening to chats:", error);
+    }, async (error) => {
+      const permissionError = new FirestorePermissionError({
+        path: 'chats',
+        operation: 'list',
+      });
+      errorEmitter.emit('permission-error', permissionError);
       setIsLoadingChats(false);
     });
 
@@ -88,11 +224,16 @@ function ChatContent() {
     setIsLoadingMessages(true);
     const chatRef = doc(db, 'chats', chatId);
     
-    // Fetch chat details
     getDoc(chatRef).then((docSnap) => {
       if (docSnap.exists()) {
         setCurrentChat({ id: docSnap.id, ...docSnap.data() } as Chat);
       }
+    }).catch(async () => {
+        const permissionError = new FirestorePermissionError({
+            path: `chats/${chatId}`,
+            operation: 'get',
+        });
+        errorEmitter.emit('permission-error', permissionError);
     });
 
     const messagesQuery = query(
@@ -105,8 +246,12 @@ function ChatContent() {
       setMessages(messageData);
       setIsLoadingMessages(false);
       setTimeout(() => scrollToBottom(), 100);
-    }, (error) => {
-      console.error("Error listening to messages:", error);
+    }, async (error) => {
+      const permissionError = new FirestorePermissionError({
+        path: `chats/${chatId}/messages`,
+        operation: 'list',
+      });
+      errorEmitter.emit('permission-error', permissionError);
       setIsLoadingMessages(false);
     });
 
@@ -125,23 +270,38 @@ function ChatContent() {
     const messageText = newMessage.trim();
     setNewMessage('');
 
+    const messageData = {
+        senderId: currentUser.id,
+        text: messageText,
+        timestamp: serverTimestamp(),
+    };
+
     try {
       const chatRef = doc(db, 'chats', chatId);
       const messagesRef = collection(db, 'chats', chatId, 'messages');
 
-      await addDoc(messagesRef, {
-        senderId: currentUser.id,
-        text: messageText,
-        timestamp: serverTimestamp(),
+      addDoc(messagesRef, messageData).catch(async () => {
+          const permissionError = new FirestorePermissionError({
+              path: `chats/${chatId}/messages`,
+              operation: 'create',
+              requestResourceData: messageData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
       });
 
-      await updateDoc(chatRef, {
+      updateDoc(chatRef, {
         lastMessage: messageText,
         lastActivity: serverTimestamp(),
+      }).catch(async () => {
+          const permissionError = new FirestorePermissionError({
+              path: `chats/${chatId}`,
+              operation: 'update',
+              requestResourceData: { lastMessage: messageText },
+          });
+          errorEmitter.emit('permission-error', permissionError);
       });
     } catch (error) {
       console.error("Error sending message:", error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to send message.' });
     } finally {
       setIsSending(false);
     }
@@ -150,6 +310,10 @@ function ChatContent() {
   const getOtherParticipant = (chat: Chat) => {
     const otherId = chat.participants.find(id => id !== currentUser?.id);
     return otherId ? chat.participantDetails[otherId] : null;
+  };
+
+  const handleChatCreated = (id: string) => {
+    router.push(`/dashboard/chat?id=${id}`);
   };
 
   if (isLoadingChats && !currentUser) {
@@ -164,20 +328,18 @@ function ChatContent() {
     <div className="flex h-[calc(100vh-10rem)] gap-6 overflow-hidden">
       {/* Sidebar: Chat List */}
       <Card className="w-80 flex flex-col shrink-0">
-        <CardHeader className="p-4 border-b">
+        <CardHeader className="p-4 border-b flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-xl flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
             Messages
           </CardTitle>
+          {currentUser && <NewMessageDialog currentUser={currentUser} onChatCreated={handleChatCreated} />}
         </CardHeader>
         <CardContent className="p-0 flex-1 overflow-hidden">
           <ScrollArea className="h-full">
             {chats.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground">
                 <p className="text-sm">No conversations yet.</p>
-                <Button variant="link" className="mt-2" onClick={() => router.push('/dashboard/directory')}>
-                  Find alumni to chat with
-                </Button>
               </div>
             ) : (
               <div className="divide-y">
@@ -290,11 +452,14 @@ function ChatContent() {
             </div>
             <h3 className="text-xl font-semibold mb-2">Select a Message</h3>
             <p className="text-muted-foreground max-w-xs mx-auto">
-              Choose a conversation from the list or start a new one from the directory.
+              Choose a conversation from the list or start a new message.
             </p>
-            <Button className="mt-6" variant="outline" onClick={() => router.push('/dashboard/directory')}>
-              Go to Alumni Directory
-            </Button>
+            {currentUser && (
+                <div className="mt-6">
+                    <NewMessageDialog currentUser={currentUser} onChatCreated={handleChatCreated} />
+                    <span className="ml-2 text-sm font-medium">Create a new message</span>
+                </div>
+            )}
           </div>
         )}
       </Card>
