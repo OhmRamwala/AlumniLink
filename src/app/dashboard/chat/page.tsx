@@ -74,6 +74,9 @@ function ChatContent() {
       const chatData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
       setChats(chatData);
       setIsLoadingChats(false);
+    }, (error) => {
+      console.error("Error listening to chats:", error);
+      setIsLoadingChats(false);
     });
 
     return () => unsubscribe();
@@ -102,6 +105,9 @@ function ChatContent() {
       setMessages(messageData);
       setIsLoadingMessages(false);
       setTimeout(() => scrollToBottom(), 100);
+    }, (error) => {
+      console.error("Error listening to messages:", error);
+      setIsLoadingMessages(false);
     });
 
     return () => unsubscribe();

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -55,10 +56,30 @@ export default function DashboardPage() {
 
     const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const userDocRef = doc(db, 'users', user.uid);
+            const userDocRef = doc(db!, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
                 setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+                
+                // Initiate listeners ONLY after authentication is confirmed
+                const collectionsToFetch = [
+                    { name: 'news', setter: setNews, limit: 4, orderByField: 'date' },
+                    { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
+                    { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
+                    { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
+                    { name: 'donations', setter: setDonationCampaigns, limit: 3, orderByField: 'createdAt' },
+                ];
+
+                collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
+                    const q = query(collection(db!, name), orderBy(orderByField, 'desc'), limit(l));
+                    const unsubscribe = onSnapshot(q, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setter(data as any);
+                    }, (error) => {
+                        console.error(`Error fetching ${name}:`, error);
+                    });
+                    unsubscribers.push(unsubscribe);
+                });
             }
         } else {
             setUserProfile(null);
@@ -66,25 +87,6 @@ export default function DashboardPage() {
         setIsLoading(false);
     });
     unsubscribers.push(authUnsubscribe);
-
-    const collectionsToFetch = [
-        { name: 'news', setter: setNews, limit: 4, orderByField: 'date' },
-        { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
-        { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
-        { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
-        { name: 'donations', setter: setDonationCampaigns, limit: 3, orderByField: 'createdAt' },
-    ];
-
-    collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
-        const q = query(collection(db!, name), orderBy(orderByField, 'desc'), limit(l));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setter(data as any);
-        }, (error) => {
-            console.error(`Error fetching ${name}:`, error);
-        });
-        unsubscribers.push(unsubscribe);
-    });
     
     return () => {
         unsubscribers.forEach(unsub => unsub());
