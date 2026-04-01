@@ -55,14 +55,26 @@ import {
 } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { getSafeImageUrl } from '@/lib/utils';
+
+const allowedImageHosts = ['i.ibb.co', 'ibb.co', 'placehold.co', 'firebasestorage.googleapis.com'];
 
 const newsSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   source: z.string().min(1, 'Source is required.'),
-  summary: z.string().min(1, 'Summary is required.'),
+  summary: z.string().min(1, 'Summary is required.').max(150, 'Summary must be 150 characters or less.'),
   content: z.string().min(1, 'Content is required.'),
-  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')).refine(url => {
+    if (!url) return true;
+    try {
+      const { hostname } = new URL(url);
+      return allowedImageHosts.some(allowedHost => hostname.endsWith(allowedHost));
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid image host. Please use a valid host like imgbb.co.' }),
 });
+
 type NewsFormValues = z.infer<typeof newsSchema>;
 
 function NewsFormDialog({ article, onFormSubmit }: { article?: NewsArticle, onFormSubmit: () => void; }) {
@@ -154,13 +166,20 @@ function NewsFormDialog({ article, onFormSubmit }: { article?: NewsArticle, onFo
                 <FormItem><FormLabel>Source</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="summary" render={({ field }) => (
-                <FormItem><FormLabel>Summary</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem>
+                    <FormLabel>Summary</FormLabel>
+                    <FormControl><Textarea {...field} /></FormControl>
+                    <div className="flex justify-between">
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">{form.watch('summary')?.length || 0} / 150</p>
+                    </div>
+                </FormItem>
             )} />
             <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem><FormLabel>Full Content</FormLabel><FormControl><Textarea rows={8} {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://placehold.co/600x400.png" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://i.ibb.co/..." {...field} /></FormControl><FormMessage /></FormItem>
             )} />
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
@@ -241,7 +260,15 @@ export default function NewsPage() {
         return format(date, 'yyyy-MM-dd')
     }
     return date;
-  }
+  };
+
+  const getSafeImageUrlForPage = (url: string) => {
+    // This is a targeted, temporary fix for the news page only.
+    if (url && url.includes('ibbc.co')) {
+      return 'https://placehold.co/600x400.png'; // Replace with a known safe URL.
+    }
+    return getSafeImageUrl(url);
+  };
 
   if (isLoading) {
     return (
@@ -280,7 +307,7 @@ export default function NewsPage() {
           <Card key={article.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full bg-muted">
               <Image
-                src={article.imageUrl || 'https://placehold.co/600x400.png'}
+                src={getSafeImageUrlForPage(article.imageUrl)}
                 alt={article.title}
                 fill
                 className="object-cover"

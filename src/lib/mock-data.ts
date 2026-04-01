@@ -1,16 +1,57 @@
-
-import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply } from './types';
+import type { User, Job, NewsArticle, AppEvent, ForumThread, ForumReply, LinkedInPost } from './types';
 import { Timestamp } from 'firebase/firestore';
 
 export const mockUsers: User[] = [
-  { id: '1', firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com', role: 'alumni', avatar: '/avatars/01.png', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about web technologies and open source.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '111' },
-  { id: '2', firstName: 'John', lastName: 'Smith', email: 'john.smith@example.com', role: 'alumni', avatar: '/avatars/02.png', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Building products that users love.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '222' },
-  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: '/avatars/03.png', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '333' },
-  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: '/avatars/04.png', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '444' },
-  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: '/avatars/05.png', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#', department: 'MBA', enrollmentNo: '555' },
-  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: '/avatars/06.png', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
-  { id: '7', firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@example.com', role: 'alumni', avatar: '/avatars/07.png', company: 'Netflix', position: 'Backend Engineer', graduationYear: 2017, country: 'India', about: 'Building scalable and resilient systems.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
-  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: '/avatars/08.png', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
+  { id: '1', firstName: 'Rahul', lastName: 'Desai', email: 'rahul.desai@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/rahul/200', company: 'Google', position: 'Software Engineer', graduationYear: 2018, country: 'USA', about: 'Passionate about cloud architecture and open-source contributions. CKPCET Batch of 2018.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '111' },
+  { id: '2', firstName: 'Ankita', lastName: 'Raval', email: 'ankita.raval@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/ankita/200', company: 'Microsoft', position: 'Product Manager', graduationYear: 2015, country: 'USA', about: 'Focusing on building user-centric products at scale. Helping students navigate tech careers.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '222' },
+  { id: '3', firstName: 'Emily', lastName: 'Jones', email: 'emily.jones@example.com', role: 'student', avatar: 'https://picsum.photos/seed/user3/200', major: 'Computer Science', graduationYear: 2025, country: 'Canada', about: 'Aspiring full-stack developer with an interest in AI.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '333' },
+  { id: '4', firstName: 'Michael', lastName: 'Brown', email: 'michael.brown@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user4/200', company: 'Apple', position: 'UX Designer', graduationYear: 2020, country: 'UK', about: 'Creating intuitive and beautiful user experiences.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '444' },
+  { id: '5', firstName: 'Sarah', lastName: 'Davis', email: 'sarah.davis@example.com', role: 'student', avatar: 'https://picsum.photos/seed/user5/200', major: 'Business Administration', graduationYear: 2026, country: 'Australia', about: 'Interested in the intersection of business and technology.', linkedin: '#', github: '#', department: 'MBA', enrollmentNo: '555' },
+  { id: '6', firstName: 'David', lastName: 'Miller', email: 'david.miller@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user6/200', company: 'Amazon', position: 'Data Scientist', graduationYear: 2019, country: 'Germany', about: 'Turning data into actionable insights.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '666' },
+  { id: '7', firstName: 'Priya', lastName: 'Desai', email: 'priya.desai@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/priya/200', company: 'NASA', position: 'Senior AI Engineer', graduationYear: 2017, country: 'USA', about: 'Specializing in AI-driven navigation for space exploration missions. Proud CKPCET Alumna.', linkedin: '#', github: '#', department: 'IT', enrollmentNo: '777' },
+  { id: '8', firstName: 'Kenji', lastName: 'Tanaka', email: 'kenji.tanaka@example.com', role: 'alumni', avatar: 'https://picsum.photos/seed/user8/200', company: 'Sony', position: 'Game Developer', graduationYear: 2021, country: 'Japan', about: 'Creating immersive gaming experiences.', linkedin: '#', github: '#', department: 'CSE', enrollmentNo: '888' },
+];
+
+export const mockLinkedInPosts: LinkedInPost[] = [
+  {
+    id: 'post-1',
+    author: {
+      name: 'Rahul Desai',
+      avatar: 'https://picsum.photos/seed/rahul/200',
+      headline: 'Software Engineer at Google | CKPCET Batch of 2018'
+    },
+    content: "Thrilled to share that I've started a new position as a Senior Software Engineer at Google! 🚀 It's been an incredible journey since my days at CKPCET. To the current students: consistency is key. Keep building and keep learning! #NewJob #GoogleLife #AlumniSuccess",
+    likes: 67,
+    comments: 4,
+    timeAgo: '2h',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D4D22AQEA3XRlzrzxHw/feedshare-shrink_800/B4DZimvKEXHwAo-/0/1755144037293?e=2147483647&v=beta&t=2hgXF5mPFSRaIJ_nEc6Shfu1jdZIxCZ4cTkS3uGhetA'
+  },
+  {
+    id: 'post-2',
+    author: {
+      name: 'Ankita Raval',
+      avatar: 'https://picsum.photos/seed/ankita/200',
+      headline: 'Product Manager at Microsoft'
+    },
+    content: "We just wrapped up our annual Hackathon at Microsoft! 💻 The level of innovation was truly inspiring. It reminded me of the technical fests we used to organize back at college. If any students are interested in Product Management roles, feel free to reach out for a chat! #Mentorship #TechLife #Microsoft",
+    likes: 89,
+    comments: 5,
+    timeAgo: '5h',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/C5622AQEphStajSp2wg/feedshare-shrink_800/feedshare-shrink_800/0/1664429621894?e=2147483647&v=beta&t=Y2au61No5ibd138mhCQpwJS7z6ocGsguja5pPfqd4TM'
+  },
+  {
+    id: 'post-3',
+    author: {
+      name: 'Priya Desai',
+      avatar: 'https://picsum.photos/seed/priya/200',
+      headline: 'Senior AI Engineer at NASA'
+    },
+    content: "Really excited to share a glimpse into what our team has been working on lately — AI-driven autonomous navigation for the upcoming Artemis lunar mission! 🌑\n\nApplying machine learning to real challenges in deep space exploration has been both intense and incredibly rewarding. There’s something surreal about seeing algorithms you’ve built contribute to systems that will operate millions of kilometers away from Earth.\n\nStill learning every day, still solving problems that don’t have clean answers — and that’s honestly the best part of it.\n\nLooking forward to what’s ahead 🚀\n#SpaceTech #AI #Artemis #MachineLearning",
+    likes: 32,
+    comments: 7,
+    timeAgo: '1d',
+    imageUrl: ''
+  }
 ];
 
 export const mockJobs: Job[] = [
@@ -20,30 +61,22 @@ export const mockJobs: Job[] = [
     company: 'Bosch Ltd.',
     location: 'Frankfrut, Germany',
     type: 'Internship',
-    postedBy: { id: '1', firstName: 'Ritika', lastName: 'Jain' },
+    postedBy: { id: '1', firstName: 'Rahul', lastName: 'Desai' },
     shortDescription: 'Exciting opportunity to intern in Germany with R&D team focused on mechanical design, prototyping, and thermal system development.',
     fullDescription: `About the Role:
-Innovate Inc. is seeking a passionate Frontend Developer to join our dynamic team. You will be at the forefront of creating beautiful and functional web applications that our users love. This is a great opportunity to work on cutting-edge technology in a collaborative and supportive environment. We value creativity, problem-solving, and a desire to learn and grow.
+Bosch is seeking a passionate Mechanical Design Intern to join our R&D team in Frankfurt. You will work on cutting-edge automotive systems and assist in developing sustainable thermal management solutions.
 
 Key Responsibilities:
-- Develop and maintain web applications using React, Next.js, and TypeScript.
-- Collaborate with UI/UX designers and product managers to translate concepts into production-ready features.
-- Ensure the technical feasibility of UI/UX designs and optimize applications for maximum speed and scalability.
-- Write clean, maintainable, and well-tested code.
-- Participate in code reviews and contribute to our team's best practices.
+- Design and simulate mechanical components using CAD software.
+- Assist in prototyping and testing phases.
+- Collaborate with cross-functional teams to optimize system performance.
+- Document technical findings and report to senior engineers.
 
 Preferred Requirements:
-- 3+ years of experience with modern JavaScript frameworks, particularly React and Next.js.
-- Strong proficiency in HTML, CSS, and TypeScript.
-- A strong understanding of RESTful APIs, version control with Git, and responsive design principles.
-- Experience with testing frameworks like Jest or React Testing Library.
-- Excellent communication and teamwork skills.
-
-Benefits:
-- Competitive salary and stock options.
-- Comprehensive health, dental, and vision insurance.
-- Unlimited paid time off.
-- Remote-first work culture.`,
+- Currently pursuing a degree in Mechanical Engineering.
+- Strong knowledge of thermodynamics and fluid mechanics.
+- Proficiency in SolidWorks or similar CAD tools.
+- Excellent English communication skills.`,
     url: '#',
     postedAt: Timestamp.fromDate(new Date()),
   },
@@ -53,23 +86,22 @@ Benefits:
     company: 'Tata Consultancy Services',
     location: 'Surat, India',
     type: 'Full-time',
-    postedBy: { id: '6', firstName: 'Mihir', lastName: 'Trivedi' },
-    shortDescription: 'An exciting internship opportunity for students passionate about data.',
+    postedBy: { id: '6', firstName: 'David', lastName: 'Miller' },
+    shortDescription: 'Join our design studio in Surat to create modern, responsive web and mobile interfaces for global clients.',
     fullDescription: `About the Role:
-DataDriven Co. is looking for a motivated Data Analyst Intern to join our team for the summer. This is a paid internship that offers hands-on experience in a real-world data environment. You will work closely with our team of data scientists and analysts to help us make sense of our vast datasets and drive business decisions.
+TCS is looking for a UI/UX Designer to join our digital transformation team. You will be responsible for creating seamless user journeys and visually stunning designs for a variety of platforms.
 
 Key Responsibilities:
-- Assist in collecting, cleaning, and preprocessing data from various sources.
-- Perform exploratory data analysis to identify trends and patterns.
-- Create dashboards and visualizations to communicate findings to stakeholders.
-- Support the data team with ad-hoc analysis and reporting.
+- Conduct user research and translate insights into wireframes and prototypes.
+- Design high-fidelity UI components using Figma.
+- Collaborate with developers to ensure pixel-perfect implementation.
+- Maintain and contribute to our design system.
 
 Preferred Requirements:
-- Currently enrolled in an undergraduate or graduate program in a quantitative field like Statistics, Computer Science, Economics, or a related area.
-- Familiarity with SQL and a statistical programming language like Python or R.
-- Basic understanding of statistical concepts.
-- Experience with data visualization tools such as Tableau or Power BI is a plus.
-- Strong analytical and problem-solving skills.`,
+- 2+ years of experience in digital product design.
+- Portfolio showcasing strong visual design skills.
+- Expert-level proficiency in Figma.
+- Understanding of HTML/CSS is a plus.`,
     url: '#',
     postedAt: Timestamp.fromDate(new Date()),
   },
@@ -77,25 +109,24 @@ Preferred Requirements:
     id: 'job-3',
     title: 'Junior Frontend Developer (React.js)',
     company: 'CodeNest Labs',
-    location: 'Austin, TX',
+    location: 'Remote',
     type: 'Full-time',
-    postedBy: { id: '7', firstName: 'Priya', lastName: 'Patel' },
-    shortDescription: 'Join our engineering team to build modern, scalable frontend interfaces using React.js and integrate with real-time APIs and Firebase services.',
+    postedBy: { id: '7', firstName: 'Priya', lastName: 'Desai' },
+    shortDescription: 'Join our engineering team to build modern, scalable frontend interfaces using React.js and integrate with real-time APIs.',
     fullDescription: `About the Role:
-Secure Solutions is hiring a Backend Engineer to design, develop, and maintain our server-side logic. You will be a key member of our engineering team, responsible for building the foundation of our products. We are looking for someone who is passionate about building secure, scalable, and resilient systems.
+CodeNest Labs is hiring a Junior Frontend Developer to help us build the future of collaborative coding tools. This is a remote-first role with plenty of room for growth.
 
 Key Responsibilities:
-- Design, build, and maintain efficient, reusable, and reliable backend code using Node.js and Express.
-- Develop and manage our PostgreSQL databases, including schema design and query optimization.
-- Build and maintain RESTful APIs for our web and mobile applications.
-- Work with microservices architecture and containerization technologies like Docker.
-- Implement security and data protection best practices.
+- Build reusable React components and frontend libraries.
+- Optimize applications for maximum speed and scalability.
+- Work closely with backend engineers to integrate RESTful APIs.
+- Participate in code reviews and agile ceremonies.
 
 Preferred Requirements:
-- 3+ years of backend development experience.
-- Strong proficiency in Node.js and experience with frameworks like Express.
-- Familiarity with cloud services (AWS, Google Cloud, or Azure).
-- Commitment to writing high-quality, tested code.`,
+- Proficiency in JavaScript/TypeScript and React.js.
+- Familiarity with Tailwind CSS and modern UI libraries.
+- Understanding of Git version control.
+- Passion for learning new technologies.`,
     url: '#',
     postedAt: Timestamp.fromDate(new Date()),
   },
@@ -105,29 +136,29 @@ export const mockNews: NewsArticle[] = [
   {
     id: 'news-1',
     title: "High-Speed Dual-Band Wi-Fi Network Launched on Campus",
-    source: 'NewsClub',
+    source: 'Campus News',
     date: Timestamp.fromDate(new Date('2024-07-20')),
     summary: 'CKPCET upgrades campus connectivity with a 200 Mbps 5GHz Wi-Fi network installed across labs, hostels, and classrooms.',
     imageUrl: 'https://i.ibb.co/nMYDpSqd/1.png',
-    content: `CKP College of Engineering & Technology was recently awarded the prestigious 'Best Upcoming College' award by The Times of India. The award recognizes the institution's significant contributions to technical education, its commitment to academic excellence, and its success in fostering an environment of innovation. The college has been lauded for its state-of-the-art infrastructure, experienced faculty, and impressive placement record. The management extended its gratitude to the students, staff, and alumni for their continuous support.`
+    content: `CKP College of Engineering & Technology has successfully deployed a state-of-the-art campus-wide Wi-Fi network. The upgrade includes dual-band routers providing up to 200 Mbps speeds, ensuring students and faculty have reliable access to digital resources in laboratories, classrooms, and residential areas. The project was inaugurated by the Principal, who highlighted the importance of high-speed connectivity in modern engineering education.`
   },
   {
     id: 'news-2',
-    title: 'Alumnus Priya Desai Joins NASA’s Artemis AI Team',
-    source: 'NewsClub',
+    title: 'Alumna Priya Desai Joins NASA’s Artemis AI Team',
+    source: 'Alumni Spotlight',
     date: Timestamp.fromDate(new Date('2024-07-18')),
     summary: 'Priya Desai, CKPCET alumna, joins NASA’s Artemis AI division as a Senior AI Engineer, contributing to the future of space technology.',
-    imageUrl: 'https://i.ibb.co/CK4XKNGY/NASA-Worm1.jpg',
-    content: `Students from various departments at CKPCET have secured top ranks in the latest Anna University semester examinations. This outstanding achievement is a testament to the hard work of the students and the dedication of the faculty. The college chairman congratulated the students on their success and announced scholarships for the top performers to encourage them further. This consistent academic excellence reinforces CKPCET's position as a leading institution for engineering education in the region.`
+    imageUrl: 'https://i.ibb.co/Q7nft3BQ/s75-31690.webp',
+    content: `We are immensely proud to share that Priya Desai (Batch of 2017, IT) has joined NASA's Jet Propulsion Laboratory as a Senior AI Engineer. She will be working with the Artemis mission team to develop autonomous navigation systems for lunar exploration. Priya's journey from our campus to the forefront of space exploration serves as a major inspiration for all our current students.`
   },
   {
     id: 'news-3',
     title: 'CKPCET Signs MoU with Google Cloud India',
-    source: 'NewsClub',
+    source: 'Corporate Relations',
     date: Timestamp.fromDate(new Date('2024-07-15')),
-    summary: 'CKPCET collaborates with Google Cloud India to enhance cloud computing education and resources for students, including access to training and certifications.',
+    summary: 'CKPCET collaborates with Google Cloud India to enhance cloud computing education and resources for students.',
     imageUrl: 'https://i.ibb.co/jv85ynhZ/google-anant-featured-760x570.jpg',
-    content: `In a move to bolster research and practical learning in cutting-edge technologies, CKP College of Engineering & Technology has inaugurated a new Robotics and Artificial Intelligence Lab. The lab is equipped with the latest robotic arms, AI development kits, and high-performance computing resources. It will serve as a hub for students to work on innovative projects, participate in competitions, and develop skills that are highly sought after in the industry. The lab was inaugurated by a leading AI researcher and is now open for all students.`
+    content: `CKP College of Engineering & Technology has signed a Memorandum of Understanding (MoU) with Google Cloud India. This partnership will provide students with access to Google Cloud's learning platform, certification paths, and cloud credits for research projects. The collaboration aims to bridge the industry-academia gap by equipping students with in-demand cloud computing skills.`
   },
 ];
 
@@ -146,10 +177,10 @@ export const mockEvents: AppEvent[] = [
   {
     id: 'event-2',
     title: 'One Day Workshop on Cyber Security',
-    date: Timestamp.fromDate(new Date('2025-7-22')),
+    date: Timestamp.fromDate(new Date('2025-07-22')),
     time: '10:00 AM – 12:00 PM',
     location: 'D2 Seminar Hall',
-    description: 'Join us for a day of nostalgia, fun, and reconnection. Meet your old friends, interact with faculty, and see how the campus has grown. A day to cherish and make new memories.',
+    description: 'Join us for a one-day workshop on modern cybersecurity threats and defense mechanisms. Organized by the Computer & IT Engineering Department.',
     imageUrl: 'https://i.ibb.co/F4kkxs13/qqqqq.jpg',
     summary: 'A one-day workshop on Cyber Security organized by the Computer & IT Engineering Department, focusing on modern cybersecurity threats and defenses.',
     url: '#'
@@ -160,17 +191,17 @@ export const mockEvents: AppEvent[] = [
     date: Timestamp.fromDate(new Date('2025-07-15')),
     time: '11:00 AM – 2:00 PM',
     location: 'D7 Seminar Hall',
-    description: 'Wipro is conducting an exclusive on-campus recruitment drive for final year students of all engineering branches. Come prepared to land your dream job.',
+    description: 'Learn to build beautiful, fast, cross-platform mobile apps using Flutter and Dart, with hands-on training by a Google-certified developer.',
     imageUrl: 'https://i.ibb.co/JRL4t9PG/fds.jpg',
-    summary: 'Learn to build beautiful, fast, cross-platform mobile apps using Flutter and Dart, with hands-on training by a Google-certified developer. Ideal for beginners and intermediate Android/iOS developers.',
+    summary: 'Learn to build beautiful, fast, cross-platform mobile apps using Flutter and Dart, with hands-on training by a Google-certified developer.',
     url: '#'
   },
 ];
 
 const mockReplies: ForumReply[] = [
-    { id: 'reply-1', postedBy: { id: '2', firstName: 'John', lastName: 'Smith'}, content: 'Great question! My advice is to build a strong portfolio. Showcase your projects on GitHub and be able to talk about the design decisions you made. It matters more than your grades in many cases.', postedAt: Timestamp.fromDate(new Date()) },
-    { id: 'reply-2', postedBy: { id: '4', firstName: 'Michael', lastName: 'Brown'}, content: 'I totally agree with John. Also, don\'t underestimate the power of networking. Reach out to alumni on this platform or LinkedIn for informational interviews. Most people are happy to help.', postedAt: Timestamp.fromDate(new Date()) },
-    { id: 'reply-3', postedBy: { id: '1', firstName: 'Jane', lastName: 'Doe'}, content: 'Thanks, John and Michael! This is super helpful. I\'ll definitely focus on my portfolio and start reaching out to people.', postedAt: Timestamp.fromDate(new Date()) },
+    { id: 'reply-1', postedBy: { id: '2', firstName: 'Ankita', lastName: 'Raval'}, content: 'Great question! My advice is to build a strong portfolio. Showcase your projects on GitHub and be able to talk about the design decisions you made.', postedAt: Timestamp.fromDate(new Date()) },
+    { id: 'reply-2', postedBy: { id: '4', firstName: 'Michael', lastName: 'Brown'}, content: 'I totally agree with Ankita. Also, don\'t underestimate the power of networking. Reach out to alumni on this platform or LinkedIn for informational interviews.', postedAt: Timestamp.fromDate(new Date()) },
+    { id: 'reply-3', postedBy: { id: '1', firstName: 'Rahul', lastName: 'Desai'}, content: 'Thanks, Ankita and Michael! This is super helpful. I\'ll definitely focus on my portfolio and start reaching out to people.', postedAt: Timestamp.fromDate(new Date()) },
 ];
 
 export const mockThreads: ForumThread[] = [
@@ -180,7 +211,7 @@ export const mockThreads: ForumThread[] = [
     postedBy: { id: '3', firstName: 'Emily', lastName: 'Jones' },
     postedAt: Timestamp.fromDate(new Date()),
     lastActivity: Timestamp.fromDate(new Date()),
-    content: 'I\'m graduating soon with a degree in Computer Science and would love to hear from alumni in the tech industry. What are some key skills I should focus on in my last year? Any advice for landing that first job out of college?',
+    content: 'I\'m graduating soon with a degree in Computer Science and would love to hear from alumni in the tech industry. What are some key skills I should focus on in my last year?',
     replyCount: 3,
   },
   {
@@ -189,7 +220,7 @@ export const mockThreads: ForumThread[] = [
     postedBy: { id: '5', firstName: 'Sarah', lastName: 'Davis'},
     postedAt: Timestamp.fromDate(new Date()),
     lastActivity: Timestamp.fromDate(new Date()),
-    content: 'Hi everyone, I\'m thinking about where to move after I finish my Business Administration degree. What cities do people recommend for good job opportunities and a fun social scene for young professionals? I\'m considering places in the USA and Canada.',
+    content: 'Hi everyone, I\'m thinking about where to move after I finish my Business Administration degree. What cities do people recommend for good job opportunities?',
     replyCount: 0,
   },
   {
@@ -198,7 +229,7 @@ export const mockThreads: ForumThread[] = [
     postedBy: { id: '4', firstName: 'Michael', lastName: 'Brown' },
     postedAt: Timestamp.fromDate(new Date()),
     lastActivity: Timestamp.fromDate(new Date()),
-    content: 'Any alumni based in or around London interested in a casual meetup next month? Thinking of a pub in the central London area. It would be great to connect and network. Let me know if you\'re interested and what dates work best!',
+    content: 'Any alumni based in or around London interested in a casual meetup next month? Let me know if you\'re interested and what dates work best!',
     replyCount: 1,
   },
 ];

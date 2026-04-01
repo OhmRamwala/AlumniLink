@@ -47,6 +47,7 @@ export default function DirectoryPage() {
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [alumni, setAlumni] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
   useEffect(() => {
     const fetchAlumni = async () => {
@@ -133,7 +134,7 @@ export default function DirectoryPage() {
                 <CardHeader className="items-center text-center">
                   <Avatar className="h-24 w-24 mb-2">
                     <AvatarImage
-                      src={user.avatar || `https://placehold.co/100x100.png`}
+                      src={user.avatar || defaultAvatar}
                       alt={`${user.firstName} ${user.lastName}`}
                       data-ai-hint="professional headshot"
                     />

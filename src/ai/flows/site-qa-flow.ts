@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A chatbot flow that answers questions about the AlumniLink platform.
+ * @fileOverview A chatbot flow that answers questions about the AlumniConnect platform.
  *
  * - askChatbot - A function that handles user queries.
  */
@@ -63,10 +63,10 @@ const siteQaFlow = ai.defineFlow(
   async (query) => {
     const llmResponse = await ai.generate({
       prompt: query,
-      system: `You are a friendly and helpful assistant for the AlumniLink platform.
+      system: `You are a friendly and helpful assistant for the AlumniConnect platform.
 Your purpose is to answer user questions about news, events, jobs, and alumni within the community.
 You MUST use the provided tools to get information. Do not answer from your general knowledge.
-If a user asks a question that cannot be answered with the available tools, or if the tools return no information, politely state that you cannot answer and explain that you can only provide information about the AlumniLink platform.
+If a user asks a question that cannot be answered with the available tools, or if the tools return no information, politely state that you cannot answer and explain that you can only provide information about the AlumniConnect platform.
 Keep your answers concise and helpful. Format lists clearly when appropriate.`,
       tools: [
         getRecentNewsTool,

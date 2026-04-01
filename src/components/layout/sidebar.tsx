@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -26,14 +25,20 @@ import {
   LogOut,
   Link2,
   HeartHandshake,
+  Share2,
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const menuItems = [
   {
     href: '/dashboard',
     icon: LayoutDashboard,
     label: 'Dashboard',
+    roles: ['student', 'alumni', 'admin'],
+  },
+  {
+    href: '/dashboard/posts',
+    icon: Share2,
+    label: 'Posts',
     roles: ['student', 'alumni', 'admin'],
   },
   {
@@ -154,7 +159,7 @@ export function AppSidebar() {
           className="flex h-full items-center gap-2 text-primary-foreground/90 hover:text-primary-foreground w-full justify-start pl-2"
         >
           <Link2 className="h-5 w-5 flex-shrink-0 text-primary transition-all" />
-          <span className="whitespace-nowrap font-semibold text-base">AlumniLink</span>
+          <span className="whitespace-nowrap font-semibold text-base">AlumniConnect</span>
         </Link>
       </SidebarHeader>
       <SidebarMenu className="flex-1">

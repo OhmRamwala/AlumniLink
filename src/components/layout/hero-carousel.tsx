@@ -67,7 +67,7 @@ export function HeroCarousel() {
         <div className="flex flex-col items-center space-y-6 text-center text-primary-foreground">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-              Connect, Grow, and Succeed with AlumniLink
+              Connect, Grow, and Succeed with AlumniConnect
             </h1>
             <p className="mx-auto max-w-[700px] text-primary-foreground/90 md:text-xl">
               Your exclusive platform to network with fellow alumni, discover

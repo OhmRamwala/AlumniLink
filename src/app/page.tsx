@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PublicHeader } from '@/components/layout/public-header';
+import { HeroCarousel } from '@/components/layout/hero-carousel';
 import { AuthRedirect } from '@/components/auth/auth-redirect';
 import { ArrowRight, Users, BookUser, MapPin, User, Facebook, Twitter, Instagram, Linkedin, Link2 } from 'lucide-react';
 import type { AppEvent, NewsArticle, Job } from '@/lib/types';
@@ -18,9 +18,9 @@ import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { mockEvents, mockNews, mockJobs } from '@/lib/mock-data';
-import { HeroCarousel } from '@/components/layout/hero-carousel';
 
 export default async function HomePage() {
+
   let events: AppEvent[] = [];
   let news: NewsArticle[] = [];
   let jobs: Job[] = [];
@@ -28,46 +28,34 @@ export default async function HomePage() {
   if (isFirebaseConfigured && db) {
     try {
       const eventsQuery = query(collection(db, 'events'), orderBy('date', 'desc'), limit(3));
-      const eventsSnapshot = await getDocs(eventsQuery);
-      events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppEvent));
-    } catch (e) {
-      console.warn("Could not fetch real-time events, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
-      events = mockEvents.slice(0, 3);
-    }
-
-    try {
       const newsQuery = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-      const newsSnapshot = await getDocs(newsQuery);
-      news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
-    } catch (e) {
-      console.warn("Could not fetch real-time news, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
-      news = mockNews.slice(0, 3);
-    }
-    
-    try {
       const jobsQuery = query(collection(db, 'jobs'), orderBy('postedAt', 'desc'), limit(3));
-      const jobsSnapshot = await getDocs(jobsQuery);
-      jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-    } catch (e) {
-      console.warn("Could not fetch real-time jobs, falling back to mock data. This is likely due to Firestore security rules blocking public access.");
+
+      const [eventsSnapshot, newsSnapshot, jobsSnapshot] = await Promise.all([
+        getDocs(eventsQuery),
+        getDocs(newsQuery),
+        getDocs(jobsQuery),
+      ]);
+
+      events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as AppEvent);
+      news = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as NewsArticle);
+      jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Job);
+    } catch (error: any) {
+        if (error.code === 'permission-denied') {
+            console.warn("Firestore permission denied for public homepage. Falling back to mock data. Please check your Firestore security rules to allow unauthenticated reads on 'events', 'news', and 'jobs' collections.");
+        } else {
+            console.error("Error fetching data from Firestore, falling back to mock data:", error);
+        }
+      // Fallback to mock data if Firestore fails
+      events = mockEvents.slice(0, 3);
+      news = mockNews.slice(0, 3);
       jobs = mockJobs.slice(0, 3);
     }
   } else {
-    // If firebase is not configured at all, use mock data
+    // Use mock data if Firebase is not configured
     events = mockEvents.slice(0, 3);
     news = mockNews.slice(0, 3);
     jobs = mockJobs.slice(0, 3);
-  }
-
-  // If fetches return fewer than 3 items, fill with mock data.
-  if (events.length < 3) {
-      events = [...events, ...mockEvents.slice(events.length, 3)];
-  }
-  if (news.length < 3) {
-      news = [...news, ...mockNews.slice(news.length, 3)];
-  }
-  if (jobs.length < 3) {
-      jobs = [...jobs, ...mockJobs.slice(jobs.length, 3)];
   }
 
   const formatDate = (date: Timestamp | Date | string, f: string = 'MMMM d, yyyy') => {
@@ -252,7 +240,7 @@ export default async function HomePage() {
                 Ready to Reconnect?
               </h2>
               <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Join AlumniLink today and unlock a world of opportunities. Your network is waiting.
+                Join AlumniConnect today and unlock a world of opportunities. Your network is waiting.
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-x-2">
@@ -270,7 +258,7 @@ export default async function HomePage() {
               <div className="space-y-4">
                 <Link href="/" className="flex items-center gap-2">
                   <Link2 className="h-8 w-8 text-primary" />
-                  <span className="text-xl font-bold">AlumniLink</span>
+                  <span className="text-xl font-bold">AlumniConnect</span>
                 </Link>
                 <p className="text-sm text-muted-foreground max-w-xs">
                   Fostering a lifelong community for CKPCET students and alumni.
@@ -320,7 +308,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="mt-8 border-t pt-6 flex flex-col sm:flex-row justify-between items-center">
-                <p className="text-xs text-muted-foreground">&copy; 2025 AlumniLink. All rights reserved.</p>
+                <p className="text-xs text-muted-foreground">&copy; 2025 AlumniConnect. All rights reserved.</p>
                 <nav className="flex gap-4 sm:gap-6 mt-4 sm:mt-0">
                   <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
                     Terms of Service

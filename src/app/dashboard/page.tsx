@@ -7,6 +7,9 @@ import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, Timestamp }
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { format } from 'date-fns';
+import { mockLinkedInPosts } from '@/lib/mock-data';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 import {
   Card,
@@ -17,6 +20,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ArrowRight,
   Newspaper,
@@ -24,10 +28,15 @@ import {
   HeartHandshake,
   MessagesSquare,
   Briefcase,
+  Users,
+  Share2,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserProfile, NewsArticle, AppEvent, ForumThread, Job, DonationCampaign } from '@/lib/types';
+import { AutoScrollList } from '@/components/layout/auto-scroll-list';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -37,6 +46,7 @@ export default function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [donationCampaigns, setDonationCampaigns] = useState<DonationCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
 
   useEffect(() => {
     if (!auth || !db) {
@@ -48,10 +58,34 @@ export default function DashboardPage() {
 
     const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const userDocRef = doc(db, 'users', user.uid);
+            const userDocRef = doc(db!, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
                 setUserProfile({ id: user.uid, ...userDoc.data() } as UserProfile);
+                
+                const collectionsToFetch = [
+                    { name: 'news', setter: setNews, limit: 4, orderByField: 'date' },
+                    { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
+                    { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
+                    { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
+                    { name: 'donations', setter: setDonationCampaigns, limit: 3, orderByField: 'createdAt' },
+                ];
+
+                collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
+                    const colRef = collection(db!, name);
+                    const q = query(colRef, orderBy(orderByField, 'desc'), limit(l));
+                    const unsubscribe = onSnapshot(q, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setter(data as any);
+                    }, async (serverError) => {
+                        const permissionError = new FirestorePermissionError({
+                            path: colRef.path,
+                            operation: 'list',
+                        });
+                        errorEmitter.emit('permission-error', permissionError);
+                    });
+                    unsubscribers.push(unsubscribe);
+                });
             }
         } else {
             setUserProfile(null);
@@ -59,25 +93,6 @@ export default function DashboardPage() {
         setIsLoading(false);
     });
     unsubscribers.push(authUnsubscribe);
-
-    const collectionsToFetch = [
-        { name: 'news', setter: setNews, limit: 3, orderByField: 'date' },
-        { name: 'events', setter: setEvents, limit: 3, orderByField: 'date' },
-        { name: 'threads', setter: setThreads, limit: 2, orderByField: 'lastActivity' },
-        { name: 'jobs', setter: setJobs, limit: 2, orderByField: 'postedAt' },
-        { name: 'donations', setter: setDonationCampaigns, limit: 3, orderByField: 'createdAt' },
-    ];
-
-    collectionsToFetch.forEach(({ name, setter, limit: l, orderByField }) => {
-        const q = query(collection(db!, name), orderBy(orderByField, 'desc'), limit(l));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setter(data as any);
-        }, (error) => {
-            console.error(`Error fetching ${name}:`, error);
-        });
-        unsubscribers.push(unsubscribe);
-    });
     
     return () => {
         unsubscribers.forEach(unsub => unsub());
@@ -103,44 +118,16 @@ export default function DashboardPage() {
           <Skeleton className="h-6 w-3/4" />
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-7 w-48" />
-              <Skeleton className="h-5 w-64" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-20 w-full" />
-            </CardContent>
-            <CardFooter>
-              <Skeleton className="h-10 w-full" />
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-7 w-48" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </CardContent>
-            <CardFooter>
-              <Skeleton className="h-10 w-full" />
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-7 w-48" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </CardContent>
-            <CardFooter>
-              <Skeleton className="h-10 w-full" />
-            </CardFooter>
-          </Card>
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-7 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-20 w-full" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
@@ -148,19 +135,28 @@ export default function DashboardPage() {
 
   if (!userProfile) {
     return (
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome to your dashboard!
-        </h1>
-        <p className="text-muted-foreground">
-          Could not load user profile. Please try logging in again.
-        </p>
+      <div className="p-8 text-center">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome to your dashboard!</h1>
         <Button asChild className="mt-4">
           <Link href="/login">Go to Login</Link>
         </Button>
       </div>
     );
   }
+
+  const newsItems = news.map((article) => ({
+    id: article.id,
+    href: `/dashboard/news/${article.id}`,
+    title: article.title,
+    date: formatDate(article.date),
+  }));
+
+  const eventItems = events.map((event) => ({
+    id: event.id,
+    href: `/dashboard/events`,
+    title: event.title,
+    date: `${formatDate(event.date)} at ${event.time}`,
+  }));
 
   return (
     <div className="space-y-6">
@@ -174,109 +170,77 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {userProfile.role === 'alumni' || userProfile.role === 'admin' ? (
-          <Card className="flex flex-col lg:col-span-1">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <HeartHandshake className="h-7 w-7 mt-1" />
-                <CardTitle>Support the University</CardTitle>
-              </div>
-              <CardDescription>
-                Help fund the next generation of innovators.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-4">
-              {donationCampaigns.length > 0 ? (
-                donationCampaigns.map((campaign) => (
-                  <div key={campaign.id} className="space-y-2">
-                      <div className="flex justify-between items-baseline">
-                      <h3 className="text-sm font-semibold">
-                          {campaign.title}
-                      </h3>
-                      <span className="text-sm font-medium text-muted-foreground">
-                          {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
-                      </span>
-                      </div>
-                      <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} />
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                          {campaign.description}
-                      </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                    There are no active campaigns at the moment. Check back soon!
-                </p>
-              )}
-            </CardContent>
-            <CardFooter>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground"
-                >
-                    <Link href="/dashboard/donations">
-                      Donate Now
-                    </Link>
-                </Button>
-            </CardFooter>
-          </Card>
-        ) : (
-          <Card className="flex flex-col lg:col-span-1">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <Briefcase className="h-7 w-7 mt-1" />
-                <CardTitle>Recent Job Postings</CardTitle>
-              </div>
-              <CardDescription>
-                Find your next career move from opportunities in the network.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-4">
-              {jobs.map((job) => (
-                <div key={job.id}>
-                  <p className="font-semibold text-sm leading-snug">
-                    {job.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {job.company}
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/jobs">
-                  View All Jobs <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        )}
-
-        <Card className="flex flex-col">
+        {/* Support/Jobs Section */}
+        <Card className="flex flex-col h-full border-primary/20 bg-primary/5">
           <CardHeader>
             <div className="flex items-start gap-3">
-              <Newspaper className="h-7 w-7 mt-1" />
+              {(userProfile.role === 'alumni' || userProfile.role === 'admin') ? (
+                <>
+                  <HeartHandshake className="h-7 w-7 mt-1 text-primary" />
+                  <CardTitle>Support the University</CardTitle>
+                </>
+              ) : (
+                <>
+                  <Briefcase className="h-7 w-7 mt-1 text-primary" />
+                  <CardTitle>Recent Job Postings</CardTitle>
+                </>
+              )}
+            </div>
+            <CardDescription>
+              {(userProfile.role === 'alumni' || userProfile.role === 'admin') 
+                ? "Help fund the next generation of innovators."
+                : "Find your next career move from opportunities in the network."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+             {(userProfile.role === 'alumni' || userProfile.role === 'admin') ? (
+                <div className="space-y-4">
+                  {donationCampaigns.slice(0,2).map((campaign) => (
+                    <div key={campaign.id} className="space-y-2">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="truncate">{campaign.title}</span>
+                        <span className="text-muted-foreground whitespace-nowrap ml-2">
+                          {formatCurrency(campaign.currentAmount)} / {formatCurrency(campaign.goalAmount)}
+                        </span>
+                      </div>
+                      <Progress value={(campaign.currentAmount / campaign.goalAmount) * 100} className="h-1.5" />
+                    </div>
+                  ))}
+                </div>
+             ) : (
+                <div className="space-y-3">
+                  {jobs.slice(0,3).map((job) => (
+                    <div key={job.id} className="text-sm">
+                      <p className="font-semibold truncate">{job.title}</p>
+                      <p className="text-xs text-muted-foreground">{job.company}</p>
+                    </div>
+                  ))}
+                </div>
+             )}
+          </CardContent>
+          <CardFooter>
+             <Button asChild className="w-full">
+                <Link href={(userProfile.role === 'alumni' || userProfile.role === 'admin') ? "/dashboard/donations" : "/dashboard/jobs"}>
+                  {(userProfile.role === 'alumni' || userProfile.role === 'admin') ? "Donate Now" : "View All Jobs"}
+                </Link>
+             </Button>
+          </CardFooter>
+        </Card>
+
+        {/* News Section */}
+        <Card className="flex flex-col h-full">
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <Newspaper className="h-7 w-7 mt-1 text-primary" />
               <CardTitle>Latest News</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            {news.map((article) => (
-              <div key={article.id} className="flex items-start gap-4">
-                <div className="space-y-1">
-                  <Link
-                    href={`/dashboard/news/${article.id}`}
-                    className="font-semibold text-sm leading-snug hover:underline"
-                  >
-                    {article.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(article.date)}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <CardContent className="flex-1 min-h-[150px]">
+            {newsItems.length > 0 ? (
+                <AutoScrollList items={newsItems} />
+            ) : (
+                <p className="text-sm text-muted-foreground">No recent news to display.</p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -287,26 +251,20 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        <Card className="flex flex-col">
+        {/* Events Section */}
+        <Card className="flex flex-col h-full">
           <CardHeader>
             <div className="flex items-start gap-3">
-              <CalendarDays className="h-7 w-7 mt-1" />
+              <CalendarDays className="h-7 w-7 mt-1 text-primary" />
               <CardTitle>Upcoming Events</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
-            {events.map((event) => (
-              <div key={event.id} className="flex items-start gap-4">
-                <div className="space-y-1">
-                  <p className="font-semibold text-sm leading-snug">
-                    {event.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(event.date)} at {event.time}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <CardContent className="flex-1 min-h-[150px]">
+            {eventItems.length > 0 ? (
+                <AutoScrollList items={eventItems} />
+            ) : (
+                <p className="text-sm text-muted-foreground">No upcoming events to display.</p>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
@@ -317,40 +275,69 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        <Card className="flex flex-col lg:col-span-3">
+        {/* Posts Highlights */}
+        <Card className="lg:col-span-1 flex flex-col h-full">
           <CardHeader>
             <div className="flex items-start gap-3">
-              <MessagesSquare className="h-7 w-7 mt-1" />
-              <CardTitle>Recent Forum Discussions</CardTitle>
+              <Share2 className="h-7 w-7 mt-1 text-primary" />
+              <CardTitle>Posts</CardTitle>
             </div>
-            <CardDescription>
-              Join the conversation and share your insights.
-            </CardDescription>
+            <CardDescription>Social highlights from our alumni.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
-            {threads.map((thread) => (
-              <div
-                key={thread.id}
-                className="flex justify-between items-center"
-              >
-                <div>
-                  <Link
-                    href={`/dashboard/forum/${thread.id}`}
-                    className="font-semibold text-sm hover:underline"
-                  >
-                    {thread.title}
-                  </Link>
-                  <p className="text-xs text-muted-foreground">
-                    Started by {thread.postedBy.firstName}{' '}
-                    {thread.postedBy.lastName}
-                  </p>
+            {mockLinkedInPosts.slice(0, 2).map((post) => (
+              <div key={post.id} className="space-y-2 border-b pb-3 last:border-0 last:pb-0">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={post.author.avatar} />
+                    <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold truncate">{post.author.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{post.author.headline}</p>
+                  </div>
                 </div>
-                <div className="text-right text-sm">
-                  <p>{thread.replyCount} replies</p>
-                  <p className="text-muted-foreground">{formatDate(thread.lastActivity, 'MMM d')}</p>
-                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">{post.content}</p>
               </div>
             ))}
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/posts">
+                See All Posts <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Forum Discussions */}
+        <Card className="lg:col-span-2 flex flex-col h-full">
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <MessagesSquare className="h-7 w-7 mt-1 text-primary" />
+              <CardTitle>Recent Forum Discussions</CardTitle>
+            </div>
+            <CardDescription>Engage with the latest topics and share your insights.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            <ScrollArea className="h-full pr-3">
+              <div className="space-y-4">
+                {threads.map((thread) => (
+                  <div key={thread.id} className="group">
+                    <Link href={`/dashboard/forum/${thread.id}`} className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors">
+                      {thread.title}
+                    </Link>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1">
+                      <span>by {thread.postedBy.firstName} {thread.postedBy.lastName}</span>
+                      <Separator orientation="vertical" className="h-2" />
+                      <span>{thread.replyCount} replies</span>
+                      <Separator orientation="vertical" className="h-2" />
+                      <span>{formatDate(thread.lastActivity, 'MMM d')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>

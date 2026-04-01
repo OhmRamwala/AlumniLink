@@ -55,7 +55,9 @@ import { Calendar, Clock, MapPin, PlusCircle, Loader2, Pencil, Trash2 } from 'lu
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarPicker } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
+import { cn, getSafeImageUrl } from '@/lib/utils';
+
+const allowedImageHosts = ['i.ibb.co', 'ibb.co', 'placehold.co', 'firebasestorage.googleapis.com'];
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -64,7 +66,15 @@ const eventSchema = z.object({
   summary: z.string().min(1, 'Summary is required.').max(160, 'Summary must be 160 characters or less.'),
   description: z.string().min(1, 'Description is required.').max(700, 'Description must be 700 characters or less.'),
   url: z.string().url('Must be a valid URL.'),
-  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')).refine(url => {
+    if (!url) return true;
+    try {
+      const { hostname } = new URL(url);
+      return allowedImageHosts.some(allowedHost => hostname.endsWith(allowedHost));
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid image host. Please use a valid host like imgbb.co.' }),
   date: z.date({ required_error: 'A date is required.' }),
 });
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -180,7 +190,7 @@ function EventFormDialog({ event, onFormSubmit }: { event?: AppEvent, onFormSubm
                   </FormItem>
               )} />
               <FormField control={form.control} name="time" render={({ field }) => (
-                  <FormItem><FormLabel>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className='pt-2'>Time</FormLabel><FormControl><Input placeholder="e.g. 6:00 PM" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
              <FormField control={form.control} name="location" render={({ field }) => (
@@ -371,7 +381,7 @@ export default function EventsPage() {
           <Card key={event.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full bg-muted">
               <Image
-                src={event.imageUrl || 'https://placehold.co/600x400.png'}
+                src={getSafeImageUrl(event.imageUrl)}
                 alt={event.title}
                 fill
                 className="object-cover"
@@ -415,3 +425,5 @@ export default function EventsPage() {
     </div>
   );
 }
+
+    

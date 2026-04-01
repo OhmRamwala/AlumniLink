@@ -82,6 +82,7 @@ export default function ProfilePage() {
     const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -185,7 +186,7 @@ export default function ProfilePage() {
             <CardHeader className="items-center text-center">
                 <div className="relative">
                     <Avatar className="h-32 w-32">
-                        <AvatarImage src={avatarPreview || profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
+                        <AvatarImage src={avatarPreview || profile.avatar || defaultAvatar} alt={`${profile.firstName} ${profile.lastName}`} />
                         <AvatarFallback className="text-4xl">{fallback.toUpperCase()}</AvatarFallback>
                     </Avatar>
                      {isEditing && (

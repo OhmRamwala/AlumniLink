@@ -54,12 +54,23 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { getSafeImageUrl } from '@/lib/utils';
+
+const allowedImageHosts = ['i.ibb.co', 'ibb.co', 'placehold.co', 'firebasestorage.googleapis.com'];
 
 const campaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   description: z.string().min(1, 'Description is required.'),
   goalAmount: z.coerce.number().min(1, 'Goal amount must be greater than 0.'),
-  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+  imageUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')).refine(url => {
+    if (!url) return true;
+    try {
+      const { hostname } = new URL(url);
+      return allowedImageHosts.some(allowedHost => hostname.endsWith(allowedHost));
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid image host. Please use a valid host like imgbb.co.' }),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 
@@ -265,7 +276,7 @@ export default function DonationsPage() {
           <Card key={campaign.id} className="flex flex-col overflow-hidden">
             <div className="relative h-48 w-full bg-muted">
               <Image
-                src={campaign.imageUrl || 'https://placehold.co/600x400.png'}
+                src={getSafeImageUrl(campaign.imageUrl)}
                 alt={campaign.title}
                 fill
                 className="object-cover"
@@ -304,3 +315,5 @@ export default function DonationsPage() {
     </div>
   );
 }
+
+    

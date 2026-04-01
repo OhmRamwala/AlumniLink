@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -70,7 +69,6 @@ const baseSchema = z.object({
     .regex(/[0-9]/, { message: 'Must contain at least one number.' }),
 });
 
-// Using discriminatedUnion to handle different fields based on role
 const formSchema = z.discriminatedUnion('role', [
   z.object({
     role: z.literal('student'),
@@ -88,7 +86,6 @@ const formSchema = z.discriminatedUnion('role', [
   }).merge(baseSchema),
 ]);
 type FormValues = z.infer<typeof formSchema>;
-
 
 function SignupForm() {
   const router = useRouter();
@@ -155,12 +152,10 @@ function SignupForm() {
             createdAt: new Date(),
             id: user.uid,
         };
-        // Ensure optional fields are handled correctly
         if (dataToSave.role === 'student') {
             delete dataToSave.company;
             delete dataToSave.position;
         }
-
 
         await setDoc(doc(db, 'users', user.uid), dataToSave);
         router.push(`/pending-verification?email=${encodeURIComponent(values.email)}`);
@@ -173,7 +168,7 @@ function SignupForm() {
         if (error.code === 'auth/email-already-in-use') {
             errorMessage = 'This email address is already in use by another account.';
         } else if (error.code?.includes('permission-denied')) {
-            errorMessage = "Could not save your profile. This is a database permissions issue. Please ensure your Firestore security rules are configured correctly to allow writes.";
+            errorMessage = "Could not save your profile. This is a database permissions issue.";
         }
         toast({ variant: 'destructive', title: 'Signup Failed', description: errorMessage });
     } finally {
@@ -184,14 +179,18 @@ function SignupForm() {
   if (!isFirebaseConfigured) {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+            <Link2 className="h-6 w-6 text-primary" />
+            <span className="font-semibold">AlumniConnect</span>
+        </Link>
         <Image
           src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
           fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
         <Card className="w-full max-w-lg mx-auto"><CardHeader><CardTitle className="text-2xl">Configuration Needed</CardTitle>
             <CardDescription>Your application is not connected to Firebase.</CardDescription></CardHeader>
           <CardContent><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Firebase Not Configured</AlertTitle>
-              <AlertDescription><p>To get started, you need to add your Firebase project's configuration to the d.env file.</p>
-                <p className="mt-2">Please refer to the Firebase documentation to find your project credentials and add them to the empty <code>.env</code> file in the root of this project.</p>
+              <AlertDescription><p>To get started, you need to add your Firebase project's configuration to the .env file.</p>
+                <p className="mt-2">Please refer to the Firebase documentation to find your project credentials.</p>
               </AlertDescription></Alert>
           </CardContent>
         </Card>
@@ -201,42 +200,46 @@ function SignupForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+            <Link2 className="h-6 w-6 text-primary" />
+            <span className="font-semibold">AlumniConnect</span>
+        </Link>
       <Image
         src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp" alt="University campus background"
         fill className="object-cover -z-10 brightness-50" data-ai-hint="university campus" />
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <Card className="w-full max-w-2xl mx-auto my-8">
+                <Card className="w-full max-w-4xl mx-auto my-8">
                     <CardHeader className="space-y-1 text-center"><div className="flex items-center justify-center gap-2">
-                        <Link2 className="h-8 w-8 text-primary" /><CardTitle className="text-3xl font-bold">AlumniLink</CardTitle></div>
+                        <Link2 className="h-8 w-8 text-primary" /><CardTitle className="text-3xl font-bold">AlumniConnect</CardTitle></div>
                         <CardDescription>
                             {step === 1 ? 'Create an account to connect with peers' : `Tell us more about your ${role} profile`}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                     {step === 1 && (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                 <FormField control={form.control} name="firstName" render={({ field }) => (
-                                    <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-24"><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Max" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="lastName" render={({ field }) => (
-                                    <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-24"><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Robinson" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                 <FormField control={form.control} name="enrollmentNo" render={({ field }) => (
-                                    <FormItem><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-24"><FormLabel>Enrollment No.</FormLabel><FormControl><Input placeholder="123456789" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="department" render={({ field }) => (
-                                    <FormItem><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-24"><FormLabel>Department</FormLabel><FormControl><Input placeholder="Computer Science" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                 <FormField control={form.control} name="country" render={({ field }) => (
-                                    <FormItem><FormLabel>Country</FormLabel>
+                                    <FormItem className="flex flex-col h-24"><FormLabel>Country</FormLabel>
                                     <Popover open={countryPopoverOpen} onOpenChange={setCountryPopoverOpen}><PopoverTrigger asChild><FormControl>
                                             <Button variant="outline" role="combobox" className={cn("w-full justify-between",!field.value && "text-muted-foreground")} disabled={isLoading}>
                                             {field.value ? countries.find((c) => c.label === field.value)?.label : "Select country"}
@@ -254,13 +257,13 @@ function SignupForm() {
                                     <FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem className="h-24"><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="m@example.com" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                             
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                 <FormField control={form.control} name="password" render={({ field }) => (
-                                    <FormItem><FormLabel>Password</FormLabel><FormControl><div className="relative">
+                                    <FormItem className="h-24"><FormLabel>Password</FormLabel><FormControl><div className="relative">
                                         <Input type={showPassword ? 'text' : 'password'} {...field} disabled={isLoading} />
                                         <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(p => !p)}>
                                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -270,7 +273,7 @@ function SignupForm() {
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="role" render={({ field }) => (
-                                    <FormItem className="pt-2"><FormLabel>I am a...</FormLabel><FormControl>
+                                    <FormItem className="pt-2 h-24"><FormLabel>I am a...</FormLabel><FormControl>
                                         <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex h-10 items-center gap-4" disabled={isLoading}>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="student" id="student" /></FormControl><Label htmlFor="student">Student</Label></FormItem>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="alumni" id="alumni" /></FormControl><Label htmlFor="alumni">Alumni</Label></FormItem>
@@ -278,7 +281,7 @@ function SignupForm() {
                                 )} />
                             </div>
 
-                             <div className="flex justify-between items-end pt-2">
+                             <div className="flex justify-between items-end pt-4">
                                 <div className="text-xs space-y-1">
                                     {passwordChecks.map(({ rule, label }) => (
                                         <div key={label} className={cn("flex items-center gap-1.5 transition-colors", rule(passwordValue || "") ? 'text-foreground' : 'text-muted-foreground')}>
@@ -294,35 +297,35 @@ function SignupForm() {
                         </div>
                     )}
                     {step === 2 && (
-                         <div className="space-y-6">
+                         <div className="space-y-4">
                             <h3 className="text-lg font-medium text-center">{role === 'student' ? 'Student' : 'Alumni'} Profile</h3>
                             {role === 'alumni' && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                     <FormField control={form.control} name="position" render={({ field }) => (
-                                        <FormItem><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem className="h-24"><FormLabel>Position</FormLabel><FormControl><Input placeholder="Software Engineer" {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="company" render={({ field }) => (
-                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem className="h-24"><FormLabel>Company</FormLabel><FormControl><Input placeholder="Acme Inc." {...field} disabled={isLoading} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                             )}
                             <FormField control={form.control} name="about" render={({ field }) => (
                                 <FormItem><FormLabel>About</FormLabel>
-                                <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} /></FormControl>
+                                <FormControl><Textarea placeholder={role === 'student' ? "I'm a passionate developer interested in AI..." : "Experienced professional with a history in..."} {...field} disabled={isLoading} rows={5} /></FormControl>
                                 <FormMessage /></FormItem>
                             )} />
                            
                             <div className="space-y-4 pt-4 border-t">
                                 <h4 className="text-md font-medium">{role === 'alumni' ? 'Social Profiles (Optional)' : 'Social Profiles'}</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                                     <FormField control={form.control} name="linkedin" render={({ field }) => (
-                                        <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
+                                        <FormItem className="h-24"><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative">
                                                 <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://linkedin.com/in/..." className="pl-10" {...field} disabled={isLoading} />
                                                 </div></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="github" render={({ field }) => (
-                                        <FormItem><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
+                                        <FormItem className="h-24"><FormLabel>GitHub Profile</FormLabel><FormControl><div className="relative">
                                                 <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 <Input type="url" placeholder="https://github.com/..." className="pl-10" {...field} disabled={isLoading} />
                                                 </div></FormControl><FormMessage /></FormItem>

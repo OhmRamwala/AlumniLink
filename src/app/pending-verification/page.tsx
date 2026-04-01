@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MailCheck } from 'lucide-react';
+import { MailCheck, Link2 } from 'lucide-react';
 
 function VerificationContent() {
     const searchParams = useSearchParams();
@@ -22,14 +22,18 @@ function VerificationContent() {
 
     return (
         <div className="relative flex min-h-screen items-center justify-center p-4">
-            <Image
-                src="https://placehold.co/1920x1080.png"
+            <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+                <Link2 className="h-6 w-6 text-primary" />
+                <span className="font-semibold">AlumniConnect</span>
+            </Link>
+             <Image
+                src="https://i.ibb.co/jZwVcQTg/sugnupbg.webp"
                 alt="University campus background"
                 fill
                 className="object-cover -z-10 brightness-50"
                 data-ai-hint="university campus"
-            />
-            <Card className="w-full max-w-md mx-auto text-center">
+             />
+            <Card className="w-full max-w-md mx-auto text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-primary rounded-full h-16 w-16 flex items-center justify-center">
                         <MailCheck className="h-8 w-8 text-primary-foreground" />

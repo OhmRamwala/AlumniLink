@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -32,6 +33,7 @@ export default function NewThreadPage() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
     const form = useForm<ThreadFormValues>({
         resolver: zodResolver(threadSchema),
@@ -69,7 +71,7 @@ export default function NewThreadPage() {
                     id: userProfile.id,
                     firstName: userProfile.firstName,
                     lastName: userProfile.lastName,
-                    avatar: userProfile.avatar || '',
+                    avatar: userProfile.avatar || defaultAvatar,
                 },
                 postedAt: serverTimestamp(),
                 lastActivity: serverTimestamp(),

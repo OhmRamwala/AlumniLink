@@ -32,6 +32,8 @@ export function UserNav() {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+
 
   useEffect(() => {
     if (!auth) {
@@ -96,7 +98,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={userProfile.avatar} alt={`${userProfile.firstName} ${userProfile.lastName}`} />
+            <AvatarImage src={userProfile.avatar || defaultAvatar} alt={`${userProfile.firstName} ${userProfile.lastName}`} />
             <AvatarFallback>{fallback.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>

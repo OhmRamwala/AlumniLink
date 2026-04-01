@@ -114,6 +114,10 @@ function LoginForm() {
   if (!isFirebaseConfigured) {
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4">
+        <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+          <Link2 className="h-6 w-6 text-primary" />
+          <span className="font-semibold">AlumniConnect</span>
+        </Link>
         <Image
           src="https://i.ibb.co/Q3hjCZvg/login-background.png"
           alt="University campus background"
@@ -152,6 +156,10 @@ function LoginForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4">
+       <Link href="/" className="absolute top-4 left-4 z-10 flex items-center gap-2 text-foreground hover:text-foreground/80">
+          <Link2 className="h-6 w-6 text-primary" />
+          <span className="font-semibold">AlumniConnect</span>
+        </Link>
        <Image
           src="https://i.ibb.co/d07NBdZV/bglogin.jpg"
           alt="University campus background"
@@ -163,7 +171,7 @@ function LoginForm() {
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-2">
             <Link2 className="h-8 w-8 text-primary" />
-            <CardTitle className="text-3xl font-bold">AlumniLink</CardTitle>
+            <CardTitle className="text-3xl font-bold">AlumniConnect</CardTitle>
           </div>
           <CardDescription>
             Enter your email below to login to your account

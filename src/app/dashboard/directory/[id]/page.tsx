@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -23,7 +22,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import type { User as UserProfileData } from '@/lib/types';
 
 function UserProfileSkeleton() {
@@ -62,9 +62,25 @@ function UserProfileSkeleton() {
 
 export default function UserProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [user, setUser] = useState<UserProfileData | null>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const defaultAvatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+
+  useEffect(() => {
+    if (!auth || !db) return;
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        const userDoc = await getDoc(doc(db!, 'users', u.uid));
+        if (userDoc.exists()) {
+          setCurrentUserProfile({ id: u.uid, ...userDoc.data() } as UserProfileData);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!db || !id) {
@@ -103,7 +119,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex justify-between items-center">
         <Button variant="ghost" asChild>
           <Link href="/dashboard/directory">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -115,7 +131,7 @@ export default function UserProfilePage() {
         <CardHeader className="items-center text-center">
           <Avatar className="h-32 w-32 mb-4">
             <AvatarImage
-              src={user.avatar || `https://placehold.co/128x128.png`}
+              src={user.avatar || defaultAvatar}
               alt={`${user.firstName} ${user.lastName}`}
               data-ai-hint="professional headshot"
             />
@@ -149,6 +165,10 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               )}
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <span>{user.country}</span>
+              </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <span>{user.country}</span>
